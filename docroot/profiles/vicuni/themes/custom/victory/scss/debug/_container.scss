@@ -1,0 +1,17 @@
+//
+// Debug container.
+//
+$debug-container: false !default;
+@mixin debug-container($color:false) {
+  @if (global-variable-exists(debug-container)) {
+    @if ($debug-container) {
+      @if ($color == false) {
+        $red: random(256)-1;
+        $green: random(256)-1;
+        $blue: random(256)-1;
+        $color: rgb($red, $green, $blue);
+      }
+      @include single-box-shadow($color: $color, $inset: true);
+    }
+  }
+}

@@ -1,0 +1,145 @@
+name = VU Imports
+description = Feeds and other imports
+core = 7.x
+package = VU
+
+
+
+; Dependencies
+
+dependencies[] = ctools
+dependencies[] = feeds
+dependencies[] = feeds_ex
+dependencies[] = feeds_shared_source
+dependencies[] = feeds_tamper
+dependencies[] = vu_imports
+explanation = Feeds is currently using this module for one or more <a href="/admin/structure/feeds">importers</a>
+
+
+
+; Features
+
+features[ctools][] = feeds:feeds_importer_default:1
+features[ctools][] = feeds_tamper:feeds_tamper_default:2
+
+features[features_api][] = api:2
+
+features[feeds_importer][] = course_fees
+features[feeds_importer][] = courses
+features[feeds_importer][] = courses_atar_profile_data
+features[feeds_importer][] = researcher_profiles
+features[feeds_importer][] = unit_fees
+features[feeds_importer][] = units
+features[feeds_importer][] = units_na
+features[feeds_importer][] = units_vet
+features[feeds_importer][] = unitsets
+
+features[feeds_tamper][] = course_fees-course_code-atar_profile_data_guid
+features[feeds_tamper][] = courses-additional_information-html_entity_decode
+features[feeds_tamper][] = courses-additional_requirements_he-find_replace_regex
+features[feeds_tamper][] = courses-additional_requirements_he-html_entity_decode
+features[feeds_tamper][] = courses-additional_requirements_se-find_replace_regex
+features[feeds_tamper][] = courses-additional_requirements_se-html_entity_decode
+features[feeds_tamper][] = courses-additional_requirements_vet-find_replace_regex
+features[feeds_tamper][] = courses-additional_requirements_vet-html_entity_decode
+features[feeds_tamper][] = courses-additional_requirements_wl-find_replace_regex
+features[feeds_tamper][] = courses-additional_requirements_wl-html_entity_decode
+features[feeds_tamper][] = courses-additionalcosts-html_entity_decode
+features[feeds_tamper][] = courses-admission_requirements-html_entity_decode
+features[feeds_tamper][] = courses-admissionrequirementspg-find_replace_regex
+features[feeds_tamper][] = courses-admissionrequirementspg-html_entity_decode
+features[feeds_tamper][] = courses-aqftype-html_entity_decode
+features[feeds_tamper][] = courses-blank_source_1-admission_requirements
+features[feeds_tamper][] = courses-blank_source_2-course_sort_title
+features[feeds_tamper][] = courses-blank_source_2-html_entity_decode
+features[feeds_tamper][] = courses-blank_source_3-unit_college_link
+features[feeds_tamper][] = courses-blank_source_4-course_publish
+features[feeds_tamper][] = courses-blank_source_5-domestic
+features[feeds_tamper][] = courses-careeroutcomes-html_entity_decode
+features[feeds_tamper][] = courses-continuingstudent-convert_boolean
+features[feeds_tamper][] = courses-course_title-copy
+features[feeds_tamper][] = courses-course_title-html_entity_decode
+features[feeds_tamper][] = courses-coursecompletionrules-html_entity_decode
+features[feeds_tamper][] = courses-courselearningoutcomes-html_entity_decode
+features[feeds_tamper][] = courses-courselevel-unit_level
+features[feeds_tamper][] = courses-courseoffered-convert_boolean
+features[feeds_tamper][] = courses-coursepurpose-html_entity_decode
+features[feeds_tamper][] = courses-deliverymode-html_entity_decode
+features[feeds_tamper][] = courses-duration-html_entity_decode
+features[feeds_tamper][] = courses-entry_requirements_domestic-find_replace_regex
+features[feeds_tamper][] = courses-entry_requirements_domestic-html_entity_decode
+features[feeds_tamper][] = courses-entry_requirements_in-find_replace_regex
+features[feeds_tamper][] = courses-entry_requirements_in-html_entity_decode
+features[feeds_tamper][] = courses-fees-html_entity_decode
+features[feeds_tamper][] = courses-handbookinclude-convert_boolean
+features[feeds_tamper][] = courses-international_offered-convert_boolean
+features[feeds_tamper][] = courses-introduction-html_entity_decode
+features[feeds_tamper][] = courses-locationother-html_entity_decode
+features[feeds_tamper][] = courses-locations-html_entity_decode
+features[feeds_tamper][] = courses-prerequisite_units-html_entity_decode
+features[feeds_tamper][] = courses-prerequisiteunitrequirements-html_entity_decode
+features[feeds_tamper][] = courses-qualificationcompletionrules-html_entity_decode
+features[feeds_tamper][] = courses-qualificationlearningoutcomes-html_entity_decode
+features[feeds_tamper][] = courses-sector-unit_level
+features[feeds_tamper][] = courses-semesterintakes-html_entity_decode
+features[feeds_tamper][] = courses-studymode-html_entity_decode
+features[feeds_tamper][] = courses-unitid-string2id
+features[feeds_tamper][] = courses-unitid-unit_or_unitset_guid
+features[feeds_tamper][] = courses_atar_profile_data-code-atar_profile_data_guid
+features[feeds_tamper][] = courses_vet-admission_requirements-html_entity_decode
+features[feeds_tamper][] = researcher_profiles-researcher_profile-convert_boolean
+features[feeds_tamper][] = unit_fees-course_code-atar_profile_data_guid
+features[feeds_tamper][] = unit_fees-unit_code-copy
+features[feeds_tamper][] = unit_fees-unit_code-efq_finder
+features[feeds_tamper][] = unit_fees-unit_code_original-copy
+features[feeds_tamper][] = units-blank_source_1-location_non_entity_reference
+features[feeds_tamper][] = units-college_url-unit_college_link
+features[feeds_tamper][] = units-introduction-html_entity_decode
+features[feeds_tamper][] = units-learning_outcomes-html_entity_decode
+features[feeds_tamper][] = units-locations-find_replace
+features[feeds_tamper][] = units-unit_code-trim
+features[feeds_tamper][] = units-unit_code_path_alias-rewrite
+features[feeds_tamper][] = units-unit_level-find_replace_pg
+features[feeds_tamper][] = units-unit_level-find_replace_ug
+features[feeds_tamper][] = units-unit_offered-convert_boolean
+features[feeds_tamper][] = units-unit_title-html_entity_decode
+features[feeds_tamper][] = units_na-assessment-html_entity_decode
+features[feeds_tamper][] = units_na-blank_source_2-unit_college_link
+features[feeds_tamper][] = units_na-introduction-html_entity_decode
+features[feeds_tamper][] = units_na-learning_outcomes-html_entity_decode
+features[feeds_tamper][] = units_na-locations-find_replace
+features[feeds_tamper][] = units_na-unit_code-trim
+features[feeds_tamper][] = units_na-unit_code_path_alias-rewrite
+features[feeds_tamper][] = units_na-unit_offered-convert_boolean
+features[feeds_tamper][] = units_na-unit_title-html_entity_decode
+features[feeds_tamper][] = units_na-unit_title-rewrite
+features[feeds_tamper][] = units_vet-assessment-html_entity_decode
+features[feeds_tamper][] = units_vet-blank_source_1-location_non_entity_reference
+features[feeds_tamper][] = units_vet-blank_source_2-unit_college_link
+features[feeds_tamper][] = units_vet-introduction-html_entity_decode
+features[feeds_tamper][] = units_vet-learning_outcomes-html_entity_decode
+features[feeds_tamper][] = units_vet-locations-find_replace
+features[feeds_tamper][] = units_vet-unit_code-trim
+features[feeds_tamper][] = units_vet-unit_code_path_alias-rewrite
+features[feeds_tamper][] = units_vet-unit_level-default_value
+features[feeds_tamper][] = units_vet-unit_offered-convert_boolean
+features[feeds_tamper][] = units_vet-unit_title-html_entity_decode
+features[feeds_tamper][] = units_vet-unit_title-rewrite
+features[feeds_tamper][] = unitsets-blank_source_1-unitset_publish_test
+features[feeds_tamper][] = unitsets-blank_source_2-location_non_entity_reference
+features[feeds_tamper][] = unitsets-blank_source_3-unit_college_link
+features[feeds_tamper][] = unitsets-introduction-html_entity_decode
+features[feeds_tamper][] = unitsets-locations-find_replace
+features[feeds_tamper][] = unitsets-unit_set_code-trim
+features[feeds_tamper][] = unitsets-unit_set_level-find_replace_pg
+features[feeds_tamper][] = unitsets-unit_set_level-find_replace_ug
+features[feeds_tamper][] = unitsets-unit_set_title-html_entity_decode
+features[feeds_tamper][] = unitsets-units-sprintf
+features[feeds_tamper][] = unitsets-unitset_code_path_alias-rewrite
+
+
+
+; Files
+
+files[] = src/VUImportsFeedsExXml.inc
+required = 1

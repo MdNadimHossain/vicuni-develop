@@ -1,0 +1,33 @@
+{
+  "ResearcherProfile": {
+    "staffID": "E9999006",
+    "title": "Prof",
+    "firstName": "TestFirstname6",
+    "lastName": "TestLastname6",
+    "preferredName": "TestPrefferedname6",
+    "orcID": 9809087666565,
+    "scorpusID": null,
+    "researcherID": null,
+    "secondName": "TestSecondname6",
+    "classification": "VISPR",
+    "email": "testFirstname6.testLastname6@vu.edu.au",
+    "managerId": null,
+    "jobTitle": "Professor",
+    "actContractEnd": "2049-12-31 00:00:00.0",
+    "supervisionAccreditationLevel": null,
+    "fieldsOfResearch": [
+      {
+        "FoRCode": "200502",
+        "FoRTitle": "Australian Literature (Excl. Aboriginal and Torres Strait Islander Literature)"
+      }
+    ],
+    "publications": [
+    ],
+    "grantDetails": [
+
+    ],
+    "HDRDetails": [
+
+    ]
+  }
+}

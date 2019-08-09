@@ -1,0 +1,4 @@
+name = VU: Tester
+description = Module for VU testing functionality.
+package = VU
+core = 7.x

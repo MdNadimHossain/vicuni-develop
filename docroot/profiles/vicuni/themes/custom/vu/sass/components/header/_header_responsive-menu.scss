@@ -1,0 +1,570 @@
+//
+// Responsive menu.
+//
+// Styles are split to easily move componenets out of responsive menu container.
+//
+// Structure of styles (structural go first, then component-specific):
+// - Off-canvas open/close trigger.
+// - Responsive menu container.
+// - Dropdown trigger.
+// - Dropdown container.
+// - Dropdown specific items.
+// - Responsive menu specific items.
+
+//
+// Off-canvas functionality.
+//
+.js-offcanvas-container {
+  $offcanvasRightWidth: 305px;
+  $offcanvasOpenDuration: 0.5s;
+  $offcanvasCloseDuration: $offcanvasOpenDuration;
+
+  // Content to slide.
+  .js-offcanvas-canvas {
+    position: relative;
+    // Slide right.
+    right: 0;
+    @include transition(right $offcanvasCloseDuration cubic-bezier(0.215, 0.610, 0.355, 1.000));
+    // Enable hardware acceleration.
+    @include transform(translate3d(0, 0, 0));
+  }
+
+  // Container that opens from the right side.
+  .js-offcanvas-right {
+    width: $offcanvasRightWidth;
+
+    // Always keep at the top of the screen.
+    position: fixed;
+    top: 0;
+
+    // But allow to vertically scroll.
+    overflow-y: auto;
+    height: 100%;
+
+    // Hide outside of the viewport on the right side.
+    right: -1 * $offcanvasRightWidth;
+    @include transition(right $offcanvasCloseDuration cubic-bezier(0.215, 0.610, 0.355, 1.000));
+    // Enable hardware acceleration.
+    @include transform(translate3d(0, 0, 0));
+
+    // Larger than default overlay's z-index.
+    z-index: 9999;
+  }
+
+  // Open state.
+  &.js-offcanvas-open {
+    // Make content in container non-scrollable when opened.
+    height: 100%;
+    overflow: hidden;
+
+    .js-offcanvas-canvas {
+      overflow: hidden;
+      @include transition(right $offcanvasOpenDuration cubic-bezier(0.215, 0.610, 0.355, 1.000));
+      // Move left for the width of the menu.
+      right: $offcanvasRightWidth;
+      // Make sure that values for 'left' do not interfere the transition.
+      left: auto !important;
+    }
+
+    .js-offcanvas-right {
+      // Move for the whole width to the left.
+      @include transition(right $offcanvasOpenDuration cubic-bezier(0.215, 0.610, 0.355, 1.000));
+      right: 0;
+    }
+  }
+
+  // Override for i-devices.
+  &.js-offcanvas-open-idevice {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    overflow: hidden;
+
+    #responsiveMenuOverlay {
+      position: fixed !important;
+      top: 0;
+      bottom: 0;
+    }
+  }
+
+  // Responsive handling of off-canvas behavior.
+  @include breakpoint (desktop) {
+    .js-offcanvas-canvas {
+      right: 0;
+      @include transition(none);
+    }
+    .js-offcanvas-right {
+      right: -1 * $offcanvasRightWidth;
+      @include transition(none);
+    }
+    #responsiveMenuOverlay {
+      display: none !important;
+    }
+    &.js-offcanvas-open {
+      .js-offcanvas-canvas {
+        overflow: visible;
+        right: 0;
+      }
+      .js-offcanvas-right {
+        right: -1 * $offcanvasRightWidth;
+      }
+      #responsiveMenuOverlay {
+        display: none !important;
+      }
+    }
+  }
+}
+
+// Off-canvas open/close trigger.
+.js-offcanvas-trigger {
+  $barWidth: 28px;
+  $barHeight: 3px;
+  $barVerticalSpacing: 3px;
+  $toggleHeight: 30px;
+  $bar1OffestLeft: 0;
+  $bar1OffestTop: 5px;
+  $bar2OffestLeft: 0;
+  $bar2OffestTop: 5px;
+  $toggleColor: $dark_blue2;
+  $toggleColorOpen: $white;
+
+  display: block;
+  position: absolute;
+  width: $barWidth;
+  height: $toggleHeight;
+  cursor: pointer;
+  border-color: transparent;
+  background: none;
+  padding: 0;
+  @include transform(rotate(0deg));
+  top: 12px;
+  right: 20px;
+  z-index: 1;
+
+  @include breakpoint(desktop) {
+    display: none;
+  }
+
+  .icon-bar {
+    display: block;
+    position: absolute;
+    height: $barHeight;
+    width: 100%;
+    background: $toggleColor;
+    opacity: 1;
+    left: 0;
+  }
+
+  .title {
+    @include font-helvetica-neue();
+    display: block;
+    font-size: 8px;
+    text-transform: uppercase;
+    color: $toggleColor;
+    font-weight: bold;
+    line-height: 100%;
+    margin-top: $barVerticalSpacing * 3 + $barHeight * 3;
+  }
+
+  &.js-offcanvas-trigger-open {
+    .icon-bar {
+      background: $toggleColor;
+      @include transform(rotate(0deg));
+
+      &:nth-child(1) {
+        top: $barVerticalSpacing * (1-1) + $barHeight * (1-1);
+        @include transform-origin(left center);
+      }
+      &:nth-child(2) {
+        top: $barVerticalSpacing * (2-1) + $barHeight * (2-1);
+        @include transform-origin(left center);
+      }
+      &:nth-child(3) {
+        top: $barVerticalSpacing * (3-1) + $barHeight * (3-1);
+        @include transform-origin(left center);
+      }
+    }
+  }
+
+  // Open.
+  &.js-offcanvas-trigger-close {
+    .icon-bar:not(.sr-only) {
+      background: $toggleColorOpen;
+
+      &:nth-child(1) {
+        top: $bar1OffestTop;
+        left: $bar1OffestLeft;
+        @include transform(rotate(45deg));
+      }
+      &:nth-child(2) {
+        width: 0;
+        opacity: 0;
+      }
+      &:nth-child(3) {
+        top: $bar2OffestTop;
+        left: $bar2OffestLeft;
+        @include transform(rotate(-45deg));
+      }
+    }
+
+    .title {
+      color: $toggleColorOpen;
+    }
+
+    @include breakpoint(desktop) {
+      display: block;
+    }
+  }
+}
+
+// Responsive menu container.
+#responsive-nav {
+  $responsiveNavHeight: 60px;
+
+  padding: 0;
+  display: block;
+
+  // Dropdown trigger within a menu.
+  .menu-nav-dropdown {
+    [data-toggle="collapse"] {
+      @include link-futura($white, $white, $white, $white);
+      font-size: 16px;
+      display: inline-block;
+      color: $white;
+      @include gutter-inner;
+      @include padding-from-height($responsiveNavHeight);
+      // Caret down.
+      &[aria-expanded='false'] {
+        @include fa-after("\f107");
+      }
+      // Caret up.
+      &[aria-expanded='true'] {
+        @include fa-after("\f106");
+      }
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  // Dropdown within a menu.
+  .menu-nav-dropdown {
+    &.open {
+      .menu-nav-dropdown-items {
+        display: block;
+      }
+    }
+  }
+
+  // Special handling of min-height for smooth transition.
+  // Modification of the parent container styles are done here to allow
+  // fast removal of dropdown styles if it is removed.
+  &.collapse {
+    // Open.
+    &.in {
+      margin-top: -1 * $responsiveNavHeight;
+      min-height: $responsiveNavHeight;
+    }
+  }
+
+  // Opening/closing.
+  &.collapsing {
+    margin-top: -1 * $responsiveNavHeight;
+    min-height: $responsiveNavHeight;
+    .menu-nav-dropdown {
+      display: block;
+    }
+  }
+}
+
+// Dropdown specific items.
+#responsive-nav .menu-nav-dropdown {
+  background: $light_blue10;
+
+  .menu-nav-dropdown-items {
+    @include list-unstyled;
+    background: $dark_blue2;
+    padding: 15px;
+    margin: 0;
+
+    li {
+      @extend %ext-arrow;
+      margin-bottom: 10px;
+      &:last-child {
+        //margin-bottom: 0;
+      }
+
+      a {
+        @include link-futura($color: $white, $visited: $white);
+        font-size: 16px;
+        font-size: $menuDropdownLinkFontSize;
+        display: block;
+        color: $white;
+        background: #1b405b;
+        @include gutter-inner;
+        padding-top: 25px;
+        padding-bottom: 25px;
+
+        &:hover {
+          background: $orange2;
+          color: $grey17;
+        }
+
+        &:after {
+          position: absolute;
+          top: 0;
+          right: 0;
+          padding-top: 25px;
+          padding-right: 15px;
+        }
+
+        p {
+          display: none;
+        }
+      }
+    }
+
+    a.shutter-trigger {
+      &:hover,
+      &:focus {
+        color: $white;
+      }
+    }
+  }
+}
+
+// Responsive menu specific items.
+#responsive-nav {
+  $menuLinkPrimaryFontSize: 16px;
+  $menuLinkPrimaryColor: $white;
+  $menuLinkPrimaryColorHover: $grey17;
+  $menuLinkPrimaryBg: $vuBlue;
+  $menuLinkPrimaryAlternateBg: #416177;
+  $menuLinkPrimaryBgHover: $orange2;
+  $menuLinkPrimaryPaddingHorizontal: 20px;
+  $menuLinkPrimaryPaddingVertical: 19px;
+  $menuLinkPrimaryDividerColor: #478fba;
+  $menuLinkPrimaryAlternateDividerColor: #6e818e;
+
+  $menuLinkSecondaryFontSize: $menuLinkPrimaryFontSize;
+  $menuLinkSecondaryColor: $grey17;
+  $menuLinkSecondaryColorHover: $grey17;
+  $menuLinkSecondaryColorActive: $vuBlue;
+  $menuLinkSecondaryBg: #efefef;
+  $menuLinkSecondaryBgHover: $orange2;
+  $menuLinkSecondaryPaddingHorizontal: $menuLinkPrimaryPaddingHorizontal;
+  $menuLinkSecondaryPaddingVertical: $menuLinkPrimaryPaddingVertical;
+  $menuLinkSecondaryDividerColor: #e0e0e0;
+  $menuLinkSecondarySubmenuPaddingLeft: 32px;
+
+  $menuLinkSecondaryBackBg: $white;
+
+  $menuSlideTransition: left .3s ease;
+  $menuSlideHeightTransition: height .2s ease-in-out;
+
+  $menuLinkLeftArrowUrl: '../images/menu-responsive-arrow-left.svg';
+  $menuLinkRightArrowUrl: '../images/menu-responsive-arrow-right.svg';
+  $menuLinkForwardWidth: 20px;
+  $menuLinkBackWidth: 20px;
+
+  background: $menuLinkPrimaryAlternateBg;
+
+  > .menu {
+
+    // Responsive menu specific items.
+    @mixin sliding-leaf($startLevel, $endLevel) {
+      @for $i from $startLevel through $endLevel {
+        &.level-#{$i} {
+          > .menu-wrapper {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            left: 100%;
+            @include transition($menuSlideTransition);
+            display: none;
+            &.js-skip-animation {
+              @include transition(none);
+            }
+          }
+
+          &.js-menu-expanded {
+            > .menu-wrapper {
+              display: block;
+            }
+          }
+        }
+
+        // Overrides for the menu wrapper which is a slide container.
+        &.level-#{$startLevel} {
+          @include transition($menuSlideHeightTransition);
+          background-color: $menuLinkSecondaryBg;
+          overflow: hidden;
+
+          > .menu-wrapper {
+            position: relative;
+            display: block;
+            left: 0;
+          }
+        }
+
+        &.level-#{$startLevel} {
+          &.depth-#{$i} {
+            > .menu-wrapper {
+              left: 100% * ($i - 1) * -1;
+            }
+          }
+        }
+      }
+    }
+
+    padding: 0;
+    margin: 0;
+    //float: none !important;
+
+    // Reset demensions for all children menus.
+    .menu {
+      padding: 0;
+      margin: 0;
+    }
+
+    // Set sliding styles for all expanding leaves.
+    // Note: since primary links have depth of 1, .has-children is used to
+    // indicate that there are children available in full menu. JS will add
+    // secondary menu under such items, but only if they are also in active trail
+    // or current page is active.
+    .expanded,
+    .has-children.active-trail,
+    .has-children.active {
+      @include sliding-leaf(1, 5);
+    }
+
+    .leaf,
+    .expanded {
+      border-bottom: solid 1px $menuLinkSecondaryDividerColor;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      a,
+      .js-back-link {
+        display: block;
+        @include link-futura($menuLinkSecondaryColorHover, $menuLinkSecondaryColorHover, $menuLinkSecondaryColorHover, $menuLinkSecondaryColorActive);
+        font-size: $menuLinkSecondaryFontSize;
+        padding: $menuLinkSecondaryPaddingVertical $menuLinkSecondaryPaddingHorizontal;
+        background-color: $menuLinkSecondaryBg;
+
+        &:hover {
+          background-color: $menuLinkSecondaryBgHover;
+        }
+
+        &.active-trail {
+          color: $menuLinkSecondaryColorActive;
+        }
+      }
+
+      .js-back-link {
+        border-bottom: solid 1px $menuLinkSecondaryDividerColor;
+        background: url($menuLinkLeftArrowUrl) no-repeat $menuLinkPrimaryPaddingHorizontal center;
+        background-color: $menuLinkSecondaryBackBg;
+        padding-left: 2 * $menuLinkPrimaryPaddingHorizontal + $menuLinkBackWidth;
+      }
+
+      &.level-1 {
+        border-color: $menuLinkPrimaryDividerColor;
+
+        &:last-child {
+          border-bottom-style: solid;
+          border-bottom-width: 1px;
+        }
+
+        // Level 1 links (primary links) behave different tan links on other
+        // levels.
+        > a {
+          display: block;
+          background-color: $menuLinkPrimaryBg;
+          @include link-futura($menuLinkPrimaryColor, $menuLinkPrimaryColorHover, $menuLinkPrimaryColor, $menuLinkPrimaryColor);
+          font-size: $menuLinkPrimaryFontSize;
+          padding: $menuLinkPrimaryPaddingVertical $menuLinkPrimaryPaddingHorizontal;
+          &:hover {
+            background-color: $menuLinkPrimaryBgHover;
+          }
+        }
+
+        // Change background color of links that follow separator item.
+        &.separator ~ .leaf {
+          border-color: $menuLinkPrimaryAlternateDividerColor;
+
+          > a {
+            background-color: $menuLinkPrimaryAlternateBg;
+            &:hover {
+              background-color: $menuLinkPrimaryBgHover;
+            }
+          }
+        }
+      }
+
+      // Each link is wrapped in special wrapper to allow independent link styling
+      // from the style of the paren leaf.
+      .js-link-wrapper {
+        position: relative;
+      }
+
+      // Hide unnecessary elements.
+      &.separator {
+        display: none;
+      }
+    }
+
+    // Apply special expanded styles only to expanded leaves.
+    .expanded {
+      .js-link-wrapper {
+        > a {
+          padding-right: $menuLinkForwardWidth + $menuLinkSecondaryPaddingHorizontal + 2 * $menuLinkSecondaryPaddingHorizontal;
+        }
+
+        // Arrow on forward button.
+        > .js-forward-link {
+          position: absolute;
+          display: block;
+          cursor: pointer;
+          width: $menuLinkForwardWidth + 2 * $menuLinkSecondaryPaddingHorizontal;
+          height: 100%;
+          right: 0;
+          top: 0;
+          background: url($menuLinkRightArrowUrl) no-repeat center center;
+          background-color: $menuLinkSecondaryBg;
+          border-left: solid 1px $menuLinkSecondaryDividerColor;
+
+          &:hover {
+            background-color: $menuLinkSecondaryBgHover;
+          }
+        }
+      }
+    }
+
+    .js-parent-link-wrapper {
+      border-bottom: solid 1px $menuLinkSecondaryDividerColor;
+    }
+
+    // Add padding to all links that are in menus that follow link wrapper.
+    .js-link-wrapper + .menu-wrapper {
+      a {
+        padding-left: $menuLinkSecondarySubmenuPaddingLeft;
+      }
+      // But not the link in wrapper itself.
+      .js-parent-link-wrapper a {
+        padding-left: $menuLinkPrimaryPaddingHorizontal;
+        &.active-trail {
+          color: $menuLinkSecondaryColor;
+        }
+        &.active {
+          color: $menuLinkSecondaryColorActive;
+        }
+      }
+    }
+  }
+}

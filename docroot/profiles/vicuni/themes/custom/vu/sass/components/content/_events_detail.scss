@@ -1,0 +1,189 @@
+@charset "UTF-8";
+.node-type-events {
+  .node-events {
+    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: auto;
+    .node-title {
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .event-col1 {
+      @include breakpoint(desktop) {
+        width: 45.41%;
+        padding-right: 0px;
+      }
+    }
+    .event-col2 {
+      margin-bottom: 10px;
+      @include breakpoint(desktop) {
+        padding-left: 25px;
+        padding-right: 25px;
+        width: 27.55%;
+      }
+      h2 {
+        padding-left: 35px;
+        font-size: 16px;
+        line-height: 25px;
+        margin-bottom: 15px;
+        margin-top: 15px;
+      }
+    }
+    .event-col3 {
+      @extend .news__col--right;
+      margin-top: 0;
+      @include breakpoint(tablet) {
+        float: none;
+        margin-top: -25px;
+        padding-right: 0;
+      }
+      @include breakpoint(desktop) {
+        padding-left: 0;
+        padding-right: 0;
+        margin-right: 0;
+        width: 27.04%;
+        float: right;
+      }
+      .events__contact-info {
+        @extend .news__contact-info;
+        padding-top: 30px;
+      }
+    }
+    .field-name-field-date {
+      margin-bottom: 12px;
+      line-height: 14px;
+      padding-left: 15px;
+      background: url(../images/news-events-sprites.png) no-repeat scroll 0 -100px;
+      .field-item {
+        * {
+          display: inline-block;
+          font-size: 12px;
+          line-height: 12px;
+          color: $green;
+          vertical-align: top;
+        }
+      }
+    }
+    .field-name-body {
+      h2:nth-of-type(n+2) {
+        @extend .h2-heading-dotted;
+      }
+      p:first-child {
+        font-weight: bold;
+        font-size: 17px;
+        line-height: 18px;
+        margin-bottom: 17px;
+      }
+    }
+    .event-when {
+      border-bottom: 1px solid $grey7;
+      padding-bottom: 12px;
+      font-size: 12px;
+      line-height: 14px;
+      h2 {
+        background: url(../images/news-events-sprites.png) no-repeat scroll 0 -50px;
+      }
+      .field-name-field-cust-when {
+        font-size: 12px;
+        line-height: 14px;
+      }
+      .field-name-field-date {
+        background: none;
+        padding: 0px;
+        margin: 0px;
+        .field-item {
+          border-bottom: 1px dotted $grey7;
+          padding: 5px 0;
+          &:last-child {
+            border-bottom: none;
+          }
+          * {
+            color: $grey3;
+          }
+        }
+      }
+    }
+    .event-where {
+      h2 {
+        background: url(../images/news-events-sprites.png) no-repeat scroll 0 -25px;
+      }
+      .field-item {
+        margin-bottom: 15px;
+        iframe {
+          width: 100%;
+        }
+      }
+      section.campus-location-maps {
+        padding-bottom: 115%;
+        margin-bottom: 7px;
+      }
+      .field-name-field-location, .field-name-field-location-desc {
+        .field-item {
+          margin-bottom: 7px;
+        }
+      }
+      .field-name-field-location-desc {
+        margin-top: 1.5em;
+      }
+      .field-name-field-address, .field-name-field-site-map {
+        margin-bottom: 7px;
+      }
+    }
+    .past, .past .field-name-field-date .field-item * {
+      color: $grey14;
+    }
+    div.event-related-links {
+      @extend .news__related;
+      padding-top: 15px;
+      h2.side-block-title {
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+      .related-link {
+        line-height: 20px;
+      }
+      .field-name-body, .field-name-field-imp-desc, .field-name-field-description-editable {
+        .field-item, .field-item:last-child {
+          padding: 0px;
+          border-bottom: none;
+          p {
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: normal;
+            margin-top: 7px;
+            margin-bottom: 9px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.title-block.container {
+  section.social-media-links {
+    position: absolute;
+    bottom: 6px;
+    right: 0;
+    top: auto;
+  }
+}
+
+p.campus-name {
+  margin-top: 7px;
+  span {
+    display: block;
+  }
+}
+
+#campus-map-small {
+  height: 250px;
+  width: 220px;
+}
+
+.field-name-field-location .field-item {
+  #campus-map-small {
+    display: none;
+  }
+  &:first-child #campus-map-small {
+    display: block;
+  }
+}

@@ -1,0 +1,59 @@
+@charset "UTF-8";
+.breadcrumb {
+  background: transparent;
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+}
+
+.title-block {
+  position: relative;
+  .col-md-12 {
+    position: static;
+  }
+  .breadcrumb-wrapper {
+    position: absolute;
+    left: 0;
+    max-height: 40px;
+    bottom: 6px;
+    width: 100%;
+    color: #ffffff;
+    overflow: hidden;
+  }
+  .breadcrumb {
+    font-size: 12px;
+    padding: 0 15px;
+    @include breakpoint(tablet) {
+      padding-left: 27px;
+    }
+    margin: 0;
+    > li {
+      color: #ffffff;
+      display: inline;
+      -webkit-font-smoothing: auto;
+      &:before {
+        @include font-FontAwesome;
+        padding: 0.3em 0.6em;
+        font-size: 10px;
+        content: "\f0da";
+        color: $grey5;
+      }
+      &:first-child:before {
+        display: none;
+        content: "";
+      }
+      a {
+        color: $grey5;
+        text-decoration: underline;
+        &:hover {
+          color: #ffffff;
+        }
+      }
+    }
+    @include breakpoint(desktop) {
+      max-width: 98%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}

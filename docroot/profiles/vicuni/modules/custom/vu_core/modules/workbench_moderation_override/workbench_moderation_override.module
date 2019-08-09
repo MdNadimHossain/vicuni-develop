@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Code for the Workbench Moderation Override module.
+ */
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function workbench_moderation_override_module_implements_alter(&$implementations, $hook) {
+  switch ($hook) {
+    case 'form_alter':
+      $group = $implementations['workbench_moderation_override'];
+      unset($implementations['workbench_moderation_override']);
+      $implementations = $implementations + ['workbench_moderation_override' => $group];
+  }
+}
+
+/**
+ * Stops Workbench Moderation module from filling in the moderation notes.
+ *
+ * @see https://vu-pmo.atlassian.net/browse/PW-580
+ */
+function workbench_moderation_override_form_node_form_alter(&$form, $form_state) {
+  $form['revision_information']['log']['#default_value'] = '';
+  $form['options']['log']['#default_value'] = '';
+}

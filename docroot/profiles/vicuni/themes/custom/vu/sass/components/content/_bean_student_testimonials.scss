@@ -1,0 +1,71 @@
+#block-bean-vu-english-our-students-block {
+  background-color: $dark_blue8;
+  padding: 0 25px 20px 25px;
+  clear: left;
+  overflow: hidden;
+  display: block;
+  h2.block-title {
+    margin: 0;
+    text-shadow: darken($dark_blue8, 8%) 0px 1px 0px;
+    color: white;
+    font-size: 20px;
+    line-height: 55px;
+  }
+  a:hover .teaser,
+  a:focus .teaser {
+    text-decoration: none;
+  }
+  .field-name-field-related-success-stories > .field-items > .field-item {
+    background: #f2f2f2;
+    color: #333;
+    margin: 0 0 20px 0;
+    padding: 15px;
+    width: 100%;
+    float: left;
+    font-size: 14px;
+    @include breakpoint(desktop) {
+      height: 210px;
+      width: calc((100% - 40px) / 3);
+      margin: 0 0 0 20px;
+    }
+    @include breakpoint(desktop_large) {
+      width: calc((100% - 40px) / 3);
+      height: 160px;
+    }
+    &:first-child {
+      margin-left: 0;
+    }
+    .field-name-field-image {
+      float: right;
+      margin-top: 5px;
+      img {
+        width: 100px;
+        height: auto;
+        float: right;
+      }
+    }
+    .field-name-title {
+      width: calc(100% - 110px);
+      @include breakpoint(desktop) {
+        width: 160px;
+      }
+      h2 {
+        font-size: 14px;
+        line-height: 20px;
+        color: $blue;
+        font-weight: bold;
+        a {
+          border-bottom: 0 none transparent;
+        }
+      }
+    }
+    .field-name-body {
+      color: black;
+      line-height: 18px;
+      width:calc(100% - 110px);
+      @include breakpoint(desktop) {
+        width: 155px;
+      }
+    }
+  }
+}

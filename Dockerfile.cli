@@ -1,0 +1,35 @@
+FROM amazeeio/php:7.1-cli-drupal
+
+ENV WEBROOT=docroot \
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    COMPOSER_CACHE_DIR=/tmp/.composer/cache \
+    MYSQL_HOST=mariadb
+
+RUN apk update \
+    && apk add nodejs-npm patch rsync --update-cache --repository http://dl-3.alpinelinux.org/alpine/v3.8/main/ \
+    && apk add make \
+    && rm -rf /var/cache/apk/*
+
+ENV MEMCACHED_DEPS zlib-dev libmemcached-dev cyrus-sasl-dev
+RUN apk add --no-cache --update libmemcached-libs zlib
+RUN set -xe \
+    && apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
+    && apk add --no-cache --update --virtual .memcached-deps $MEMCACHED_DEPS \
+    && pecl install memcached \
+    && echo "extension=memcached.so" > /usr/local/etc/php/conf.d/20_memcached.ini \
+    && rm -rf /usr/share/php7 \
+    && rm -rf /tmp/* \
+    && apk del .memcached-deps .phpize-deps
+
+ADD patches /app/patches
+ADD scripts /app/scripts
+
+COPY composer.json composer.patches.json composer.lock .env /app/
+RUN composer install --no-dev --optimize-autoloader --prefer-dist --ansi --no-suggest
+
+COPY package.json package-lock.json Gruntfile.js /app/
+RUN npm install --unsafe-perm
+
+COPY . /app
+
+RUN npm run build

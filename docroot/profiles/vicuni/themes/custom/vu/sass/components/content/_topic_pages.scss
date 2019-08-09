@@ -1,0 +1,501 @@
+@charset "UTF-8";
+.node-type-topic-pages {
+  .container.main-container .main-content-wrapper {
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .featured-leaders-in-sport-block {
+    display: none;
+    width: 428px;
+    @include breakpoint(desktop) {
+      display: block;
+    }
+    .content-block__content > p {
+      display: none;
+    }
+    &:after {
+      content: '';
+      display: block;
+      width: 0;
+      position: absolute;
+      bottom: 0;
+      background: transparent;
+      border-top: 22px solid #333;
+      border-left: 22px solid transparent;
+      border-left-width: 18px;
+      z-index: 12;
+      left: 18px;
+    }
+    img {
+      width: 100%;
+      height: auto;
+    }
+    .video-modal-wrapper a {
+      color: $white;
+      .video-btn {
+        top: 35%;
+      }
+    }
+    .video-modal-description {
+      color: $white;
+      display: block !important;
+      background: black;
+      height: 22px;
+      padding-left: 4px;
+      margin: 0;
+      line-height: 22px;
+    }
+    .media-transcripts {
+      display: none;
+    }
+  }
+  .node-topic-pages {
+    .right-column {
+      @include breakpoint(desktop) {
+        top: 180px;
+        position: absolute;
+        right: 0;
+        padding: 0px;
+        max-width: 290px;
+        float: right;
+      }
+      &.nobody {
+        @include breakpoint(desktop) {
+          position: absolute;
+          top: 180px;
+          float: left;
+        }
+      }
+    }
+    .main-content-blocks {
+      .content-block {
+        border-bottom: 1px solid $grey;
+        padding-top: 10px;
+        margin-right: 0;
+        padding-bottom: 25px;
+        margin-bottom: 10px;
+        float: left;
+        width: 100%;
+        @include breakpoint(desktop) {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        &:last-child {
+          border-bottom: 0px;
+        }
+        &__heading {
+          @include futura();
+          margin-bottom: 18px;
+          .fa {
+            color: $grey2;
+          }
+        }
+        &__content {
+          margin-bottom: 25px;
+          &.image-left {
+            @include breakpoint(desktop) {
+              padding-left: 27px !important;
+            }
+          }
+          .media-transcript-wrapper.float-right {
+            margin-left: 5px;
+            float: none;
+            @include breakpoint(minitablet_DEPRECATED) {
+              float: right;
+            }
+          }
+          .image-caption {
+            float: none;
+            max-width: 300px;
+            @include breakpoint(minitablet_DEPRECATED) {
+              float: right;
+            }
+          }
+          img {
+            height: auto;
+            border: 0;
+            width: 100%;
+          }
+          & > .span4 {
+            margin-bottom: 10px;
+            @include breakpoint(minitablet_DEPRECATED) {
+              width: 49%;
+              display: block;
+              float: right;
+              &.alpha {
+                float: left;
+              }
+            }
+            & + p {
+              display: block;
+              clear: both;
+            }
+          }
+        }
+        &__media {
+          text-align: center;
+          @include breakpoint(desktop) {
+            text-align: left;
+            figure {
+              margin: .2em 0 10px 25px;
+            }
+          }
+          &.image-left {
+            figure {
+              @include breakpoint(desktop) {
+                margin-left: 0px;
+              }
+            }
+          }
+          figure {
+            display: block;
+            max-width: 300px;
+            @include breakpoint(desktop) {
+              max-width: auto;
+            }
+            .video-thumbnail-wrapper {
+              @include play-button-overlay();
+            }
+            figcaption, .video-transcript {
+              font-size: 12px !important;
+              color: $grey2;
+              margin-top: .5em;
+              line-height: 14px;
+            }
+          }
+        }
+      }
+    }
+    .body-block-wrapper, .topic-intro {
+      background: url(../images/topic-intro.bg.png) 50% 0 repeat-y;
+      background-size: cover;
+      color: white;
+      margin-bottom: 27px;
+      padding: 27px 15px;
+      -moz-osx-font-smoothing: auto;
+      -webkit-font-smoothing: auto;
+      @include breakpoint(tablet) {
+        background-repeat: no-repeat;
+      }
+      &.international {
+        background-image: url(../images/bg-international-students.jpg);
+      }
+      a {
+        color: white;
+        border-bottom: 1px solid white;
+        &:focus {
+          outline: none;
+        }
+        i {
+          color: $orange;
+          padding-right: 8px;
+        }
+      }
+      ul.anchor-list {
+        list-style-type: none;
+        margin: 0 15px;
+        a {
+          border-bottom: none;
+          &:hover {
+            border-bottom: 1px solid white;
+          }
+        }
+        li {
+          font-family: $futura;
+          font-size: 26.25px;
+          font-weight: 400;
+          letter-spacing: 0.3px;
+          line-height: 32px;
+          margin-right: 1em;
+          padding-bottom: 20px;
+          @include breakpoint(tablet) {
+            max-width: 475px;
+          }
+        }
+      }
+      .courses-search-section {
+        a, a:hover, a:visited, a:focus, a:after {
+          color: #ffffff;
+          border-bottom: none;
+          text-decoration: underline;
+        }
+        @include breakpoint(desktop) {
+          width: 53%;
+        }
+      }
+      .landing-course-info {
+        .coursefinder__form {
+          input[type="radio"] {
+            width: auto;
+            height: auto;
+            margin: 3px 0 0 -16px;
+            -webkit-appearance: radio;
+            &:before {
+              display: none;
+            }
+          }
+          .form-radios label {
+            padding-left: 16px;
+          }
+        }
+      }
+      .header-search-find_minimal {
+        .coursefinder__form {
+          margin-top: 18px;
+        }
+        .browse-courses {
+          border-bottom: none;
+        }
+      }
+      .header-search-find_std_desc {
+        .browse-courses {
+          margin-bottom: 10px;
+        }
+      }
+      .find-course {
+        border-bottom: 1px solid $white40;
+        padding-bottom: 16px;
+        a, a:active, a:hover {
+          color: #ffffff;
+          text-decoration: underline;
+          border-bottom: none;
+        }
+        .form-radios {
+          margin-bottom: 5px;
+          label {
+            font-size: 14px;
+          }
+        }
+        .form-item {
+          margin: 0 0 8px 0;
+        }
+      }
+      .browse-courses {
+        padding-top: 16px;
+        padding-bottom: 16px;
+        height: auto;
+        border-bottom: 1px solid $white40;
+        @include breakpoint(minitablet_DEPRECATED) {
+          width: auto;
+        }
+        h2 {
+          line-height: 18px;
+          font-size: 26px;
+          -webkit-font-smoothing: auto;
+          font-weight: 400;
+          font-family: $futura;
+          margin-bottom: 18px;
+          &:before {
+            font-size: 0.7em;
+          }
+        }
+        .view-content {
+          overflow: hidden;
+          @include breakpoint(tablet) {
+            max-height: 150px;
+          }
+        }
+        ul {
+          display: block;
+          vertical-align: top;
+          margin-left: 25px;
+          @include breakpoint(tablet) {
+            float: left;
+            width: 36%;
+            margin-left: 5%;
+            &:last-child {
+              width: 54%;
+            }
+          }
+          li {
+            list-style: square;
+            font-size: 14px;
+            padding-bottom: 6px;
+            padding-top: 0;
+            a {
+              text-decoration: none;
+              border: none;
+            }
+          }
+        }
+      }
+    }
+    &.leaders-in-sport {
+      .right-column {
+        top: 0;
+        position: relative;
+      }
+      .sidebar-box {
+        background-color: $light_blue9;
+      }
+      .body-block-wrapper {
+        background: url(../images/bg-leaders-in-sport.png) top left no-repeat;
+        overflow: hidden;
+        -moz-osx-font-smoothing: auto;
+        -webkit-font-smoothing: auto;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 15px;
+        @include breakpoint(desktop) {
+          padding-left: 0;
+          padding-right: 0;
+          padding-top: 54px;
+        }
+        .body-block {
+          background: rgba(white, 0.8);
+          padding: 27px;
+          margin-bottom: 27px;
+          p {
+            color: #333333;
+          }
+          @include breakpoint(desktop) {
+            margin-left: 27px;
+          }
+        }
+        .teaser {
+          font-size: 24px;
+          font-weight: 500;
+          line-height: 26px;
+          &, p {
+            font-family: $futura;
+          }
+          color: black;
+          margin-bottom: 10px;
+          @include breakpoint(desktop) {
+            padding-left: 0px;
+            margin-bottom: 0;
+          }
+        }
+        .body {
+          @include breakpoint(desktop) {
+            padding-left: 0px;
+          }
+          .column-1, .column-2 {
+            @include breakpoint(desktop) {
+              float: left;
+              width: 50%;
+            }
+            h2 {
+              font-size: 18px;
+              line-height: 27px;
+              color: black;
+            }
+          }
+          .column-1 {
+            padding-bottom: 10px;
+            @include breakpoint(desktop) {
+              padding-bottom: 0;
+            }
+          }
+          .column-2 {
+            @include breakpoint(desktop) {
+              padding-left: 27px;
+            }
+          }
+          a {
+            border-bottom: none;
+            text-decoration: underline;
+            color: $blue;
+            &:hover {
+              color: $blue;
+            }
+          }
+          ul {
+            margin-bottom: 0px;
+            color: $blue;
+          }
+          li {
+            margin: 0;
+            a {
+              border-bottom: none;
+              text-decoration: none;
+              color: $blue;
+              &:hover, &:focus {
+                color: $blue;
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+    }
+    ol {
+      counter-reset: li;
+      margin-left: 0;
+      padding-left: 0;
+      margin-top: 1em;
+      & > li {
+        position: relative;
+        padding: 0 1em 1.5em 3em;
+        list-style: none;
+        color: $grey3;
+        line-height: 1.43em;
+        &:before {
+          font-size: 16px;
+          background: $white;
+          width: 1.5em;
+          line-height: 1.4em;
+          margin-top: .15em;
+          padding: 0 .4em;
+          @include font-helvetica-futurapt;
+          color: $grey2;
+          border-radius: 50%;
+          border: 1px solid $grey9;
+          content: counter(li);
+          counter-increment: li;
+          position: absolute;
+          left: 0;
+          box-sizing: border-box;
+          font-weight: bold;
+          text-align: center;
+        }
+        &:after {
+          border-left: 1px dotted $grey9;
+          left: 0.85em;
+          top: 2em;
+          height: 90%;
+          position: absolute;
+          content: "";
+          clear: both;
+        }
+        &:last-child {
+          &:after {
+            display: none;
+          }
+        }
+      }
+    }
+    .sidebar-box {
+      @include sidebar_box();
+    }
+  }
+  .region-featured-content {
+    .content-blocks {
+      @include breakpoint(desktop) {
+        float: right;
+        max-width: 430px;
+      }
+      .content-block {
+        padding: 0 15px 0 0;
+      }
+      figure {
+        figcaption {
+          font-size: 12px;
+          background: black;
+          color: white;
+          height: 22px;
+          line-height: 22px;
+          padding-left: 4px;
+          margin-top: 6px;
+          a {
+            color: white;
+          }
+        }
+      }
+    }
+    .video-thumbnail-wrapper {
+      @include play-button-overlay2();
+    }
+  }
+}

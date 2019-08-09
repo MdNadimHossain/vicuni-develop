@@ -1,0 +1,16 @@
+Index: plugins/views_plugin_query_default.inc
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- plugins/views_plugin_query_default.inc	(revision e19e354618badf48640dfd46db696e21eb7c26f1)
++++ plugins/views_plugin_query_default.inc	(date 1538193843000)
+@@ -738,7 +738,7 @@
+   public function get_join_data($table, $base_table) {
+     // Check to see if we're linking to a known alias. If so, get the real
+     // table's data instead.
+-    if (!empty($this->table_queue[$table])) {
++    if (!empty($this->table_queue[$table]) && is_string($this->table_queue[$table]['table'])) {
+       $table = $this->table_queue[$table]['table'];
+     }
+     return views_get_table_join($table, $base_table);

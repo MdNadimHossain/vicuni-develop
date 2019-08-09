@@ -1,0 +1,28 @@
+$field_width_default: 210px;
+$field_width_large: 530px;
+$field_width_mini: 60px;
+$field_width_small: 90px;
+$field_height_default: 28px;
+.node-type-webform {
+  .node-webform {
+    &.view-mode-full {
+      padding-top: 40px;
+
+      a {
+        @include default-link;
+      }
+      .required-fields-description {
+        font-style: italic;
+        .form-required {
+          color: $color-red;
+        }
+      }
+      .webform-client-form {
+        @include vu-webforms;
+      }
+    }
+    .field-name-body.field-type-text-with-summary {
+      overflow: hidden;
+    }
+  }
+}

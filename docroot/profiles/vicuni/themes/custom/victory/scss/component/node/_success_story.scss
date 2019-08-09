@@ -1,0 +1,51 @@
+.node-type-success-story {
+  .node-success-story {
+    .group-ss-intro {
+      margin-top: 40px;
+      display: inline-block;
+      color: $color-black-mine_shaft;
+      display: flex;
+      flex-direction: column;
+
+      .image-container {
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+
+      .group-ss-quote {
+        padding: 10px;
+        .success-story-excerpt {
+          @include victory-quotes;
+          padding-bottom: 15px;
+          line-height: 24px;
+          @include font(18px, 'futura', 300);
+        }
+
+        .success-story-name {
+          @include font(14px, 'default');
+          line-height: 22px;
+        }
+        .success-story-courses {
+          @include font(14px, 'default', 300);
+          line-height: 22px;
+        }
+        @include breakpoint($breakpoint-md-up) {
+          padding: 0px 30px 25px;
+        }
+      }
+      @include breakpoint($breakpoint-md-up) {
+        flex-direction: row;
+      }
+    }
+    .field-name-body {
+      padding-top: 20px;
+
+      a {
+        @include default-link;
+      }
+    }
+  }
+  .paragraphs-items-field-related-links {
+    margin-top: 40px;
+  }
+}

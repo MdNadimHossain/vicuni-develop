@@ -1,0 +1,33 @@
+.paragraphs-item-component-section, .paragraphs-item-page-intro, .paragraphs-item-section {
+  div.system-alert-box {
+    padding: 30px;
+    border-radius: 0;
+
+    &__heading {
+      .fa {
+        font-size: 1.5em;
+        display: inline-block;
+        margin-right: 20px;
+      }
+      .title-text {
+        margin-top: 0;
+        display: inline;
+      }
+    }
+
+    &.alert {
+      background-color: $color-orange-yellow_orange;
+      a {
+        @include default-link('light-blue');
+        font-weight: normal;
+      }
+    }
+    &.notification {
+      background-color: $color-grey-wild_sand;
+      a {
+        @include default-link();
+        font-weight: normal;
+      }
+    }
+  }
+}

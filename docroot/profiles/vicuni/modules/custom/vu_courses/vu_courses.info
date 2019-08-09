@@ -1,0 +1,11 @@
+name = VU Courses
+description = Functions Related to courses
+package = VU
+core = 7.x
+
+dependencies[] = vu_course_index
+dependencies[] = vu_enquire_now
+dependencies[] = vu_midyear_intake
+;dependencies[] = vu_pathway
+
+files[] = fields/vu_courses_fields_base.php.inc

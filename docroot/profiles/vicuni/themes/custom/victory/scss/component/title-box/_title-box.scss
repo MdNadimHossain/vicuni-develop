@@ -1,0 +1,252 @@
+//
+// Title box styling.
+//
+
+#title-box {
+  background: $color-blue-lochmara;
+
+  @include breakpoint($breakpoint-sm-up) {
+    background: linear-gradient(to right, $color-blue-lochmara, $color-blue-lochmara 45%, $color-blue-bahama 45%);
+  }
+
+  .title-box {
+    @include angled-borders();
+
+    color: $color-black-mine_shaft;
+    height: 345px;
+    overflow-x: visible;
+    position: relative;
+
+    @include breakpoint($breakpoint-xs) {
+      @include make-row;
+
+      height: auto;
+    }
+
+    &__breadcrumb {
+      padding-top: 14px;
+      z-index: 3;
+
+      @include breakpoint($breakpoint-sm-up) {
+        padding-top: 30px;
+      }
+
+      li {
+        display: inline;
+      }
+    }
+
+    &__title {
+      padding-bottom: 40px;
+      z-index: 3;
+
+      @include breakpoint($breakpoint-sm-up) {
+        height: 150px;
+        padding-bottom: 0;
+        overflow: hidden;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        height: 150px;
+      }
+
+      .page-header {
+        @include font(24px, 'futura-pt', 500);
+
+        border: none;
+        color: $color-white-alabaster;
+        line-height: 30px;
+        margin: 0;
+        padding: 0;
+
+        @include breakpoint($breakpoint-sm) {
+          @include font(34px, 'futura-pt', 500);
+
+          line-height: 37px;
+        }
+
+        @include breakpoint($breakpoint-md-up) {
+          @include font(45px, 'futura-pt', 500);
+
+          line-height: 50px;
+        }
+      }
+      & > .unitset-type {
+        margin: 0;
+        color: $color-white;
+      }
+    }
+
+    &__bottom {
+      z-index: 3;
+      position: relative;
+      font-family: $fonts-default;
+      width: 100%;
+      min-height: 40px;
+
+      @include breakpoint($breakpoint-sm-up) {
+        display: table;
+      }
+
+      &-content {
+        display: block;
+
+        @include breakpoint($breakpoint-sm-up) {
+          display: table-cell;
+          vertical-align: top;
+        }
+      }
+    }
+
+    &__feature {
+      background-color: transparent;
+      pointer-events: none;
+      * {
+        pointer-events: auto;
+      }
+
+      height: 345px;
+      padding-left: 0;
+      padding-right: 0;
+
+      @include breakpoint($breakpoint-xs) {
+        height: auto;
+        position: inherit;
+        background-color: $color-blue-bahama;
+      }
+
+      @include breakpoint($breakpoint-sm-up) {
+        padding: 0;
+        position: absolute;
+        right: -130px;
+        width: 525px;
+      }
+      @include breakpoint($breakpoint-md-up) {
+        right: -145px;
+        width: 615px;
+      }
+      @include breakpoint($breakpoint-lg-up) {
+        right: -115px;
+        width: 660px;
+      }
+
+      &__inner {
+        padding: 0;
+        @include breakpoint($breakpoint-sm-up) {
+          margin-left: 119px;
+          margin-right: 115px;
+          padding: 0 $grid-gutter-width;
+        }
+        @include breakpoint($breakpoint-md) {
+          margin-left: 132px;
+          margin-right: 130px;
+        }
+        @include breakpoint($breakpoint-lg-up) {
+          margin-left: 130px;
+          margin-right: 100px;
+        }
+      }
+
+      &__image {
+        @include breakpoint($breakpoint-xs) {
+          display: none;
+        }
+      }
+    }
+
+    .left-angled-shape {
+      background-color: transparent;
+      margin-left: -($grid-gutter-width / 2);
+    }
+
+    .right-angled-shape {
+      background-color: transparent;
+      border-left-color: transparent;
+      border-top-color: transparent;
+      margin-left: -$grid-gutter-width;
+
+      @include breakpoint($breakpoint-lg-up) {
+        margin-left: -($grid-gutter-width / 2);
+        border-top-color: $color-blue-lochmara;
+      }
+    }
+
+    .title-box__feature__with_photo {
+      img.js-researcher-photo {
+        @include breakpoint($breakpoint-sm) {
+          height: 100%;
+        }
+        @include breakpoint($breakpoint-md) {
+          height: 100%;
+        }
+      }
+    }
+  }
+  /* The following applies when the course-pages-nov-2017
+    feature is active */
+  &.title-box--heading-smaller {
+    .title-box {
+      &__breadcrumb {
+        margin-top: 14px;
+        padding-top: 0;
+
+        @include breakpoint($breakpoint-sm-up) {
+          height: 45px;
+          margin-bottom: 20px;
+          margin-top: 30px;
+        }
+      }
+
+      &__title {
+        h1 {
+          @include breakpoint($breakpoint-xs) {
+            @include font(24px, 'futura-pt', 500);
+
+            line-height: 30px;
+          }
+          @include breakpoint($breakpoint-sm) {
+            @include font(26px, 'futura-pt', 500);
+
+            line-height: 30px;
+          }
+
+          @include breakpoint($breakpoint-md-up) {
+            @include font(34px, 'futura-pt', 500);
+
+            line-height: 37px;
+          }
+        }
+      }
+    }
+  }
+
+  // Remove colouring when a background image is present.
+  &.background-image {
+    background: none;
+
+    .title-box__title .page-header {
+      @include breakpoint($breakpoint-xs) {
+        font-size: 28px !important;
+
+        line-height: 30px;
+      }
+
+      @include breakpoint($breakpoint-sm) {
+        font-size: 28px !important;
+
+        line-height: 30px;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        font-size: 45px !important;
+
+        line-height: 45px !important;
+      }
+    }
+
+    .left-angled-shape,
+    .right-angled-shape {
+      border: none;
+    }
+  }
+}

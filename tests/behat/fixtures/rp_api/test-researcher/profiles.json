@@ -1,0 +1,60 @@
+{
+  "Researchers": [
+    {
+      "staffID": "e8888001",
+      "lastName": "test",
+      "firstName": "test",
+      "middleName": null,
+      "preferredName": "test",
+      "classification": "VISPR",
+      "centreInstituteBranch": "OFFICE OF THE DEAN (COLLEGE OF ENGINEERING & SCI)",
+      "emailAddressVU": "test@vu.edu.au",
+      "actualEndOfContract": "17/10/2018",
+      "jobTitle": "ADJUNCT PROFESSOR",
+      "title": "Prof",
+      "managerID": null
+    },
+    {
+      "staffID": "e8888002",
+      "lastName": "test",
+      "firstName": "test",
+      "middleName": null,
+      "preferredName": "test",
+      "classification": "VISPR",
+      "centreInstituteBranch": "OFFICE OF THE DEAN (COLLEGE OF ENGINEERING & SCI)",
+      "emailAddressVU": "test@vu.edu.au",
+      "actualEndOfContract": "17/10/2018",
+      "jobTitle": "ADJUNCT PROFESSOR",
+      "title": "Prof",
+      "managerID": null
+    },
+    {
+      "staffID": "e8888003",
+      "lastName": "test",
+      "firstName": "test",
+      "middleName": null,
+      "preferredName": "test",
+      "classification": "VISPR",
+      "centreInstituteBranch": "OFFICE OF THE DEAN (COLLEGE OF ENGINEERING & SCI)",
+      "emailAddressVU": "test@vu.edu.au",
+      "actualEndOfContract": "17/10/2018",
+      "jobTitle": "ADJUNCT PROFESSOR",
+      "title": "Prof",
+      "managerID": null
+    },
+    {
+      "staffID": "e8888006",
+      "lastName": "test",
+      "firstName": "test",
+      "middleName": null,
+      "preferredName": "test",
+      "classification": "VISPR",
+      "centreInstituteBranch": "OFFICE OF THE DEAN (COLLEGE OF ENGINEERING & SCI)",
+      "emailAddressVU": "test@vu.edu.au",
+      "actualEndOfContract": "17/10/2018",
+      "jobTitle": "ADJUNCT PROFESSOR",
+      "title": "Prof",
+      "managerID": null
+    }
+  ]
+}

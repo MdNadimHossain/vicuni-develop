@@ -1,0 +1,158 @@
+@charset "UTF-8";
+.node-type-success-story {
+  .field-name-body {
+    .field-item, .field-item > .column {
+      > p:first-child {
+        font-weight: bold;
+        font-size: 18px;
+        line-height: 27px;
+      }
+      .column {
+        @include breakpoint(tablet) {
+          float: left;
+          width: 64%;
+        }
+      }
+    }
+    blockquote {
+      margin-top: 6px;
+    }
+    blockquote, blockquote p {
+      font-size: 14px;
+      font-weight: normal;
+    }
+  }
+  .column-image {
+    margin-top: 15px;
+    text-align: center;
+    @include breakpoint(tablet) {
+      float: right;
+      max-width: 35%;
+      text-align: left;
+      margin-top: 0;
+
+      img {
+        max-width: 100%;
+      }
+    }
+  }
+  .with-img {
+    .column-image {
+      display: none;
+    }
+    .field-name-field-image {
+      margin-top: 12px;
+      @include breakpoint(tablet) {
+        float: right;
+        max-width: 35%;
+        margin-top: 6px;
+      }
+    }
+  }
+  .callout-box {
+    min-height: 20px;
+    padding: 19px;
+    margin-bottom: 20px;
+    background-color: $offwhite2;
+    border: 1px solid $grey10;
+    border: 1px solid $dark05;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px $dark50;
+    padding-bottom: 10px;
+    margin: 0 0 20px 20px;
+    float: right;
+    clear: right;
+    width: 220px;
+    display: inline;
+    border: 1px solid $grey;
+    border-radius: 0;
+  }
+  @include breakpoint(desktop) {
+    .container.main-container .main-content-wrapper {
+      width: 650px;
+      &.no-sidebar {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.node-success-story .field-name-body {
+  h2 {
+    @extend .h2-heading-dotted;
+  }
+  blockquote + h2 {
+    &:before {
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+.view-success-stories .item-list {
+  ul {
+    margin: 0 0 30px;
+    padding: 0;
+    li {
+      list-style: none;
+      margin-bottom: .5em;
+      margin-top: .5em;
+      .field-content a {
+        text-decoration: none;
+        border-bottom: none;
+        color: $grey3;
+        display: block;
+        padding: 0 40px 0 18px;
+        min-height: 90px;
+        position: relative;
+        overflow: hidden;
+        background: transparent url(../images/in-this-section-link-bg.png) no-repeat scroll right top;
+        &:hover, &:focus {
+          border-bottom: none;
+          color: $grey3;
+          background-image: url(../images/in-this-section-link-bg-over.png);
+          .title {
+            text-decoration: underline;
+            color: $blue2;
+          }
+        }
+        .right {
+          float: left;
+          @include breakpoint(tablet) {
+            width: 280px;
+          }
+          @include breakpoint(desktop) {
+            width: 430px;
+          }
+        }
+        .title {
+          font-size: 16px;
+          font-weight: bold;
+          color: $blue;
+          margin-top: 5px;
+          width: 110px;
+          @include breakpoint(minitablet_DEPRECATED) {
+            width: 165px;
+          }
+          @include breakpoint(desktop) {
+            width: 100%;
+            margin-top: 0;
+            line-height: 32px;
+          }
+        }
+        .excerpt {
+          display: none;
+          @include breakpoint(tablet) {
+            display: block;
+          }
+        }
+      }
+    }
+    .image {
+      float: left;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+  }
+}

@@ -1,0 +1,157 @@
+// Wysiwyg typography styles.
+.page-courses .content,
+.page-node .content,
+.page-courses .content
+.styleguide,
+.field-name-field-body,
+#apply-cta-modal {
+  @include default-list-style;
+
+  > ul, div > ul {
+    margin-left: 16px;
+  }
+
+  > ol, div > ol {
+    margin-left: 16px;
+    padding-left: 16px;
+  }
+
+  a:not([role='button']):not(.button--primary):not(.btn-primary):not([role='option']) {
+    @include default-link;
+  }
+
+  a[role='button'] {
+    @include ext-link();
+    &.ext:after {
+      margin-left: 20px;
+    }
+  }
+}
+
+.button--primary {
+  @extend .btn;
+  @extend .btn-primary;
+
+  @include box-shadow(none);
+
+  &:hover:active {
+    @include box-shadow(none);
+  }
+}
+
+// Overides for Bootstrap buttons.
+.btn {
+  @include button-size($spacing-vertical-top-sm, $spacing-vertical-bottom-sm, $font-size-h4, $line-height-base, $btn-border-radius-base);
+  @include font($font-size-h4, 'futura');
+
+  border: 0;
+  line-height: 1.5556; // 28/18
+  margin: 4px;
+  padding: 16px 20px;
+}
+
+.btn-primary {
+  background-color: $color-blue-lochmara;
+  border-color: transparent;
+  min-width: 200px;
+
+  &:focus {
+    background-color: $color-blue-lochmara;
+    border: 4px solid $color-blue-cornflower;
+    color: $color-white;
+    margin: 0px 4px;
+  }
+
+  &:active,
+  &:hover {
+    background-color: $color-yellow-grandis;
+    border-color: transparent;
+    box-shadow: none;
+    color: $color-black-mine_shaft;
+  }
+}
+
+// Wysiwyg sometimes inserts a not token.
+// This means the span.file-document isn't there.
+a[type] {
+  &:after {
+    bottom: 2px;
+    position: relative;
+  }
+
+  &[href$=".pdf"], &[href$=".PDF"] {
+    @include fa-after("\f1c1", 1em);
+  }
+
+  &[href$=".doc"], &[href$=".docx"] {
+    @include fa-after("\f15c", 1em);
+  }
+  &> .filesize {
+    color: $color-grey-dove;
+    font-style: italic;
+  }
+}
+
+.file-image {
+  img {
+    height: auto;
+    width: 100%;
+  }
+}
+
+.file-video {
+  iframe {
+    width: 100%;
+  }
+}
+
+.paragraph--lead {
+  @include font($font-size-h3, 'futura', 300);
+
+  line-height: $line-height-base;
+}
+
+table {
+  border: {
+    top: 1px solid $table-border-color;
+    left: none;
+    right: none;
+    bottom: 1px solid $table-border-color;
+  }
+  margin: $spacing-vertical-top-sm 0;
+  table-layout: fixed;
+  width: 100%;
+  word-wrap: break-word;
+
+  tr {
+    &:nth-of-type(odd) {
+      background-color: $table-bg-accent;
+    }
+    &:first-child {
+      th[scope=row] {
+        border-top: none;
+      }
+    }
+    &:last-child {
+      td {
+        border: none;
+      }
+    }
+    td, th {
+      padding: $table-cell-padding;
+      border: none;
+    }
+    td {
+      border-bottom: 1px solid $table-column-border-color;
+    }
+    th {
+      background-color: $color-blue-fun_blue;
+      color: $color-white;
+      font-weight: bold;
+      &[scope=row] {
+        border-top: 1px solid $table-column-border-color;
+      }
+    }
+  }
+}
+

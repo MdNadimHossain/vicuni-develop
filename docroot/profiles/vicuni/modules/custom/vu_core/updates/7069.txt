@@ -1,0 +1,2 @@
+[PW-2618] Removed obsolete modules and configuration.
+[PW-2627] Cleanup features.

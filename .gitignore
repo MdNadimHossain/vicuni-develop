@@ -1,0 +1,48 @@
+# To ignore OS temporary files use global .gitignore
+# https://help.github.com/articles/ignoring-files/#create-a-global-gitignore
+
+# Ignore Drupal docroot, but preserve custom modules, themes and settings.
+docroot/*
+!docroot/sites/
+docroot/sites/*
+!docroot/sites/all/
+!docroot/sites/default/
+docroot/sites/all/*
+!docroot/sites/all/modules/
+docroot/sites/all/modules/*
+!docroot/sites/all/modules/custom/
+!docroot/sites/all/themes/
+docroot/sites/all/themes/*
+!docroot/sites/all/themes/custom/
+!docroot/profiles
+docroot/profiles/*
+!docroot/profiles/vicuni
+!docroot/profiles/vicuni/modules
+docroot/profiles/vicuni/modules/*
+!docroot/profiles/vicuni/modules/custom
+!docroot/profiles/vicuni/themes
+docroot/profiles/vicuni/themes/*
+!docroot/profiles/vicuni/themes/custom
+docroot/profiles/vicuni/libraries/
+!docroot/sites/default/
+docroot/sites/default/*
+!docroot/sites/default/settings.php
+!docroot/sites/default/default.settings.local.php
+!docroot/.htaccess
+!docroot/robots.txt
+!docroot/profiles/vicuni/modules/custom/vu_course_index/VUCourseIndex/vendor/*
+
+# Ignore dependencies cache files
+/vendor/*
+node_modules
+.env.local
+.docker-sync
+docker-compose.override.yml
+
+# Assets.
+docroot/sites/all/themes/**/build
+docroot/profiles/vicuni/themes/**/build
+screenshots
+.data
+*.min.css
+*.min.css.map

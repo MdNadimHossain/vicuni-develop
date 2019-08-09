@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Code for VU core tests.
+ */
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function vu_core_test_views_query_alter($view, $query) {
+  // Here we filter homepage news and events items to match "test" titles.
+  if ($view->name == 'events_listing' && $view->current_display == 'promoted_events_list') {
+    $query->add_where('node', 'node.title', '[TEST%', 'LIKE');
+  }
+}

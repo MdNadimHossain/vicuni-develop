@@ -1,0 +1,92 @@
+<?php
+/**
+ * @file
+ * Helper functions that are used in code.
+ */
+
+/**
+ * Helpers for detecting one of the date is in today or future.
+ *
+ * @param array $date_field
+ *   The raw value from date field.
+ *
+ * @return bool
+ *   True if one of the dates is today/future date.
+ */
+function vu_helpers_is_today_or_future_dates(array $date_field) {
+  // Get yesterday date without time.
+  $timezone = date_default_timezone_get();
+  $timezone = new DateTimeZone($timezone);
+  $yesterday = new DateTime('yesterday', $timezone);
+  $yesterday->setTime(0, 0, 0);
+
+  foreach ($date_field as $date) {
+    // Decide which date should be used.
+    $date_field = $date['value'];
+    if (!empty($date['value2'])) {
+      $date_field = $date['value2'];
+    }
+
+    $date_field_obj = new DateTime(date('r', $date_field), $timezone);
+    $date_field_obj->setTime(0, 0, 0);
+
+    // If one of the date is today or future, return TRUE.
+    if ($date_field_obj > $yesterday) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Helper to check current environment.
+ *
+ * @param string $environment
+ *   Environment name. Use pre-defined constants from settings.php.
+ *
+ * @return bool
+ *   TRUE if environment is the same as specified, FALSE otherwise.
+ */
+function vu_helpers_environment_is($environment) {
+  global $conf;
+
+  return isset($conf['environment']) && $conf['environment'] == $environment;
+}
+
+/**
+ * Helper to get information into watchdog.
+ *
+ * This helper should be used in every custom try-catch.
+ */
+function vu_helpers_watchdog_log(Exception $e) {
+  $func = 'undefined custom function';
+  $module = 'custom';
+  $callers = debug_backtrace();
+  if (isset($callers[1]['function'])) {
+    $func = $callers[1]['function'];
+    $matched_modules = [];
+    foreach (module_list() as $module_name) {
+      if (strpos($func, $module_name) === 0) {
+        // Since there cannot be 2 modules with the same name, array key will
+        // be unique.
+        $matched_modules[strlen($module_name)] = $module_name;
+      }
+    }
+
+    if (!empty($matched_modules)) {
+      // Sort matched modules by key and get the longest one.
+      ksort($matched_modules);
+      $module = end($matched_modules);
+    }
+  }
+
+  // Make sure that exception was actually thrown.
+  if (is_object($e)) {
+    $message = $e->getMessage();
+  }
+  else {
+    $message = t('Improper use of @self function', ['@self' => __FUNCTION__]);
+  }
+  watchdog($module, $message . ' See ' . $func . '() <pre>' . $e->getTraceAsString() . '</pre>', NULL, WATCHDOG_ERROR);
+}

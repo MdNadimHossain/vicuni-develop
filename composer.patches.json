@@ -1,0 +1,105 @@
+{
+    "patches": {
+        "drupal/adminimal_admin_menu": {
+            "Fix conflict with slicknav": "https://www.drupal.org/files/issues/adminimal_admin_menu-2407007-24-fix-type-error.patch"
+        },
+        "drupal/context": {
+            "Reduce markup": "https://drupal.org/files/0001-Issue-1540292-Only-add-context-ui-markup-if-user-has.patch",
+            "Speed up Context UI": "https://www.drupal.org/files/issues/massively-increase-pe-reroll-873936-67.patch",
+            "Fix issue with Export UI plugin definition": "https://www.drupal.org/files/issues/ctools_export_ui-2592057-2.patch",
+            "Add support for all active theme regions": "https://www.drupal.org/files/issues/%20context-n988222-24-d7.patch"
+        },
+        "drupal/date": {
+            "String Offset errors on edit page using PHP 7.1.0": "https://www.drupal.org/files/issues/2843367-php71-string-offset-26.patch"
+        },
+        "drupal/drafty": {
+            "Delete old revision": "https://www.drupal.org/files/issues/delete-old-revisions-2579205-15_0.patch"
+        },
+        "drupal/drupal": {
+            "Increase info column size in default (this fixes simpletest).": "https://www.drupal.org/files/issues/system--increase-size-field-info.patch",
+            "Make unused file 'cleanup' configurable.": "https://www.drupal.org/files/issues/cleanup-files-1399846-316.patch",
+            "SelectQuery::fields must be an array.": "https://www.drupal.org/files/issues/drupal-component-1158114-63.patch",
+            "Fix to allow content type to be sent to node_access without generating a warning.": "https://www.drupal.org/files/issues/fix_node_access_error_on_calling_with_node_type.patch",
+            "Add backtrace to error messages.": "https://www.drupal.org/files/issues/2777955-12.patch",
+            "Fix Uncaught TypeError: Cannot read property 'length' of undefined": "https://www.drupal.org/files/issues/file-managed_file_duplicate_id_error-2594955-9.patch"
+        },
+        "drupal/entity": {
+            "Add Revision author node property": "https://www.drupal.org/files/revision_uid-1970280-1.patch"
+        },
+        "drupal/entityqueue": {
+            "Entity edit link on edit items form - https://www.drupal.org/project/entityqueue/issues/2739711#comment-12346163": "https://www.drupal.org/files/issues/entityqueue-2739711-3-D7.patch"
+        },
+        "drupal/entityreference": {
+            "Free tagging entity reference to a vocabulary does not create the term, only allows existing terms - https://www.drupal.org/project/entityreference/issues/1472596": "https://www.drupal.org/files/issues/entityreference-term_autocreate-1472596-51.patch"
+        },
+        "drupal/entityreference_backreference": {
+            "Fix issue with hook_entity_property_info_alter": "https://www.drupal.org/files/issues/entity_property_info-2858001-2.patch"
+        },
+        "drupal/paragraphs": {
+            "Paragraph not saved when error on untriggered conditional fields - https://www.drupal.org/project/paragraphs/issues/2609248": "https://www.drupal.org/files/issues/paragraphs-check_CF_errors-2609248-8.patch"
+        },
+        "drupal/persistent_update": {
+            "Add an ability to bypass all persistent updates": "https://www.drupal.org/files/issues/bypass-all-persistent-updates-2824493-3.patch"
+        },
+        "drupal/features": {
+            "Cleaner .info file format": "https://drupal.org/files/issues/cleaner_info-2155793-1.patch",
+            "D7 Features field_base revert updates all existing fields, this causes excessive cache clearing": "https://www.drupal.org/files/issues/features-prevent_field_update_from_type_difference-2908458-4.patch"
+        },
+        "drupal/features_banish": {
+            "Add support for wildcards.": "https://www.drupal.org/files/issues/add-wildcard-support-2494417-4.patch"
+        },
+        "drupal/feeds_tamper": {
+            "PHP 7 Compatibility case: feeds_tamper_default_value_callback function.": "https://www.drupal.org/files/issues/feeds_tamper-fix-params-default-value-callback-2567431-2-7.x.patch"
+        },
+        "drupal/field_group": {
+            "field_group_field_group_to_hook_code PHP 7 support": "https://www.drupal.org/files/issues/php7_uniform_variable-2649648-5.patch"
+        },
+        "drupal/funnelback": {
+            "Fix Funnelback.class.php syntax error": "./patches/Funnelback.class.php.patch",
+            "Made click tracking url available": "./patches/funnelback-tracking.patch"
+        },
+        "drupal/linkit": {
+            "Fixed JS error when pagepreview is in use": "https://www.drupal.org/files/issues/linkit-fields-undefined-2550845-9.patch",
+            "Fixed Wrong title updated when linking a field added through ajax": "https://www.drupal.org/files/issues/linkit-js_unique_field_keys-2850714-6-d7.patch"
+        },
+        "drupal/memcache": {
+            "Undefined function dmemcache_object_cluster": "https://cgit.drupalcode.org/memcache/patch/?id=25224fbc5486e14bbfeafc324d41fea7fb4ade04",
+            "Trying to get property of non-object in _dmemcache_get_pieces": "https://www.drupal.org/files/issues/notice_trying_to_get-2864659-4.patch"
+        },
+        "drupal/pagepreview": {
+            "Allow view mode to be altered": "https://www.drupal.org/files/issues/view_mode_alter-1213946-4.patch"
+        },
+        "drupal/redirect": {
+            "Wrong watchdog parameters.": "https://www.drupal.org/files/issues/wrong_watchdog_parameters-2574593-2.patch"
+        },
+        "drupal/revisioning": {
+            "Publishing or reverting node that is in menu.": "https://www.drupal.org/files/issues/revisioning-broken-menu-tokens-in-alias-on-publish-1698024-9.patch",
+            "PHP memory limit exhausted on install and uninstall": "https://www.drupal.org/files/issues/php-mem-limit-exhausted-install-uninstall-2179175-17.patch"
+        },
+        "drupal/views": {
+            "Views get_join_data() does not check if the base table is a subquery": "./patches/views-join-subquery.patch"
+        },
+        "drupal/webform": {
+            "Fixes vulnerability in webform ajax file upload.": "https://www.drupal.org/files/issues/how_to_remove_the_file-2820582-2_0.patch",
+            "Store files in temporary - https://www.drupal.org/node/2907866#comment-12253418": "https://www.drupal.org/files/issues/temporary_scheme-2907866-7.x-4.15-2.patch",
+            "Fix non-numeric value warning in PHP 7.1 - https://www.drupal.org/project/webform/issues/2857854#comment-12020966": "https://www.drupal.org/files/issues/webform-2857854-18.patch"
+        },
+        "drupal/workbench_moderation": {
+            "Fix dependency listed multiple times in feature.info": "https://www.drupal.org/files/issues/workbench_moderation-multiple-dependencies-in-features-2047179-3-7.39.patch",
+            "Fix audit trail.": "https://www.drupal.org/files/issues/forward-revision-with-audit-trail-2824798-4.patch",
+            "Fixes menu_get_object for draft pages.": "https://www.drupal.org/files/issues/2021903-workbench_moderation-menu_get_object-fix-19.patch"
+        },
+        "library/plupload": {
+            "Remove plupload library examples folder for Drupal distribution": "https://www.drupal.org/files/issues/plupload-1_5_8-rm_examples-text-1903850-26.patch"
+        },
+        "drupal/instapage_cms_plugin-instapage_cms_plugin": {
+            "Remove parameter from GET" : "https://www.drupal.org/files/issues/2018-06-18/instapage_cms_plugin-action_in_url-2951195-3.patch"
+        },
+        "drupal/xmlsitemap": {
+            "Exclude unpublished nodes" : "https://www.drupal.org/files/issues/2266933-exclude-unpublished-nodes-5.patch"
+        },
+        "drupal/drupagram": {
+            "Drupagram set correct headers on get access token" : "https://www.drupal.org/files/issues/drupagram-set-correct-headers-on-get_access_token-2484333-12.patch"
+        }
+    }
+}

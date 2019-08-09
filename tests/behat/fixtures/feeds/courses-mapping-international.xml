@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<courses xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+    <course>
+        <coursetitle>HE mapping test</coursetitle>
+        <coursecode>TEST-MAPPING-HE</coursecode>
+        <fees>
+            <fee year='2016'>1</fee>
+            <additionalcosts>&lt;p&gt;Additional costs&lt;/p&gt;</additionalcosts>
+        </fees>
+        <duration>1</duration>
+        <semesterintakes>
+            <semesterintake year='2016'>1,2</semesterintake>
+        </semesterintakes>
+        <campus>Test campus</campus>
+        <international-offered>Y</international-offered>
+    </course>
+    <course>
+        <coursetitle>NA mapping test</coursetitle>
+        <coursecode>TEST-MAPPING-NA</coursecode>
+        <fees>
+            <fee year='2016'>1</fee>
+            <additionalcosts>&lt;p&gt;Additional costs&lt;/p&gt;</additionalcosts>
+        </fees>
+        <duration>1</duration>
+        <semesterintakes>
+            <semesterintake year='2016'>1,2</semesterintake>
+        </semesterintakes>
+        <campus>Test campus</campus>
+        <international-offered>Y</international-offered>
+    </course>
+    <course>
+        <coursetitle>VET mapping test</coursetitle>
+        <coursecode>TEST-MAPPING-VET</coursecode>
+        <fees>
+            <fee year='2016'>1</fee>
+            <additionalcosts>&lt;p&gt;Additional costs&lt;/p&gt;</additionalcosts>
+        </fees>
+        <duration>1</duration>
+        <semesterintakes>
+            <semesterintake year='2016'>1,2</semesterintake>
+        </semesterintakes>
+        <campus>Test campus</campus>
+        <international-offered>Y</international-offered>
+    </course>
+</courses>

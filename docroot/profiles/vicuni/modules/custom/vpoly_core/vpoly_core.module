@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Code for the VPoly Core module.
+ */
+
+include_once 'vpoly_core.features.inc';
+
+/**
+ * Implements hook_workbench_create_alter().
+ */
+function vpoly_core_workbench_create_alter(&$output) {
+  // Adds a custom link for add/edit forms of TAFE info session entities
+  // under "Create Content" tab in "My Workbench" section.
+  if (user_access('eck administer course_information_session_links tafe_info_session_link entities')) {
+    $items = [
+      [
+        'title' => t('Manage TAFE course information session links'),
+        'href' => 'admin/structure/entity-type/course_information_session_links/tafe_info_session_link',
+        'localized_options' => [],
+        'description' => t('Add, edit or delete TAFE course information session links.'),
+      ],
+    ];
+    $output['field_workbench_manage_course_info_session'] = [
+      '#title' => t('TAFE course information session links'),
+      '#markup' => theme('node_add_list', ['content' => $items]),
+      '#theme' => 'workbench_element',
+      '#weight' => 1,
+    ];
+  }
+}

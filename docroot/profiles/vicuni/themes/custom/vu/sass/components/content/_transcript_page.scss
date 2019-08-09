@@ -1,0 +1,13 @@
+@charset "UTF-8";
+.page-file {
+  .file-video {
+    h1 {
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 38px;
+    }
+    iframe {
+      max-width: 100%;
+    }
+  }
+}

@@ -1,0 +1,342 @@
+<?php
+
+/**
+ * @file
+ * Code for the VU Researcher Profile.
+ *
+ * Do not place business logic or helper functions into this file.
+ * Use vu_rp.helpers.inc and per-domain inclusion files instead.
+ */
+
+include_once 'vu_rp.features.inc';
+include_once 'includes/helpers.inc';
+include_once 'includes/render.inc';
+include_once 'includes/node.inc';
+include_once 'includes/optin.inc';
+include_once 'includes/workbench.inc';
+
+/**
+ * Include additional early bootstrap files.
+ *
+ * This allows to organise contrib module-related hook implementations into
+ * standalone files.
+ *
+ * Note that most of the modules are not available at this stage and
+ * another inclusion is required in hook_init() for performance reasons.
+ *
+ * This is wrapped into a private function in order to avoid leaking of
+ * variables into global context.
+ */
+function _vu_rp_include_files() {
+  $early_bootstrap_modules = module_list();
+  // Add more modules, inclusions for which are absolutely required at early
+  // stage.
+  $early_bootstrap_modules[] = 'system';
+  foreach ($early_bootstrap_modules as $module_name) {
+    $module_include_file = dirname(__FILE__) . '/includes/modules/' . $module_name . '.inc';
+    if (file_exists($module_include_file)) {
+      require_once $module_include_file;
+    }
+  }
+
+  // Include forms.
+  foreach (scandir(dirname(__FILE__) . '/includes/forms') as $filename) {
+    $path = dirname(__FILE__) . '/includes/forms/' . $filename;
+    if (is_file($path)) {
+      require_once $path;
+    }
+  }
+}
+
+// Include files.
+_vu_rp_include_files();
+
+/**
+ * Defines role names.
+ */
+define('VU_RP_ROLE_ADMIN', 'Researcher Profile Admin');
+define('VU_RP_ROLE_APPROVER', 'Researcher Profile Approver');
+define('VU_RP_ROLE_RESEARCHER', 'Researcher');
+define('VU_RP_SEARCH_INDEX', 'researcher_profiles');
+define('VU_RP_SEARCH_ALL', 'all');
+define('VU_RP_SEARCH_SUPERVISORS', 'supervisors');
+define('VU_RP_SEARCH_MEDIA_QUERIES', 'media');
+define('VU_RP_SEARCH_LINK', '/research/find-researcher');
+
+/**
+ * Implements hook_permission().
+ */
+function vu_rp_permission() {
+  return [
+    'administer researcher profile configuration' => [
+      'title' => t('Administer Researcher Profile configuration'),
+      'description' => t('Adjust configuration for Researcher Profiles'),
+    ],
+    'use researcher profile workbench' => [
+      'title' => t('Use Research profile workbench'),
+      'description' => t('Use Research profile workbench instead of standard workbench'),
+    ],
+    'bypass researcher profile state transition validation' => [
+      'title' => t('Bypass Research profile state transition validation'),
+      'description' => t('Allow to bypass state transition validation when saving Research profile'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vu_rp_menu() {
+  $items['admin/config/researcher-profile'] = [
+    'title' => 'Researcher Profile Configuration',
+    'description' => 'Configuration for Researcher Profile',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_admin_settings'],
+    'access arguments' => ['administer researcher profile configuration'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/admin.inc',
+  ];
+
+  $items['admin/config/researcher-profile/general'] = [
+    'title' => 'General',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function vu_rp_theme() {
+  $path = drupal_get_path('module', 'vu_rp') . DIRECTORY_SEPARATOR . 'includes';
+
+  return [
+    'vu_rp_block_researcher_profile_navbar' => [
+      'template' => 'researcher-profile-navbar',
+      'path' => $path . '/templates',
+      'variables' => [],
+    ],
+    'vu_rp_block_researcher_overview_contact' => [
+      'template' => 'researcher-profile-overview-contact',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_key_details' => [
+      'template' => 'researcher-profile-key-details',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_qualifications' => [
+      'template' => 'researcher-profile-qualifications',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_is_super' => [
+      'template' => 'researcher-profile-is-super',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_ov_links' => [
+      'template' => 'researcher-profile-ov-links',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_academic_roles' => [
+      'template' => 'researcher-profile-academic-roles',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_industry_roles' => [
+      'template' => 'researcher-profile-industry-roles',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_awards' => [
+      'template' => 'researcher-profile-awards',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_keynotes' => [
+      'template' => 'researcher-profile-keynotes',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_memberships' => [
+      'template' => 'researcher-profile-memberships',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_media_appearance' => [
+      'template' => 'researcher-profile-media-appearance',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_sup_links' => [
+      'template' => 'researcher-profile-sup-links',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_sup_curr' => [
+      'template' => 'researcher-profile-sup-curr',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_sup_compl' => [
+      'template' => 'researcher-profile-sup-compl',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_fundings' => [
+      'template' => 'researcher-profile-fundings',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_fund_links' => [
+      'template' => 'researcher-profile-fund-links',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_fund_ackn' => [
+      'template' => 'researcher-profile-fund-ackn',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_rp_publications' => [
+      'template' => 'researcher-profile-publications',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'vu_rp_block_researcher_profile_pubs_list_link' => [
+      'template' => 'researcher-profile-pubs-list-link',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'researcher_profile_node_form' => [
+      'render element' => 'form',
+      'template' => 'researcher-profile-node-form',
+      'path' => $path . '/templates',
+    ],
+    'vu_rp_block_optin' => [
+      'template' => 'researcher-profile-optin',
+      'path' => $path . '/templates',
+      'variables' => [
+        'content' => '',
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function vu_rp_form_researcher_profile_node_form_alter(&$form, &$form_state, $form_id) {
+  _vu_rp_form_researcher_profile_node_form_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_preprocess_form_element().
+ */
+function vu_rp_preprocess_form_element(&$element, $value) {
+  if (isset($element['element']['#entity_type'])
+    && $element['element']['#entity_type'] == 'node'
+    && $element['element']['#bundle'] == 'researcher_profile') {
+    _vu_rp_form_preprocess_element($element, $value);
+  }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function vu_rp_field_widget_form_alter(&$element, &$form_state, $context) {
+  _vu_rp_field_widget_form_process_institute_field($element, $form_state, $context);
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function vu_rp_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if (path_is_admin(current_path())) {
+    if (arg(1) == 'workbench') {
+      // VU core user roles.
+      $roles = [
+        VU_ROLE_ADMINISTRATOR,
+        VU_ROLE_APPROVER,
+        VU_ROLE_AUTHOR,
+        VU_ROLE_PUBLISHER,
+        VU_ROLE_ADVANCED_AUTHOR,
+        VU_ROLE_INTERNATIONAL_AUTHOR,
+        VU_ROLE_TAFE_AUTHOR,
+        VU_ROLE_ADMIN,
+      ];
+
+      global $user;
+      if (array_intersect($roles, $user->roles) == FALSE) {
+        if (user_access('use researcher profile workbench')) {
+          // Get rid of tabs for researchers.
+          unset($data['tabs']);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function vu_rp_preprocess_html(&$variables) {
+  if (user_is_logged_in()) {
+    drupal_add_css(drupal_get_path('module', 'vu_rp') . '/css/vu_rp.admin.min.css', ['weight' => CSS_THEME]);
+  }
+}
+
+/**
+ * Implements hook_custom_theme().
+ */
+function vu_rp_custom_theme() {
+  // Get researcher arguments.
+  $researcher_params = array_values(array_filter(explode('/', VU_RP_SEARCH_LINK)));
+
+  if (arg(0) === $researcher_params[0] && arg(1) === $researcher_params[1]) {
+    return 'victory';
+  }
+}

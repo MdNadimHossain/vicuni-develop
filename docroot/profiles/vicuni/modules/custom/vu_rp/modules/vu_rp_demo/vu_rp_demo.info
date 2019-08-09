@@ -1,0 +1,6 @@
+name = VU Researcher Profile Demo
+description = Demo content for VU Researcher Profile
+core = 7.x
+package = VU
+
+dependencies[] = vu_rp

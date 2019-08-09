@@ -1,0 +1,277 @@
+{
+  "ResearcherProfile": {
+    "staffID": "E9999005",
+    "title": "Prof",
+    "firstName": "TestFirstname5",
+    "lastName": "TestLastname5",
+    "preferredName": "TestPrefferedname5",
+    "orcID": 9809087666565,
+    "scorpusID": null,
+    "researcherID": null,
+    "secondName": "TestSecondname5",
+    "classification": "VISPR",
+    "email": "testFirstname5.testLastname5@vu.edu.au",
+    "managerId": null,
+    "jobTitle": "Professor",
+    "actContractEnd": "2049-12-31 00:00:00.0",
+    "supervisionAccreditationLevel": null,
+    "fieldsOfResearch": [
+      {
+        "FoRCode": "200502",
+        "FoRTitle": "Australian Literature (Excl. Aboriginal and Torres Strait Islander Literature)"
+      }
+    ],
+    "publications": [
+
+    ],
+    "grantDetails": [
+      {
+        "projectId": "P00999    ",
+        "projectTitle": "Nation, land & tradition in Australian writing: 1940-2000",
+        "projectType": "Discovery",
+        "startDate": "2016-01-01 00:00:00.0",
+        "endDate": "2017-12-31 00:00:00.0",
+        "year": 2016,
+        "grantFundSource": "ARC - Discovery",
+        "grantAmount": 20000,
+        "confidential": true,
+        "researchersRole": "1st Chief Investigator",
+        "otherInvestigators": [
+        ]
+      },
+      {
+        "projectId": "P00998    ",
+        "projectTitle": "Nation, land & tradition in Australian writing: 1940-2000",
+        "projectType": "Tender",
+        "startDate": "2016-01-01 00:00:00.0",
+        "endDate": "2017-12-31 00:00:00.0",
+        "year": 2016,
+        "grantFundSource": "ARC - Discovery",
+        "grantAmount": 50000,
+        "confidential": false,
+        "researchersRole": "1st Chief Investigator",
+        "otherInvestigators": [
+        ]
+      },
+      {
+        "projectId": "P00997    ",
+        "projectTitle": "Nation, land & tradition in Australian writing: 1940-2000",
+        "projectType": "Discovery",
+        "startDate": "2016-01-01 00:00:00.0",
+        "endDate": "2017-12-31 00:00:00.0",
+        "year": 2016,
+        "grantFundSource": "ARC - Discovery",
+        "grantAmount": 49999,
+        "confidential": false,
+        "researchersRole": "1st Chief Investigator",
+        "otherInvestigators": [
+        ]
+      },
+      {
+        "projectId": "P00996    ",
+        "projectTitle": "Nation, land & tradition",
+        "projectType": "Discovery",
+        "startDate": "2017-01-01 00:00:00.0",
+        "endDate": "2019-12-31 00:00:00.0",
+        "year": 2017,
+        "grantFundSource": "ARC - Discovery",
+        "grantAmount": 20000.0,
+        "confidential": false,
+        "researchersRole": "1st Chief Investigator",
+        "otherInvestigators": [
+        ]
+      },
+      {
+        "projectId": "P00995    ",
+        "projectTitle": "Nation, land & tradition in Australian writing",
+        "projectType": "Discovery",
+        "startDate": "2017-01-01 00:00:00.0",
+        "endDate": "2019-12-31 00:00:00.0",
+        "year": 2017,
+        "grantFundSource": "ARC - Discovery",
+        "grantAmount": 4999.0,
+        "confidential": false,
+        "researchersRole": "1st Chief Investigator",
+        "otherInvestigators": [
+        ]
+      },
+      {
+        "projectId": "P00994    ",
+        "projectTitle": "Overland",
+        "projectType": "Not Specified",
+        "startDate": "1996-01-01 00:00:00.0",
+        "endDate": "1998-12-31 00:00:00.0",
+        "year": 1997,
+        "grantFundSource": "Victorian Ministry of the Arts",
+        "grantAmount": 15000.0,
+        "confidential": false,
+        "researchersRole": "1st Chief Investigator",
+        "otherInvestigators": [
+          {
+            "staffID": "E5010855",
+            "role": "Chief Investigator",
+            "firstName": "IAN",
+            "lastName": "SYSON",
+            "honorific": "DR"
+          }
+        ]
+      }
+    ],
+    "HDRDetails": [
+      {
+        "studentName": "MR George Elias",
+        "yearOfCompletion": "2013-05-02 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "The Effects of Water Immersion on Recovery in Australian Football",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Emma Gallaher",
+        "yearOfCompletion": "2013-08-30 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Recovering from repeat sprint activity and elite Australian football training and competition: Do compression garments help?",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Mathew Inness",
+        "yearOfCompletion": "2017-07-06 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Altitude and Team-Sport Athlete Physical Performance: Relevance and Time Course for Adaptation",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Michael Chiovitti",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Simulated Altitude and Physical Performance: A Practical Approach for Team Sports",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Denise Jennings",
+        "yearOfCompletion": "2013-08-30 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "GPS analysis of elite level hockey",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MISS Emily Walker",
+        "yearOfCompletion": "2017-06-19 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Energy Requirements and Body Composition of Professional Team-Sport Athletes",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Amber Rowell",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The Impact of Training and Competition Load on Fatigue, Performance and Injury in Elite Australian Football",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Kristal Hammond",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Combining Altitude and Heat:  The Effects of Intermittent Hypoxic Training in the Heat on Cycling Performance",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Brendan Lazarus",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The acute and longitudinal effects of pre-season training on strength and power, performance and anthropometrics in elite Australian footballers",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Alexandra (Alex) Bauer",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Training Response Based on the Energetic Profile:  Maximizing Individual Adaptation",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Scott Graham",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Effects of Training Load and Relationship to Position-Specific Match Performance in Netball",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Alireza Esmaeili",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Effects of injury and rehabilitation process on performance and injury recurrence rate in elite Australian footballers",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MR James McMahon",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Introductory Statistics and Exploratory Data Analysis Using SPSS",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Evan Coventry",
+        "yearOfCompletion": "2015-11-24 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Biomechanical Considerations of the Effect of Fatigue on Kicking in Australian Rules Football",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MR Ramon Rodriguez-Anderson",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The Role of Ventilation Acclimatisation to Hypoxia in Repeated-sprint Exercise",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Samuel (Sam) Howe",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Monitoring Training Load to Understand Fitness, Fatigue & Performance in Professional Rugby Union Athletes",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MR Michele Lo",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Effects of Travel on Professional Rugby Union Players",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Alice Sweeting",
+        "yearOfCompletion": "2017-06-19 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Discovering the Movement Sequences of Elite and Junior Elite Netball Athletes",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Nicholas (Nick) Flyger",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Fatigue in Elite Track Sprint Cyclists",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Metodija Kjertakov",
+        "yearOfCompletion": null,
+        "HDRType": "Masters",
+        "titleOfResearch": "The Role of Heat as a Conditioning Stimulus in Endurance Athletes",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Ana Holt",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The Reliability, Validity and Application of Power Meters in Rowing",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Susanne Ellens",
+        "yearOfCompletion": null,
+        "HDRType": "Masters",
+        "titleOfResearch": "Use of IMUs in Australian Football to Identify a Kick and its Corresponding Limb Velocity",
+        "supervisionRole": "Associate"
+      }
+    ]
+  }
+}

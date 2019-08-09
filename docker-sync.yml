@@ -1,0 +1,30 @@
+##
+# Configuration file for docker-sync.
+#
+# Docker-sync is used on the projects with high number of files, when
+# docker mounted volumes are too slow.
+#
+# @see http://docker-sync.io/
+#
+version: "2"
+options:
+  verbose: true
+  compose-dev-file-path: docker-compose.local.yml
+syncs:
+  docker-mac-sync:
+    src: './'
+    sync_excludes:
+      - .data
+      - .idea
+      - .git
+      - .sass-cache
+      - node_modules
+      - .github
+      - .circleci
+      - .docker-sync
+      - docroot/profiles/vicuni/modules/custom/vu_course_index/VUCourseIndex
+    sync_strategy: 'unison'
+    sync_args:
+      - "-prefer newer"
+      - "-ignore='Path .git'"
+      - "-ignore='BelowPath .git'"

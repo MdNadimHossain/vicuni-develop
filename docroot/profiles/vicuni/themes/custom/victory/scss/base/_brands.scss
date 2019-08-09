@@ -1,0 +1,16 @@
+@import "colours";
+@import "typography";
+
+// VU - Centernary.
+.brand-set-centenary {
+  &.brand-background, .brand-background {
+    background-color: $color-branding-centenary-bg;
+  }
+}
+
+// VicPoly.
+.brand-set-vicpoly {
+  &.brand-background, .brand-background {
+    background-color: $color-branding-vicpoly-bg;
+  }
+}

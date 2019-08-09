@@ -1,0 +1,88 @@
+//
+// Primary navigation (Main menu Level 1).
+//
+.navbar-default {
+  background: $grey17;
+  border: none;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.main-menu-level1 {
+  display: none;
+  @include breakpoint (desktop) {
+    display: block;
+  }
+
+  .menu {
+    display: table;
+    width: 100%;
+    margin: 0;
+
+    .leaf {
+      display: table-cell;
+      vertical-align: middle;
+
+      a,
+      .nolink {
+        font-size: 16px;
+        @include futura();
+        color: white;
+        white-space: nowrap;
+        position: relative;
+        display: block;
+        text-align: center;
+        padding: 15px;
+        line-height: 1.375;
+
+        &:focus,
+        &:hover {
+          background-color: #262626;
+          cursor: pointer;
+        }
+
+        &.active,
+        &.active-trail {
+          background-color: $white;
+          color: $grey17;
+
+          &:focus,
+          &:hover {
+            background-color: $white;
+            color: $grey17;
+          }
+        }
+      }
+    }
+
+    .last {
+      overflow: hidden;
+      a.shutter-trigger[data-shutter-item-target="#block-vu-core-vu-funnelback-search"] {
+        @include transition(transform 500ms ease-in-out);
+        &.active {
+          background-color: $vuBlue !important;
+          color: $white !important;
+        }
+        &:hover,
+        &:focus {
+          transform: scale(1.25);
+        }
+      }
+    }
+  }
+
+  .separator {
+    visibility: hidden;
+    width: 100%;
+  }
+}
+
+// Js will disable the link. If it's enabled hide the external link icon.
+.js {
+  .main-menu-level1 {
+    .js-shutter-trigger.ext:after {
+      content: '';
+      position: absolute;
+    }
+  }
+}

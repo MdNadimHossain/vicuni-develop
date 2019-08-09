@@ -1,0 +1,1 @@
+Update styles for tools blocks on the footer.

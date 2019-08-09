@@ -1,0 +1,66 @@
+body.node-type-page-builder.contact-us {
+  @include breakpoint(minitablet_DEPRECATED) {
+    .level1-wrapper .level1-top-content {
+      width:100%;
+    }
+  }
+  dt {
+    float: left;
+    width: 150px;
+  }
+  dd {
+    margin-left: 150px;
+  }
+  dd:after {
+    content: "";
+    clear: both;
+    display: block;
+  }
+  .field-name-field-page-introduction{
+    .field-item >h2{
+      margin-bottom: 15px;
+      &:not(:first-child) {
+        margin-top: 35px;
+        padding-top: 20px;
+        border-top: 1px dotted #d4d4d4;
+      }
+    }
+  }
+  .emergency-and-security-enquiries {
+    margin-bottom: 30px;
+    dt {
+      margin-bottom: 10px;
+    }
+  }
+  .region-content table:not(.no-stripe):not(.simple):not(.table-simple):not(.s-lc-whw){
+    thead > tr:nth-child(odd) {
+      background-color:#f5f5f5;
+    }
+    tr{
+      &:nth-child(odd) {
+        background-color: transparent;
+      }
+      &:nth-child(even){
+        background-color: #f5f5f5;
+      }
+    }
+    tr > th, thead tr > td {
+      background-color: transparent;
+    }
+  }
+  .media-enquiries,
+  .industry-and-business-enquiries,
+  .emergency-and-security-enquiries {
+    margin-top: 30px;
+    padding-top:20px;
+    border-top: 1px dotted #d4d4d4;
+  }
+  @include breakpoint(tablet) {
+    .media-enquiries,
+    .industry-and-business-enquiries,
+    .emergency-and-security-enquiries {
+      width: 50%;
+      float: left;
+    }
+  }
+}

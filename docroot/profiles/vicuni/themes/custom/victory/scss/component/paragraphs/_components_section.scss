@@ -1,0 +1,87 @@
+.paragraphs-item-component-section {
+
+  // Padding for each row in the section
+  .field-name-field-component-section-content > .field-items > .field-item:not(:last-child)  {
+    @include breakpoint($breakpoint-xs) {
+      margin-bottom: 20px;
+    };
+
+    margin-bottom: 30px;
+  }
+
+  .paragraphs-items-field-component-section-content {
+    margin-top: 40px;
+  }
+
+  h2.victory-title__stripe ~ .container .paragraphs-items-field-component-section-content {
+    margin-top: 0;
+  }
+
+  .paragraphs-item-component-row {
+    @include make-row;
+    clear: both;
+
+    div[class*="row-"] {
+      & > .field-items {
+        & > .field-item:not(:last-child) {
+          @include breakpoint($breakpoint-xs) {
+            margin-bottom: 20px;
+          };
+        }
+      }
+    }
+
+    // Full width row
+    & .row-full-width {
+      & > .field-items {
+        & > .field-item {
+          @include make-sm-column(12);
+        }
+      }
+    }
+
+    // Two items in row
+    & .row-6-6 {
+      & > .field-items {
+        & > .field-item {
+          @include make-sm-column(6);
+        }
+      }
+    }
+
+    & .row-8-4 {
+      & > .field-items {
+        & > .field-item {
+          &:first-child {
+            @include make-sm-column(8);
+          }
+          &:nth-child(2) {
+            @include make-sm-column(4);
+          }
+        }
+      }
+    }
+
+    & .row-4-8 {
+      & > .field-items {
+        & > .field-item {
+          &:first-child {
+            @include make-sm-column(4);
+          }
+          &:nth-child(2) {
+            @include make-sm-column(8);
+          }
+        }
+      }
+    }
+
+    // Three items in row
+    & .row-4-4-4 {
+      & > .field-items {
+        & > .field-item {
+          @include make-sm-column(4);
+        }
+      }
+    }
+  }
+}

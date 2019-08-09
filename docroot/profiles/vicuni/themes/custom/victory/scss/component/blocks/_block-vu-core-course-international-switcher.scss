@@ -1,0 +1,272 @@
+#block-vu-core-course-international-switcher {
+  // TODO Unrap .switch-on when course page changes are deployed.
+  &.switch-on {
+    padding: 50px 0 0;
+    @include breakpoint($breakpoint-xs) {
+      margin-top: 0px !important;
+    }
+    @include breakpoint($breakpoint-sm) {
+      padding: {
+        bottom: 0px;
+        top: 110px;
+      }
+      vertical-align: bottom;
+    }
+    @include breakpoint($breakpoint-md-up) {
+      padding: {
+        bottom: 0px;
+        top: 115px;
+      }
+    }
+  }
+  &.one-version-of-course {
+    padding: 15px 0;
+    @include breakpoint($breakpoint-sm) {
+      padding: {
+        bottom: 15px;
+        top: 95px;
+      }
+    }
+    @include breakpoint($breakpoint-md-up) {
+      padding: {
+        bottom: 30px;
+        top: 85px;
+      }
+    }
+  }
+
+  .international-switcher-container {
+    overflow: hidden;
+    display: table;
+
+    .international-switcher-icon {
+      width: 30px;
+      height: 2em;
+      text-align: center;
+      display: table-cell;
+      padding: 15px;
+
+      i {
+        color: $text-color;
+        &.fa-globe {
+          font-size: 1.4em;
+          padding-top: 0px;
+        }
+      }
+
+      .australia {
+        width: 22px;
+        height: 23px;
+        background: url('../images/australia-dark.svg') center center no-repeat;
+      }
+      .australia-active {
+        width: 22px;
+        height: 23px;
+        background: url('../images/australia-white.svg') center center no-repeat;
+      }
+    }
+
+    .international-switcher-content {
+      display: inline-flex;
+      vertical-align: top;
+
+      p {
+        color: $text-color;
+        margin: 0;
+        font-size: $font-size-base;
+      }
+      a {
+        color: $text-color;
+        &.js-aud-btn-modal {
+          padding: 13px;
+          &:hover { text-decoration: none; }
+        }
+        &.fa-question-circle:before {
+          font-size: x-large;
+        }
+      }
+
+      .audience-name {
+        font-weight: bold;
+        display: block;
+        margin-top: -5px;
+        @include breakpoint($breakpoint-md-up) {
+          margin-top: 0;
+          display: inline-block;
+        }
+      }
+
+      .course-link {
+        display: inline-flex;
+        font-style: normal;
+        font-family: $font-futura;
+        font-size: 16px;
+        font-weight: 500;
+
+        a {
+          text-decoration: none;
+        }
+        .residents, .non-residents {
+          display: inline-flex;
+          background-color: $color-white;
+          height: 50px;
+          width: 198px;
+          @include breakpoint($breakpoint-sm-down) {
+            width: 146px;
+          }
+          border-radius: 4px 4px 0 0;
+          a {
+            padding: 12px 15px;
+            @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+              /* IE10+ CSS styles go here */
+              padding: 12px 0px !important;
+            }
+            @include breakpoint($breakpoint-sm-down) {
+              padding: 6px 15px;
+              line-height: 19px;
+              @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+                /* IE10+ CSS styles go here */
+                padding: 6px 0px !important;
+              }
+            }
+          }
+          &.active {
+            background-color: $color-blue-lochmara;
+            a { color: $color-white };
+            i:before { color: $color-white; }
+          }
+          &.non-active {
+            &:hover {
+              background-color: $color-yellow-grandis;
+            }
+          }
+        }
+        .residents.sydney-course {
+          @include breakpoint($breakpoint-sm-down) {
+            height: 68px;
+            width: 119px;
+          }
+          a {
+            @include breakpoint($breakpoint-sm-down) {
+              padding: 16px 15px;
+              @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+                /* IE10+ CSS styles go here */
+                padding: 16px 0px !important;
+              }
+            }
+          }
+        }
+        .non-residents {
+          margin-left: 2px;
+          &.sydney-course {
+            width: 291px;
+            @include breakpoint($breakpoint-sm-down) {
+              height: 68px;
+              width: 189px;
+            }
+            .sydney-link {
+              display: flex;
+              flex-direction: column;
+              padding: 5px 15px;
+              @include breakpoint($breakpoint-sm-down) {
+                padding: 5px 5px 5px 15px;
+              }
+              a {
+                padding: 0px;
+                text-decoration: none;
+              }
+              .link-1 {
+                @include breakpoint($breakpoint-sm-down) {
+                  line-height: 19px;
+                }
+              }
+              .link-2 {
+                line-height: 14px;
+                a {
+                  font-family: $font-futura;
+                  font-size: 12px;
+                  @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+                    /* IE10+ CSS styles go here */
+                    padding: 3px !important;
+                  }
+                  @include breakpoint($breakpoint-sm-down) {
+                    font-size: 12px;
+                  }
+                  @include default-link($local-color: 'light'); 
+                  &:hover { color: $color-black-mine_shaft; }
+                }
+              }
+            }
+          }
+        }
+        .sydney-course {
+          .international-switcher-icon {
+            @include breakpoint($breakpoint-sm-down) {
+              padding: 23px 15px;
+            }
+          }
+          &.js-aud-btn-modal {
+            @include breakpoint($breakpoint-sm-down) {
+              padding: 21px 13px;
+            }
+          }
+        }
+        .one-version-only {
+          display: inline-flex;
+          font-size: 14px;
+          .international-switcher-icon {
+            padding: 0px;
+            i {
+              &.fa-globe {
+                padding-top: 2px;
+              }
+            }
+          }
+          .inner-text-1 {
+            font-family: $fonts-default;
+            font-weight: normal;
+            a {
+              &.js-aud-btn-modal {
+                padding: 0px 5px 0px;
+              }
+              &:before {
+                font-size: inherit;
+              }
+            }
+            .inner-text-2 {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.has-cta #block-vu-core-course-international-switcher {
+  // TODO Unrap .switch-on when course page changes are deployed.
+  &.switch-on {
+    @include breakpoint($breakpoint-lg-up) {
+      padding: {
+        bottom: 0px;
+        top: 121px;
+      }
+    }
+  }
+  &.one-version-of-course {
+    @include breakpoint($breakpoint-lg-up) {
+      padding: {
+        bottom: 36px;
+        top: 85px;
+      }
+    }
+  }
+}
+
+.victoria-polytechnic .region-below-header #block-vu-core-course-international-switcher {
+  &.switch-on {
+    .active {
+      background-color: $color-branding-vicpoly-bg !important;
+    }
+  }
+}

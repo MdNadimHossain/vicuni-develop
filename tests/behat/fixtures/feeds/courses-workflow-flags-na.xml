@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<courses>
+    <course>
+        <coursecode>TEST-FLAGS-NA</coursecode>
+        <courselevel>UG</courselevel>
+        <coursetitle>TEST-FLAGS-NA</coursetitle>
+        <college>VU College</college>
+        <aqftype>Bachelor Degree</aqftype>
+        <cricoscodes>
+            <cricoscode>Cricos Code</cricoscode>
+        </cricoscodes>
+        <handbookinclude>Y</handbookinclude>
+        <courseoffered>Y</courseoffered>
+        <locations>
+            <location>Changed Location</location>
+        </locations>
+        <locationother>Location other</locationother>
+        <courseduration>Course duration</courseduration>
+        <deliverymodes>
+            <deliverymode>Delivery mode</deliverymode>
+        </deliverymodes>
+        <studymodes>
+            <studymode>Full Time</studymode>
+        </studymodes>
+        <introduction>&lt;p&gt;Introduction&lt;/p&gt;</introduction>
+        <courselearningoutcomes>&lt;p&gt;Course learning outcomes&lt;/p&gt;</courselearningoutcomes>
+        <admissionrequirementsseniorsecondary>Admission requirements senior secondary</admissionrequirementsseniorsecondary>
+        <admissionrequirementsbachelorhonoursdegree>Admission requirements bachelor honours degree</admissionrequirementsbachelorhonoursdegree>
+        <admissionrequirementsinternational>Admission requirements international</admissionrequirementsinternational>
+        <admissionrequirementsvet>Admission requirements VET</admissionrequirementsvet>
+        <admissionrequirementsmatureage>Admission requirements mature age</admissionrequirementsmatureage>
+        <admissionrequirementsother>Admission requirements other</admissionrequirementsother>
+        <coursecompletionrules>&lt;p&gt;Course completion rules&lt;/p&gt;</coursecompletionrules>
+        <careeroutcomes>&lt;p&gt;Career outcomes&lt;/p&gt;</careeroutcomes>
+        <structure>
+            <section>
+                <line>
+                    <unitid>TEST-MAPPING-UNIT</unitid>
+                    <isUnitSet>N</isUnitSet>
+                </line>
+                <line>
+                    <unitid>TEST-MAPPING-UNITSET</unitid>
+                    <isUnitSet>Y</isUnitSet>
+                </line>
+            </section>
+        </structure>
+    </course>
+</courses>

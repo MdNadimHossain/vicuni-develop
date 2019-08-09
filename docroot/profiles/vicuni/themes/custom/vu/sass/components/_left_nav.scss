@@ -1,0 +1,164 @@
+//
+// Left navigation component.
+//
+.region-sidebar-first {
+  $navbarRootLinkBg: $vuBlue;
+  $navbarRootLinkColor: $white;
+  $navbarRootLinkActiveBg: $light_blue10;
+  $navbarLinkBg: $white;
+  $navbarLinkColor: $grey17;
+  $navbarLinkActiveBg: #efefef;
+  $navbarLinkLeftSpacing: 14px;
+  $navbarRootLinkLeftSpacing: 15px;
+  $navbarCollapseTriggerBg: $dark_blue2;
+  $navbarCollapseTriggerLinkColor: $navbarRootLinkColor;
+  $navbarCollapseTriggerFontSize: 18px;
+
+  //
+  // Generate internal padding based on level.
+  //
+  @mixin menu-link-padding($start, $finish: 10) {
+    @for $i from $start through $finish {
+      &.level-#{$i} {
+        a {
+          padding-left: $navbarRootLinkLeftSpacing + ($i - $start) * $navbarLinkLeftSpacing;
+        }
+      }
+    }
+  }
+
+  .menu-block-main-menu-left-nav,
+  .menu-name-menu-subsites {
+    .collapse-trigger-text,
+    .collapse-trigger {
+      @include link-futura($navbarCollapseTriggerLinkColor, $navbarCollapseTriggerLinkColor, $navbarCollapseTriggerLinkColor, $navbarCollapseTriggerLinkColor);
+      position: relative;
+      font-size: $navbarCollapseTriggerFontSize;
+      background-color: $navbarCollapseTriggerBg;
+      line-height: 125%;
+      display: block;
+      padding: 10px 15px;
+      padding-left: $navbarRootLinkLeftSpacing;
+    }
+
+    .collapse-trigger {
+      @include fa-after("\2212", 30px);
+      &:after {
+        @include font-helvetica-neue();
+        position: absolute;
+        right: 10px;
+        // Set the line height to the font-size to center vertically.
+        line-height: $navbarCollapseTriggerFontSize;
+      }
+
+      &.collapsed {
+        &:after {
+          content: "+";
+        }
+      }
+
+      @include breakpoint(tablet) {
+        display: none;
+      }
+    }
+
+    .collapse-trigger-text {
+      display: none;
+      @include breakpoint(tablet) {
+        display: block;
+        &:hover {
+          cursor: default;
+        }
+      }
+    }
+
+    #left-nav-collapse {
+      // Override collapsed behaviour on desktop - make expanded even if
+      // collapsed on mobile.
+      &.collapse {
+        @include breakpoint(tablet) {
+          display: block;
+          height: auto !important;
+        }
+      }
+
+      .menu {
+        margin: 0;
+        padding: 0;
+      }
+
+      > .menu {
+        > li {
+          a {
+            position: relative;
+            display: block;
+            padding: 10px 15px;
+          }
+
+          > a {
+            @include link-futura($navbarRootLinkColor, $navbarRootLinkColor, $navbarRootLinkColor, $navbarRootLinkColor);
+            font-size: 18px;
+            background-color: $navbarRootLinkBg;
+            line-height: 125%;
+            padding-left: $navbarRootLinkLeftSpacing;
+            &:hover {
+              text-decoration: underline;
+            }
+            &.active {
+              background: $navbarRootLinkActiveBg;
+            }
+          }
+          .menu {
+            li {
+              a {
+                @include link-futura($navbarLinkColor, $navbarLinkColor, $navbarLinkColor, $navbarLinkColor);
+                font-size: 16px;
+                border-bottom: solid 1px $navbarLinkActiveBg;
+                padding-bottom: 5px;
+                padding-top: 10px;
+
+                &:hover {
+                  background-color: transparent;
+                  text-decoration: underline;
+                }
+
+                &.active-trail.active,
+                &.active-trail.active:hover {
+                  background-color: $navbarLinkActiveBg;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &.menu-level-2 {
+      #left-nav-collapse {
+        > .menu {
+          > li {
+            .menu {
+              li {
+                @include menu-link-padding(3);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &.menu-level-3 {
+      #left-nav-collapse {
+        > .menu {
+          > li {
+            .menu {
+              li {
+                @include menu-link-padding(4);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

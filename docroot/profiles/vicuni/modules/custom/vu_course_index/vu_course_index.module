@@ -1,0 +1,188 @@
+<?php
+
+/**
+ * @file
+ * Integrates course index information with course pages.
+ */
+
+require_once 'vu_course_index.preprocess_functions.php';
+
+/**
+ * Look up course index rows for a VU course code.
+ *
+ * @param string $code
+ *        VU course code.
+ *
+ * @return array
+ *         Course index rows.
+ */
+function vu_course_index_load_rows($code) {
+  $specialisation_code = '';
+  $course_code = explode('-', $code);
+  $code = $course_code[0];
+  $specialisation_code = isset($course_code[1]) ? $course_code[1] : $specialisation_code;
+
+  $query = db_select('course_intake', 'ci')
+    ->fields('ci')
+    ->condition('course_code', $code, '=')
+    ->condition('intake_enabled', 1, '=')
+    ->condition('course_intake_status', 'OFFERED', '=')
+    ->condition('academic_end_date', date('Y:12:31 00:00:00'), '>=');
+
+  if (!empty($specialisation_code)) {
+    $query->condition('specialisation_code', $specialisation_code, '=');
+  }
+
+  $result = $query->execute();
+
+  $index_rows = [];
+
+  $has_commencement = FALSE;
+  $no_commencement = [];
+  while ($row = $result->fetchAssoc()) {
+    $index_rows[$row['id']] = $row;
+
+    if (!is_null($row['course_srt_dt'])) {
+      $has_commencement = TRUE;
+    }
+    else {
+      $no_commencement[] = $row['id'];
+    }
+  }
+  db_set_active();
+
+  // If some entries have commencement dates, filter out those that don't.
+  // @TODO - Confirm this is ok.
+  if ($has_commencement) {
+    foreach ($no_commencement as $id) {
+      unset($index_rows[$id]);
+    }
+  }
+
+  return $index_rows;
+}
+
+/**
+ * Implements course_essentials_alter().
+ */
+function vu_course_index_course_essentials_alter(&$vars) {
+  if (!empty($vars['international'])) {
+    return;
+  }
+
+  $intakes = vu_course_index_get_course_intake_list($vars['course_code']);
+  if ($intakes->isOpen()) {
+
+    // Replace duration text if the course is open:
+    // only use the open study modes.
+    $node = $vars['node'];
+    $study_modes = $intakes->studyModes();
+    $vars['duration'] = vu_courses_duration_text($node, $study_modes);
+  }
+
+}
+
+/**
+ * Implements hook_theme().
+ */
+function vu_course_index_theme() {
+  return [
+    'how-to-apply' => [
+      'template' => 'templates/how-to-apply',
+      'variables' => [
+        'course' => NULL,
+        'short_course' => FALSE,
+        'international' => FALSE,
+        'how_to_apply' => NULL,
+      ],
+      'preprocess functions' => [
+        'template_preprocess',
+        'preprocess_how_to_apply'
+      ],
+    ],
+    'how-to-apply-summary' => [
+      'template' => 'templates/how-to-apply-summary',
+      'variables' => ['course' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'preprocess_how_to_apply_summary'
+      ],
+    ],
+    'international-how-to-apply-summary' => [
+      'template' => 'templates/international-how-to-apply-summary',
+      'variables' => ['course' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'preprocess_how_to_apply_summary'
+      ],
+    ],
+    'application-methods' => [
+      'template' => 'templates/application-methods',
+      'arguments' => [
+        'course_code' => NULL,
+        'short_course' => FALSE,
+        'international' => FALSE,
+        'is_pgr' => FALSE,
+        'delivery' => NULL,
+        'new_course' => FALSE,
+        'course' => NULL,
+      ],
+    ],
+    'specialisation-text' => [
+      'template' => 'templates/specialisation-text',
+      'variables' => [
+        'is_specialisation' => FALSE,
+      ],
+    ],
+    'associated-courses' => [
+      'template' => 'templates/associated-courses',
+      'variables' => ['course' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'preprocess_associated_courses'
+      ],
+    ],
+    'intake-rows' => [
+      'template' => 'templates/intake-rows',
+      'variables' => ['rows' => []],
+    ],
+    'pgr-how-to-apply' => [
+      'template' => 'templates/pgr-how-to-apply',
+      'variables' => [
+        'contact' => TRUE,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Render a link to VU Sydney node as if it were a location.
+ *
+ * @param string $value
+ *   Imported special location.
+ * @param bool $alias
+ *   Option to return a node path alias.
+ *
+ * @return mixed
+ *   Full node link markup, node alias, title string or FALSE.
+ */
+function vu_unit_special_location_link($value, $alias = FALSE) {
+  // Look up path alias for VU Sydney node.
+  $result = db_select('node', 'n')
+    ->fields('n', ['nid'])
+    ->condition('title', $value)
+    ->condition('status', 1)
+    ->execute()
+    ->fetchAssoc();
+
+  // We just want the path alias.
+  if ($alias) {
+    // Return a node alias if found and published.
+    // FALSE if node not found.
+    return !empty($result) ? url('node/' . $result['nid']) : FALSE;
+  }
+
+  // Return a link if node found and published.
+  // Fallback to plain text e.g. 'VU Sydney'.
+  return !empty($result) ? l($value, 'node/' . $result['nid']) : $value;
+}

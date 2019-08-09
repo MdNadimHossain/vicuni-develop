@@ -1,0 +1,136 @@
+.vu-vp-block-researcher-profile-navbar {
+  background-color: $color-blue-lochmara;
+  color: $color-white;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+
+  .no-js & {
+    display: none;
+  }
+
+  .container {
+    @include col-no-gutters;
+
+    .nav-container {
+      display: flex;
+      margin: 0 -20px;
+
+      .researcher-profile-navbar-item {
+        align-items: center;
+        display: flex;
+        font-family: $font-futura;
+        font-size: 16px;
+        font-weight: 500;
+        height: 60px;
+        margin: 0 25px;
+        padding-left: 20px;
+        padding-right: 20px;
+        position: relative;
+        white-space: nowrap;
+
+        &:first-child {
+          margin-left: 0;
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        &:focus,
+        &:hover {
+          background-color: $color-blue-denim;
+          cursor: pointer;
+        }
+
+        &.researcher-profile-navbar-item-selected:after {
+          background: $color-white;
+          bottom: 0;
+          content: '';
+          display: block;
+          left: 20px;
+          height: 6px;
+          position: absolute;
+          right: 20px;
+        }
+      }
+    }
+
+    @include breakpoint($breakpoint-lg-up) {
+      .nav-container .researcher-profile-navbar-item {
+        font-size: 20px;
+
+        &.researcher-profile-navbar-item-selected:after {
+          height: 10px;
+        }
+      }
+    }
+
+    @include breakpoint($breakpoint-sm-up) {
+      .researcher-profile-nav-container-xs {
+        display: none;
+      }
+    }
+
+    @include breakpoint($breakpoint-sm-down) {
+      .nav-container {
+        display: none;
+      }
+
+      .researcher-profile-nav-container-xs {
+        background-color: $color-blue-lochmara;
+        display: block;
+        padding-top: 0;
+
+        .xs-navbar-item {
+          display: none;
+        }
+
+        .researcher-profile-nav-container-select {
+          > div {
+            appearance: none;
+            cursor: pointer;
+            font-size: 18px;
+          }
+
+          .selection {
+            @include make-grid-column;
+          }
+
+          .xs-navbar-item {
+            @include make-grid-column;
+            font-size: 16px;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            &:last-child {
+              margin-bottom: 8px;
+            }
+
+            &:hover {
+              background: $color-blue-bahama;
+            }
+
+            &.active {
+              background-color: $color-blue-cello;
+            }
+          }
+
+          .selected {
+            padding-bottom: 11px;
+            padding-top: 11px;
+
+            span {
+              font-weight: 700;
+            }
+
+            div.direction {
+              float: right;
+              font-size: 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

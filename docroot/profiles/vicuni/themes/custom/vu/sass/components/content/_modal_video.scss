@@ -1,0 +1,50 @@
+@charset "UTF-8";
+@mixin modal-video() {
+  display: none;
+  max-width: 225px;
+  @include breakpoint(tablet) {
+    display: block;
+  }
+  a {
+    display: block;
+    width: 100%;
+  }
+}
+
+.media-element-container br {
+  display: none;
+}
+
+.media-modal_video {
+  @include modal-video();
+  float: right;
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+
+.modal-thumb-wrapper {
+  @include play-button-overlay();
+}
+
+.modal-video-transcript {
+  font-size: 12px;
+  line-height: 18px;
+  padding-top: 2px;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.node-type-campus {
+  #block-vumain-vumain-campus-video-thumb {
+    @include modal-video();
+    max-width: 225px;
+    margin-bottom: 30px;
+    .campus-thumb-wrapper {
+      @include play-button-overlay();
+    }
+    .campus-video-transcript {
+      @extend .modal-video-transcript;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+name = VU Researcher Profile List
+description = List of Researchers to be imported through API.
+core = 7.x
+package = VU
+
+dependencies[] = vu_rp

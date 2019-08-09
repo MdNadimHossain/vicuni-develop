@@ -1,0 +1,443 @@
+$_arrow_height: 24px;
+$_arrow_width: 22px;
+
+.node-type-researcher-profile {
+  .victory-researcher-profile-related-links {
+    ul {
+      @include no-bullets;
+
+      padding: 0;
+
+      & > li > a {
+        @include font(18px, 'futura', 400);
+        @include breakpoint($breakpoint-sm-up) {
+          font-size: 20px;
+        }
+        position: relative;
+        .conversation {
+          background: url($image-conversation-wh-icon);
+        }
+        .orcid {
+          background: url($image-orcid-wh-icon);
+        }
+        .orcid,
+        .conversation {
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: 20px 20px;
+          float: right;
+        }
+
+        // Ensure that the default `.ext` behaviour doesn't interfere.
+        &,
+        &.ext {
+          @include victory-link-arrows($_arrow_width, $_arrow_height);
+          &:after {
+            right: 17px;
+          }
+          &:hover:after {
+            right: 7px;
+          }
+        }
+        .text {
+          margin-bottom: 0;
+          .summary {
+            @include font(12px, $fonts-default, normal);
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
+  // Default related list style.
+  .list__style--default {
+    div.victory-researcher-profile-related-links {
+      h3 {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+
+      ul {
+        border-bottom: 2px solid $color-blue-loblolly;
+        border-top: 3px solid $color-blue-loblolly;
+        line-height: inherit;
+        margin: 0;
+        & > li {
+          display: block;
+          margin-bottom: 0;
+          padding: 0;
+          &:before, .fa {
+            display: none;
+          }
+          & > a {
+            @include display-flex;
+            @include flex-wrap(wrap);
+            align-items: center;
+            border-bottom: 1px solid $color-blue-loblolly;
+            box-shadow: none !important;
+            color: $color-blue-elephant;
+            line-height: 26px;
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
+            text-decoration: none;
+
+            &:active, &:focus, &:hover {
+              background: transparent;
+              background-color: $color-white !important;
+              color: $color-blue-lochmara;
+              text-decoration: none !important;
+            }
+            &:after {
+              content: '' !important;
+            }
+            span.title:after {
+              content: '' !important;
+            }
+            .text {
+              padding-right: 50px;
+              width: 100%;
+              .summary {
+                color: $color-black-mine_shaft;
+                line-height: 18px;
+              }
+
+              @include breakpoint($breakpoint-sm-up) {
+                padding-right: calc(#{ceil(percentage((1/$grid-columns)))} + #{$grid-gutter-width});
+              }
+            }
+          }
+
+          // Add custom `.ext` behaviour.
+          & > a.ext {
+            .title:after {
+              $local-external-link-icon-width: 15px;
+              $local-external-link-icon-height: 14px;
+
+              background-image: url($image-link-external-elephant);
+              background-size: cover;
+              content: '';
+              display: inline-block;
+              height: $local-external-link-icon-height;
+              margin-left: 10px;
+              width: $local-external-link-icon-width;
+            }
+
+            &:focus,
+            &:hover {
+              .title:after {
+                background-image: url($image-link-external-lochmara);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Shared tools and contact styles.
+  .list__style--tools, .list__style--contact {
+    $_padding_horizontal: 25px;
+    $_padding_vertical: 17px;
+    $_icon_size: 1.2em;
+
+    div.victory-researcher-profile-related-links {
+      h3 {
+        @include hide-text;
+
+        display: none;
+      }
+
+      ul {
+        list-style: none !important;
+        padding: 0;
+        margin: 0;
+        > li {
+          display: block;
+          margin-bottom: 0;
+          position: relative;
+          width: 100% !important;
+          &:before {
+            display: none;
+            content: '';
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          & > a {
+            display: table;
+            width: 100%;
+            padding-right: $_padding_horizontal + $_arrow_width;
+            text-decoration: none !important;
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
+            padding-left: 0 !important;
+
+            // Ensure that the default `.ext` behaviour doesn't interfere.
+            &:after,
+            &.ext:after {
+              background: url($image-link-arrow--dark) no-repeat center right;
+            }
+
+            &[href^="tel:"] {
+              padding-right: $_padding_horizontal;
+
+              &:after {
+                display: none;
+                padding-left: 0;
+              }
+            }
+
+            &:active,
+            &:focus,
+            &:hover {
+              background-color: $color-yellow-grandis;
+              color: $color-black-mine_shaft;
+            }
+
+            .icon,
+            .text,
+            .arrow {
+              display: table-cell;
+            }
+
+            .icon {
+              font-size: 17px;
+              width: 30px;
+              height: $_icon_size;
+              line-height: $_icon_size;
+              margin-left: 20px;
+              text-align: center;
+            }
+            .text {
+              padding-left: 8px;
+            }
+
+            &:hover:after {
+              background-image: url($image-link-arrow-hover--dark);
+            }
+          }
+
+          &:last-child a {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+
+  // Tools style option
+  .list__style--tools {
+    div.victory-researcher-profile-related-links {
+      background-color: $color-blue-fun_blue;
+
+      ul {
+        list-style: none !important;
+        > li {
+          & > a {
+            border-bottom: 1px solid $color-blue-cornflower;
+            color: $color-white;
+            box-shadow: none !important;
+          }
+          & > a.no-arrow {
+            &:after {
+              content: '' !important;
+              background: none;
+            }
+          }
+        }
+      }
+    }
+  }
+  .list_style--special {
+    div.victory-researcher-profile-related-links {
+      background-color: $color-blue-cello;
+      padding: 10px;
+      width: 45% !important;
+      font-size: 16px;
+      margin: 30px 0 20px 0;
+
+      ul {
+        background-color: $color-blue-cello !important;
+        list-style: none !important;
+
+        > li {
+          &:before {
+            content: none !important;
+            padding-right: 0 !important;
+          }
+          & > a {
+            display: inline-flex;
+            color: $color-white !important;
+            font-family: $font-futura;
+            text-decoration: none !important;
+            box-shadow: none !important;
+            -webkit-appearance: none !important;
+            border: none !important;
+            background-color: $color-blue-cello !important;
+
+            &:link, &:active {
+              color: #fff !important;
+            }
+            &:hover,
+            &:focus {
+              background-color: $color-blue-cello !important;
+            }
+            &:after {
+              background: url($image-link-arrow--dark) no-repeat center right;
+              content: ' ' !important;
+            }
+            &.ext:after {
+              background: url($image-link-arrow--dark) no-repeat center right;
+              width: 15%;
+            }
+            span.title {
+              padding-right: 10px;
+            }
+            div.text {
+              width: 80%;
+              padding-left: 18px;
+              padding-bottom: 6px;
+              padding-top: 10px;
+            }
+          }
+        }
+      }
+      @include breakpoint($breakpoint-sm-down) {
+        width: 100% !important;
+      }
+    }
+  }
+  // Contact style option
+  .list__style--contact {
+    div.victory-researcher-profile-related-links {
+      background-color: $color-white;
+      @include breakpoint($breakpoint-sm-up) {
+        width: 50%;
+      }
+      ul {
+        list-style: none !important;
+        > li {
+          & > a {
+            color: $color-black-mine_shaft;
+            border: none;
+            box-shadow: none !important;
+            &:after {
+              content: '' !important;
+              background: none;
+            }
+            // Ensure that the default `.ext` behaviour doesn't interfere.
+            &.ext:after {
+              background: none;
+            }
+            &:hover {
+              background-color: $color-white !important;
+              &:after {
+                background-image: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Link components in a full width row styles
+  .row-full-width {
+    @include breakpoint($breakpoint-sm-up) {
+      .list__style--default {
+        ul {
+          overflow: hidden;
+          border-bottom: 2px solid $color-blue-loblolly !important;
+          display: flex;
+          flex-wrap: wrap;
+
+          li {
+            flex: 1;
+            flex-basis: calc(50% - 30px);
+            max-width: 50%;
+            width: calc(50% - 30px);
+            a {
+              height: 100%;
+            }
+          }
+
+          li:nth-child(2n + 1) {
+            margin-right: 30px;
+            max-width: calc(50% - 30px);
+          }
+
+          li:last-child a,
+          li:nth-last-child(2) a {
+            border-bottom: 0;
+          }
+
+          li:nth-last-child(2):nth-child(even) a {
+            border-bottom: 1px solid $color-blue-loblolly;
+          }
+        }
+      }
+      .list__style--contact,
+      .list__style--tools {
+        div.victory-researcher-profile-related-links {
+          ul {
+            display: table;
+            table-layout: fixed;
+            width: 100%;
+            height: 1px;
+
+            > li {
+              display: table-cell;
+              vertical-align: top;
+              height: 100%;
+
+              & > a {
+                border-bottom: none;
+                height: 100%;
+                border-right: 1px solid $color-grey-dusty_gray;
+
+                &:after, &.ext:after {
+                  display: none;
+                }
+
+                & .icon {
+                  display: block;
+                  width: 100%;
+                }
+
+                & .text {
+                  display: block;
+                  width: 100%;
+                  margin: 30px 0 60px;
+                }
+
+                & .arrow {
+                  @include victory-link-arrows($_arrow_width, $_arrow_height);
+
+                  display: block;
+                  bottom: 30px;
+                  height: $_arrow_height;
+                  position: absolute;
+                  width: $_arrow_width;
+
+                  &:after {
+                    background: url($image-link-arrow--dark) no-repeat center right;
+                    right: 0;
+                  }
+                }
+
+                &:hover .arrow:after {
+                  background-image: url($image-link-arrow-hover--dark);
+                  right: -10px;
+                }
+              }
+            }
+          }
+
+          > li:last-child > a {
+            border-right: none;
+          }
+        }
+      }
+    }
+  }
+}

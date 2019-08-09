@@ -1,0 +1,125 @@
+@charset "UTF-8";
+a[href$=".pdf"], a[href$=".PDF"] {
+  @include fa-after("\f1c1", 1em, $red);
+}
+
+a[href$=".doc"], a[href$=".docx"] {
+  @include fa-after("\f15c", 1em);
+}
+
+%ext-arrow {
+  a {
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+    &:hover,
+    &:focus {
+      .arrow-wrapper {
+        top: -2px;
+        right: -2px;
+      }
+      .ext-box-break,
+      .ext-box-break-hover {
+        background-color: $orange2;
+        border: solid 1px $orange2;
+      }
+      .ext-box-break,
+      .ext-box-break-hover {
+        border: solid 1px $orange2;
+      }
+      .ext-box {
+        border: solid 1px $grey17;
+      }
+      .ext-box-break {
+        border-bottom: solid 1px $orange2;
+        border-left: solid 1px $orange2;
+      }
+      .ext-arrow-head {
+        background-color: $orange2;
+        border-top: solid 1px $grey17;
+        border-right: solid 1px $grey17;
+        border-bottom: solid 1px $orange2;
+        border-left: solid 1px $orange2;
+      }
+      .ext-arrow-stroke {
+        border-top: solid 1px $grey17;
+      }
+    }
+    &.ext:after {
+      content: '';
+    }
+    &.noext {
+      .external-link-wrapper {
+        display: none;
+      }
+    }
+  }
+  .external-link-wrapper {
+    position: relative;
+    display: inline-block;
+    float: right;
+  }
+  // Main rectangle.
+  .ext-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-block;
+    float: right;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 1.9px;
+    border: solid 1px $white;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  .arrow-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    @include transition(top 100ms, right 100ms);
+  }
+  // Overlay to break main rectangles border.
+  .ext-box-break {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: $dark_blue12;
+    border: solid 1px $dark_blue12;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  // Arrow head.
+  .ext-arrow-head {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0.8rem;
+    height: 0.8rem;
+    background-color: $dark_blue12;
+    border-top: solid 1px $white;
+    border-right: solid 1px $white;
+    border-bottom: solid 1px $dark_blue12;
+    border-left: solid 1px $dark_blue12;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  // Hover state static cover. (stays in position to keep the break in the base border static)
+  .ext-box-break-hover {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: $dark_blue12;
+    border: solid 1px $dark_blue12;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  .ext-arrow-stroke {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 0.95rem;
+    border-top: solid 1px $white;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+    @include transform(translateY(4px) translateX(5px) rotate(-45deg));
+  }
+}

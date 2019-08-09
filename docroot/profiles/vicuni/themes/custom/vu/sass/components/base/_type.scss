@@ -1,0 +1,426 @@
+body {
+  font-family: $baseFontFamily;
+  font-size: $baseFontSizePx;
+}
+
+// BODY TEXT
+// ---------
+p {
+  margin: 0 0 $baseLineHeight / 2;
+  font-family: $baseFontFamily;
+  font-size: $baseFontSize;
+  line-height: $neonLineHeight;
+  small {
+    font-size: $baseFontSize * 0.86;
+    color: $grey9;
+  }
+}
+
+.lead {
+  margin-bottom: $baseLineHeight;
+  font-size: 20px;
+  font-weight: 200;
+  line-height: $baseLineHeight * 1.5;
+}
+
+// HEADINGS
+// --------
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: $headingsFontFamily;
+  font-weight: $headingsFontWeight;
+  color: $headingsColor;
+  text-rendering: optimizelegibility; // Fix the character spacing for headings
+  small {
+    font-weight: normal;
+    color: $grey9;
+  }
+}
+
+h1 {
+  font-size: 30px;
+  line-height: $baseLineHeight * 2;
+  margin-bottom: 18px;
+  -webkit-font-smoothing: auto;
+  small {
+    font-size: 18px;
+  }
+}
+
+h2 {
+  font-size: 24px;
+  line-height: $baseLineHeight * 2;
+  small {
+    font-size: 18px;
+  }
+}
+
+h3 {
+  line-height: $baseLineHeight * 1.5;
+  font-size: 18px;
+  small {
+    font-size: 14px;
+  }
+}
+
+h4, h5, h6 {
+  line-height: $baseLineHeight;
+}
+
+h4 {
+  font-size: 14px;
+  small {
+    font-size: 12px;
+  }
+}
+
+h5 {
+  font-size: 12px;
+}
+
+h6 {
+  font-size: 11px;
+  color: $grey9;
+  text-transform: uppercase;
+}
+
+// Page header
+.page-header {
+  padding-bottom: $baseLineHeight - 1;
+  margin: $baseLineHeight 0;
+  border-bottom: 1px solid $grey3;
+}
+
+.page-header h1 {
+  line-height: 1;
+}
+
+// Apply Futura font when set as a CSS class
+.futura {
+  @include futura();
+}
+
+// LISTS
+// -----
+// Unordered and Ordered lists
+ul, ol {
+  padding: 0;
+  margin: 0 0 $baseLineHeight / 2 25px;
+  &.unstyled, &.list-unstyled {
+    margin-left: 0;
+    list-style: none;
+  }
+}
+
+li {
+  line-height: $neonLineHeight;
+  small {
+    font-size: $baseFontSize - 2;
+    color: $grey2;
+  }
+}
+
+ul, .item-list ul li {
+  // Bootstrap override
+  list-style: square;
+}
+
+ul, ol {
+  padding: 0;
+  margin: 0 0 $baseLineHeight / 2 25px;
+}
+
+ul.links-list {
+  color: $linkColor;
+}
+
+
+/**
+ * Nested ordered lists:
+ * 1. Outer list
+ *   a. next
+ *     i. inner
+ */
+
+ol {
+  li {
+    list-style-type: decimal;
+  }
+  ol {
+    li {
+      list-style-type: lower-alpha;
+    }
+    ol li {
+      list-style-type: lower-roman;
+    }
+  }
+}
+
+
+/*** LISTS - Monkii ***/
+
+.list--unstyled {
+  list-style: none;
+  margin-left: 0;
+}
+
+.list--square {
+  list-style: square;
+  margin-left: 0;
+}
+
+@mixin list--stacked($margin-top:0.25em, $margin-bottom: 0.5em) {
+  li {
+    margin-top: $margin-top;
+    margin-bottom: $margin-bottom;
+    a {
+      display: inline-block;
+      line-height: $neonLineHeight - 0.2em;
+    }
+  }
+}
+
+@mixin list--inline() {
+  @include list--unstyled;
+  li {
+    display: inline-block;
+    margin: $gridGutterWidth/3;
+    margin-left: 0;
+  }
+}
+
+@mixin list--images {
+  @include list--inline;
+  @include gridRow(); // clone of Bootstrap's, in case we need to change anything
+  li {
+    @include gridColumn(4);
+    margin-right: 0;
+    margin-bottom: $gridGutterWidth;
+    @extend .wrapper;
+    img {
+      @include image--responsive;
+    }
+    h2 {
+      @include tile__caption--inverse;
+      @include text--alternate-bold;
+      line-height: $baseLineHeight * 1.5;
+      font-size: 1.43em;
+    }
+    a:hover h2 {
+      //&:extend(.tile__caption--white);
+      background: $vuBlue;
+    }
+  }
+}
+
+@mixin list--carousel() {
+  @include list--unstyled;
+  // style it with only initial slide visible, to avoid any JS lag
+  // needs a height set
+  position: relative;
+  li {
+    position: absolute;
+    display: none;
+  }
+  li:first-child {
+    display: block;
+  }
+}
+
+// Abbreviations and acronyms
+abbr[title] {
+  border-bottom: 2px dotted $grey9;
+}
+
+abbr.initialism {
+  font-size: inherit;
+}
+
+// TYPE MIXINS
+// --------------------------------------------------
+@mixin list-unstyled() {
+  margin-left: 0;
+  padding: 0;
+  list-style: none;
+  li {
+    list-style: none;
+  }
+}
+
+
+/*** TYPOGRAPHY - Monkii ***/
+
+.text--smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.text--unaliased {
+  -webkit-font-smoothing: auto;
+}
+
+.text--large {
+  font-size: 1.1em;
+}
+
+.text--small {
+  font-size: 0.85em;
+  letter-spacing: 0.1px;
+  h1 {
+    margin-bottom: 12px;
+  }
+  h2 {
+    margin-bottom: 5px;
+  }
+}
+
+.text--body {
+  @extend .text--smooth;
+  font-family: $baseFontFamily !important;
+  font-weight: 400;
+}
+
+.text--bold {
+  @extend .text--body;
+  font-weight: 500 !important;
+}
+
+.text--alternate {
+  @extend .text--unaliased;
+  font-family: $futura !important;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+}
+
+.text--alternate-bold {
+  @extend .text--alternate;
+  font-weight: 400;
+}
+
+.text--lead {
+  @extend .text--alternate;
+  font-size: 24px;
+  line-height: 1.3em;
+  margin: 1em;
+  letter-spacing: 0.5px;
+}
+
+.text--emphasis {
+  @extend .text--alternate;
+  font-size: 1.3em;
+  margin: 0 0 1em 0;
+}
+
+.text--muted {
+  color: $grey2; // Ideally @grayLight but it's not AA compliant;
+}
+
+.text--inverse {
+  color: white;
+}
+
+.text--inverse-container {
+  p, a, li, label, td, h1, h2, h3, h4 {
+    @extend .text--inverse;
+  }
+  a {
+    @extend .link--inverse !optional;
+  }
+}
+
+.heading {
+  //padding-top: 1.33rem;
+  //&:extend(.flush--top-first-child);
+  line-height: $baseLineHeight;
+}
+
+.h1 {
+  @extend .heading;
+  @extend .text--alternate-bold;
+  font-size: 1.875em;
+  //padding-bottom: 0.6rem;
+}
+
+.h2 {
+  @extend .heading;
+  @extend .text--bold;
+  font-size: 16px; // OK I broke the rule - want it to be 16px whether in .box (.text--small) or not
+  //padding-bottom: 0.6rem;
+}
+
+.h3 {
+  @extend .h2;
+  font-size: 1.1em;
+  //margin-bottom: 2px;
+}
+
+.h4 {
+  @extend .h3;
+  font-size: 1em;
+}
+
+hr.dotted {
+  border-top: 1px dotted #d4d4d4; //cheating, but we use this colour in back-to-top divider
+}
+
+
+/*** HORIZONTAL RULES / LEADERS - Monkii ***/
+
+.rule {
+  width: 100%;
+  position: relative;
+}
+
+.rule--dotted {
+  @extend .rule;
+  border-bottom: 1px dotted $grey9;
+}
+
+.leader {
+  @extend .rule--dotted;
+  float: left;
+  top: 0.6em; // 0.5 is just a little short?
+  z-index: 1;
+  & + * {
+    float: right;
+    display: block;
+    background: inherit;
+    padding-left: floor($gridGutterWidth/2);
+    z-index: 10;
+    position: relative;
+    line-height: 1;
+  }
+}
+
+// Blockquotes
+blockquote {
+  padding: 0 0 0 15px;
+  margin: 0 0 $baseLineHeight;
+  border-left: 5px solid $grey;
+  p {
+    margin-bottom: $baseLineHeight / 2;
+    @include shorthand(16px, 300, $baseLineHeight * 1.25);
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  small {
+    display: block;
+    line-height: $baseLineHeight;
+    color: $grey9;
+    &:before {
+      content: '\2014 \00A0';
+    }
+  }
+  // Float right with text-align: right
+  &.pull-right {
+    float: right;
+    padding-left: 0;
+    padding-right: 15px;
+    border-left: 0;
+    border-right: 5px solid $grey10;
+    p, small {
+      text-align: right;
+    }
+  }
+}

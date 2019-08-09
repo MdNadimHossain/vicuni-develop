@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Installation file for VU API Log module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function vu_rp_log_schema() {
+  $schema['vu_rp_log'] = [
+    'description' => 'Stores logs fort API processing',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique log record ID',
+      ],
+      'event' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Event that created this log record',
+      ],
+      'severity' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'The severity level of the event; ranges from 0 (Emergency) to 7 (Debug)',
+      ],
+      'timestamp' => [
+        'type' => 'float',
+        'size' => 'big',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Unix timestamp of when event occurred',
+      ],
+      'message' => [
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'Message handled by the event',
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+        'default' => NULL,
+        'description' => 'The entity id of matched entity, if any',
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  return $schema;
+}

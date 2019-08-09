@@ -1,0 +1,6 @@
+name = VU Legacy video
+description = Legacy support for video filter in migrated content.
+core = 7.x
+package = VU
+
+dependencies[] = video_filter

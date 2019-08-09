@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<courses>
+    <course>
+        <coursetitle>TEST-FLAGS-1</coursetitle>
+        <coursecode>TEST-FLAGS-1</coursecode>
+        <handbookinclude>Y</handbookinclude>
+        <courseoffered>Y</courseoffered>
+        <continuingstudent>N</continuingstudent>
+    </course>
+    <course>
+        <coursetitle>TEST-FLAGS-2</coursetitle>
+        <coursecode>TEST-FLAGS-2</coursecode>
+        <handbookinclude>N</handbookinclude>
+        <courseoffered>N</courseoffered>
+        <continuingstudent>N</continuingstudent>
+    </course>
+    <course>
+        <coursetitle>TEST-FLAGS-3</coursetitle>
+        <coursecode>TEST-FLAGS-3</coursecode>
+        <handbookinclude>Y</handbookinclude>
+        <courseoffered>Y</courseoffered>
+        <continuingstudent>N</continuingstudent>
+    </course>
+</courses>

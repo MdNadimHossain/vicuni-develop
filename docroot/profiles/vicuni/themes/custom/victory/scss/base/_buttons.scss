@@ -1,0 +1,15 @@
+//
+// Buttons.
+//
+
+%close {
+  font-size: 70px;
+  font-weight: 200;
+  // Custom adjustments to compensate that close button is a font.
+  letter-spacing: -5px;
+  margin-top: -2px;
+}
+
+.btn-full {
+  width: 100%;
+}

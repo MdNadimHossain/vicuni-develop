@@ -1,0 +1,143 @@
+// Accordion style.
+.accordion {
+  // Border style and colours.
+  $_border: 2px solid $color-grey-silver_chalice;
+  $_color-border-active: $color-blue-fun_blue;
+
+  // Icon colours.
+  $_color-icon-active: $color-blue-bahama;
+  $_color-icon-hover: $color-blue-lochmara;
+
+  // Text colours.
+  $_color-text-active: $color-blue-bahama;
+  $_color-text-hover: $color-blue-fun_blue;
+
+  clear: both;
+
+  .accordion-inner {
+    border: {
+      bottom: $_border;
+      top: $_border;
+    }
+
+    > h3:first-child {
+      font-size: 18px;
+    }
+
+    h3, h4 {
+      margin: 16px 0;
+
+      a {
+        display: block;
+        padding-right: 42px;
+        position: relative;
+        text-decoration: none;
+
+        &:hover {
+          color: $_color-text-hover;
+
+          .victory-svg__cross {
+            fill: $_color-icon-hover;
+          }
+        }
+
+        .accordion-title-icon {
+          @include rotate(0deg);
+          @include transition-duration(0.35s);
+          @include transition-property(transform);
+
+          height: 100%;
+          position: absolute;
+          right: 0;
+          top: 0;
+
+          svg {
+            height: 100%;
+          }
+        }
+
+      }
+    }
+
+    table {
+      table-layout: auto;
+    }
+
+    .accordion-content {
+      a {
+        @include default-link($local-color: 'light');
+      }
+
+      & > * {
+        &:first-child {
+          padding-top: 10px;
+        }
+
+        &:last-child {
+          padding-bottom: $spacing-vertical-bottom;
+        }
+      }
+
+      h3 {
+        margin-top: 0;
+      }
+    }
+
+    // Active state; Accordion open.
+    &--active {
+      border-color: $_color-border-active;
+      position: relative;
+
+      h4 a, h3 a {
+        color: $_color-text-active;
+
+        .accordion-title-icon {
+          @include rotate(45deg);
+
+          .victory-svg__cross {
+            fill: $_color-icon-active;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Fixes double borders between adjacent accordion items
+// this gets applied to the style guide as well.
+.paragraphs-items-field-paragraphs-left .field-items, .styleguide, .field-name-field-lhs-components .field-items {
+  .field-item-accordion + .field-item-accordion, & > .accordion {
+    .accordion-inner {
+      margin-top: -2px;
+    }
+  }
+  .field-item.field-item-accordion + :not(.field-item-accordion){
+    padding-top: $spacing-vertical-top-sm;
+  }
+}
+
+.accordion + .accordion {
+  margin-top: -2px;
+}
+
+// Fixes extra padding within grouped accordion content.
+.group-secondary-education, .group-vocational-training, .group-higher-education, .group-work-life {
+  .accordion-inner {
+    .accordion-content {
+      .field-name-courses-atar-se, .field-name-courses-atar-he, .field-name-courses-atar-work-life, .field-name-courses-atar-vet {
+        .col-md-7, .col-md-6:first-child {
+          padding-left: 0px;
+        }
+      }
+    }
+  }
+}
+
+.group-secondary-education {
+ .accordion-inner--active {
+    &::after {
+      content: ".";
+      visibility: hidden;
+    }
+  }
+}

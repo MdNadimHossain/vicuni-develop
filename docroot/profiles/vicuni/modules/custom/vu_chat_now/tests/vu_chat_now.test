@@ -1,0 +1,269 @@
+<?php
+
+/**
+ * @file
+ * Unit tests related to functions in vu_chat_now module.
+ */
+
+/**
+ * Class VuChatNowUnitTestCase.
+ */
+class VuChatNowUnitTestCase extends VuCoreUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return [
+      'name' => 'Chat state',
+      'description' => 'Test chat state',
+      'group' => 'VU Chat Now',
+    ];
+  }
+
+  public function testChatState() {
+    $this->processProvider('providerChatState', function ($times, $now, $expected, $assertion_number) {
+      if (!$this->isValidTimes($times)) {
+        $this->fail(format_string('Invalid time values provided for assertion @number', [
+          '@number' => $assertion_number + 1,
+        ]));
+
+        return;
+      }
+      $now = strtotime($now);
+      $this->assertArray(_vu_chat_now_get_chat_state($times, $now), $expected, format_string('Result is correct for assertion @number', [
+        '@number' => $assertion_number + 1,
+      ]));
+    });
+  }
+
+  public function providerChatState() {
+    return [
+      // In the middle of open times.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Tuesday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+        ],
+        'Monday 9:30 am',
+        [
+          'is_open' => TRUE,
+          'weekday' => 'Monday',
+          'start' => '9:00 am',
+          'finish' => '10:00 am',
+        ],
+      ],
+
+      // Exactly first minute of open times.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Tuesday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+        ],
+        'Monday 9:00 am',
+        [
+          'is_open' => TRUE,
+          'weekday' => 'Monday',
+          'start' => '9:00 am',
+          'finish' => '10:00 am',
+        ],
+      ],
+
+      // Exactly last minute of open times.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Tuesday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+        ],
+        'Monday 10:00 am',
+        [
+          'is_open' => TRUE,
+          'weekday' => 'Monday',
+          'start' => '9:00 am',
+          'finish' => '10:00 am',
+        ],
+      ],
+
+      // Before open times.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Tuesday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+        ],
+        'Monday 8:59am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Monday',
+          'start' => '9:00 am',
+          'finish' => '10:00 am',
+        ],
+      ],
+
+      // After close times.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Tuesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Monday 10:01am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Tuesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // After close times, but the day after the next one.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Wednesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Monday 10:01am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Wednesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // On the day when closed, before previous day opening.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Wednesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Tuesday 8:00am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Wednesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // On the day when closed, during previous day opening.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Wednesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Tuesday 9:30am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Wednesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // On the day when closed, after previous day closing.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Wednesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Tuesday 10:30am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Wednesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // On the day when closed, during next day closing.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Wednesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Tuesday 11:30am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Wednesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // On the day when closed, after next day closing.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+          'Wednesday' => ['start_time' => '11:00 am', 'end_time' => '12:00 am'],
+        ],
+        'Tuesday 1:00pm',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Wednesday',
+          'start' => '11:00 am',
+          'finish' => '12:00 am',
+        ],
+      ],
+
+      // Single day of the week.
+      [
+        [
+          'Monday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+        ],
+        'Monday 10:01am',
+        [
+          'is_open' => FALSE,
+          'weekday' => 'Monday',
+          'start' => '9:00 am',
+          'finish' => '10:00 am',
+        ],
+      ],
+
+      // No valid days.
+      [
+        [],
+        'Monday 10:01am',
+        [
+          'is_open' => NULL,
+          'weekday' => NULL,
+          'start' => NULL,
+          'finish' => NULL,
+        ],
+      ],
+      // Invalid times.
+      [
+        [
+          'Monday' => ['start_time' => '11:00 am', 'end_time' => '10:00 am'],
+          'Tuesday' => ['start_time' => '9:00 am', 'end_time' => '10:00 am'],
+        ],
+        'Monday 9:30 am',
+        [
+          'is_open' => NULL,
+          'weekday' => NULL,
+          'start' => NULL,
+          'finish' => NULL,
+        ],
+      ],
+    ];
+  }
+
+  /**
+   * Validate provided time values.
+   */
+  protected function isValidTimes($times) {
+    $days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    // Validate day of week and start/end time keys.
+    foreach ($times as $day => $time_values) {
+      if (!in_array($day, $days_of_week) || !isset($time_values['start_time']) || !isset($time_values['end_time'])) {
+        return FALSE;
+      }
+
+      // Incorrectly specified times.
+      if (strtotime($time_values['start_time']) === FALSE || strtotime($time_values['end_time']) === FALSE) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
+}

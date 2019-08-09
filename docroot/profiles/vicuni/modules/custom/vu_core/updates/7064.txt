@@ -1,0 +1,1 @@
+Enables vpoly_core module and removes link content type.

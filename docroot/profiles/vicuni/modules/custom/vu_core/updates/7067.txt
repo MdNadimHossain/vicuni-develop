@@ -1,0 +1,1 @@
+Adds and places Hero banner.

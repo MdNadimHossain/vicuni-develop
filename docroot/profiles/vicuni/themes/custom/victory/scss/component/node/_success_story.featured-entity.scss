@@ -1,0 +1,153 @@
+// Base styles for feature success story.
+.featured-entity {
+  &--success-story {
+    padding: 30px 30px 60px;
+    position: relative;
+
+    @include breakpoint($breakpoint-xs) {
+      padding-bottom: 30px;
+    }
+
+    @include breakpoint($screen-sm-min) {
+      align-content: flex-start;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-bottom: 0;
+      position: relative;
+      width: 100%;
+    }
+
+    .featured-entity__text {
+      @include font(18px, 'futura', 300);
+      line-height: 28px;
+      p {
+        @include victory-quotes;
+      }
+
+      display: block;
+      padding: 30px 0 12px;
+    }
+
+    .field-name-field-featured-tile-text {
+      color: $color-grey-dove;
+      width: 100%;
+
+      @include breakpoint($screen-sm-min) {
+        bottom: 30px;
+        padding-right: 60px;
+        position: absolute;
+      }
+
+      &, .field-item {
+        float: left;
+      }
+
+      .field-item {
+        @include font(14px, $fonts-default, 500);
+        @include text-link('dark');
+      }
+    }
+
+    .featured-entity__image {
+      height: auto;
+      max-height: 260px;
+      overflow: hidden;
+      margin: -30px -30px 0;
+
+      @include breakpoint($screen-md-min) {
+        height: 164px;
+        max-height: none;
+      }
+
+      .img-responsive {
+        display: block;
+        height: auto;
+        margin: 0;
+
+        @include breakpoint($screen-lg-min) {
+          margin: -30px 0;
+        }
+      }
+    }
+
+    .featured-entity__person-details {
+      @include font(14px, 'default', 300);
+
+      line-height: 22px;
+      margin-bottom: 30px;
+    }
+
+    &:hover {
+      @include transition(compact(opacity, .125s, ease-in, .25s));
+
+      background: $color-yellow-grandis !important;
+      .field-name-field-excerpt {
+        &:before {
+          background: url($image-quote-open-hover) no-repeat center center;
+        }
+
+        &:after {
+          background: url($image-quote-close-hover) no-repeat center center;
+        }
+      }
+
+      .field-name-field-featured-tile-text {
+        .field-item {
+          @include text-link('light');
+
+          background: $color-white;
+          color: $color-black-mine_shaft;
+        }
+      }
+    }
+  }
+}
+
+// Wrapper styles for feature content panel panes.
+.featured-content-pane {
+  @include featured-content-pane;
+
+  .success_story_collapsable > a {
+    overflow: hidden;
+  }
+
+  .row {
+    &--collapsed {
+      overflow: hidden;
+    }
+  }
+
+  .collapse-toggle {
+    @include box-shadow(rgba(0, 0, 0, 0.15) 0 -5px 4px -2px);
+    @include font(14px, 'futura', 500);
+    @include make-row();
+
+    background-color: $color-white;
+    display: none;
+    color: $color-blue-bahama;
+    cursor: pointer;
+    padding: 20px 30px;
+    position: relative;
+    text-align: center;
+  }
+}
+
+// Background colour alteration for Section based pages.
+.section {
+  .featured-entity {
+    &--success-story {
+      background-color: $color-white-alabaster;
+
+      &:hover {
+        .field-name-field-featured-tile-text {
+          .field-item {
+            @include text-link('light');
+
+            background: $color-white;;
+            color: inherit;
+          }
+        }
+      }
+    }
+  }
+}

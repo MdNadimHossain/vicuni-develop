@@ -1,0 +1,159 @@
+// Key Summary Box
+.entity-paragraphs-item.paragraphs-item-key-summary-component {
+
+  &.section {
+    background-color: transparent !important;
+  }
+  &.key-summary-bg-color-change {
+    .field-items {
+      .field-item {
+        background-color: $color-white;
+        .paragraphs-item-key-summary-box {
+          .key-summary-content {
+            color: $color-black;
+          }
+        }
+      }
+    }
+  }
+  &.key-summary-on-top {
+    padding-top: 185px;
+    @include breakpoint($breakpoint-xs) {
+      padding-top: 0px;
+    }
+    @include breakpoint($breakpoint-sm) {
+      padding-top: 0px;
+      margin-top: -80px !important;
+    }
+    @include breakpoint($breakpoint-md) {
+      padding-top: 0px;
+    }
+  }
+  &.key-summary-field-3 {
+    .field-items {
+      .field-item {
+        width: 32.333333%;
+        @include breakpoint($breakpoint-xs) {
+          width: 100%;
+        }
+      }
+    }  
+  }
+  .field-items {
+    display: flex;
+    flex-wrap: wrap;
+    .field-item {
+      width: 24%;
+      @include breakpoint($breakpoint-xs) {
+        width: 100%;
+      }
+      margin: 3px;
+      background-color: $color-black;
+      box-shadow: 0 1px 4px 0 rgba(0,0,0,0.2);
+      .paragraphs-item-key-summary-box {
+        .key-summary-content {
+          color: $color-white;
+          font-family: $font-futura;
+          font-size: 20px;
+          line-height: 26px;
+          .field-name-field-icon {
+            float: left;
+            padding-right: 13px;
+            @include breakpoint($breakpoint-sm) {
+              padding-right: 6px;
+            }
+            .field-items {
+              .field-item {
+                width: auto;
+                box-shadow: none;
+                h2 {
+                  margin: 0px;
+                }
+              }
+            }
+            i {
+              font-family: FontAwesome;
+              float: left;
+              padding-left: 26px;
+              padding-top: 27px;
+              @include breakpoint($breakpoint-sm) {
+                font-size: 20px;
+                padding-left: 13px;
+              }
+            }
+          }
+          .field-name-field-header {
+            font-weight: 500;
+            padding-left: 69px;
+            padding-top: 25px;
+            padding-right: 10px;
+            @include breakpoint($breakpoint-sm) {
+              font-size: 18px;
+              padding-left: 39px;
+            }
+            .field-items {
+              .field-item {
+                box-shadow: none;
+                width: auto
+              }
+            }
+          }
+          .field-name-field-key-summary-body {	
+            font-weight: 300;
+            padding: 0px 26px 25px 69px;
+            word-break: break-word;
+            @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+              /* IE10+ CSS styles go here */
+              word-break: break-all !important;
+            }
+            @supports (-ms-accelerator:true) {
+              /* IE Edge 12+ CSS styles go here */
+              word-break: break-all !important;
+            }
+            @include breakpoint($breakpoint-sm) {
+              font-size: 14px;
+              padding-left: 39px;
+              font-family: $fonts-default;
+            }
+            .field-items {
+              .field-item {
+                box-shadow: none;
+                width: auto
+              }
+            }
+          }
+          .field-name-field-key-summary-link {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+  a.key-summary-link {
+    &.ext:after {
+      display: none !important;
+    }
+    &:hover {
+      text-decoration: none;
+      .paragraphs-item-key-summary-box {
+        height: 100%;
+        .key-summary-content {
+          height: 100%;
+          background-color: $color-yellow-grandis;
+          .field-name-field-icon .field-items .field-item {
+            background-color: $color-yellow-grandis;
+            color: $color-black;
+          }
+          .field-name-field-header .field-items .field-item {
+            background-color: $color-yellow-grandis;
+            color: $color-black;
+          }
+          .field-name-field-key-summary-body .field-items .field-item {
+            background-color: $color-yellow-grandis;
+            color: $color-black;
+          }
+        }
+      }
+    }
+  }
+}

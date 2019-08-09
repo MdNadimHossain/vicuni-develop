@@ -1,0 +1,199 @@
+<?php
+
+/**
+ * @file
+ * Legacy support for video filter in migrated content.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function vu_legacy_video_init() {
+  $module_path = drupal_get_path('module', 'vu_legacy_video');
+  drupal_add_css("${module_path}/css/vu_legacy_video.css");
+}
+
+/**
+ * Constructs and returns a regular expression to match YouTube URLs.
+ *
+ * @return array
+ *   captured parts of URL.
+ */
+function vu_legacy_video_youtube_regex() {
+  return '~
+    # Match non-linked youtube URL in the wild. (Rev:20130823)
+        //                # Required scheme. Either http or https.
+        (?:[0-9A-Z-]+\.)? # Optional subdomain.
+        (?:               # Group host alternatives.
+          youtu\.be/      # Either youtu.be,
+        | youtube\.com    # or youtube.com followed by
+          \S*             # Allow anything up to VIDEO_ID,
+          [^\w\-\s]       # but char before ID is non-ID char.
+        )                 # End host alternatives.
+        ([\w\-_]{11})     # $1: VIDEO_ID is exactly 11 chars.
+        (?=[^\w\-_]|$)    # Assert next char is non-ID or EOS.
+        (?!               # Assert URL is not pre-linked.
+        [?=&+%\w.-]*      # Allow URL (query) remainder.
+          (?:             # Group pre-linked alternatives.
+            [\'"][^<>]*>  # Either inside a start tag,
+          | </a>          # or inside <a> element text contents.
+          )               # End recognized pre-linked alts.
+        )                 # End negative lookahead assertion.
+        [?=&+%\w.-]*      # Consume any URL (query) remainder.
+        ~ix';
+}
+
+/**
+ * Implements hook_video_filter_codec_info_alter().
+ */
+function vu_legacy_video_video_filter_codec_info_alter(&$codecs) {
+  $codecs = vu_legacy_video_video_filter_codecs();
+}
+
+
+/**
+ * Add custom YouTube video filter.
+ *
+ * @return array
+ *   Codecs.
+ */
+function vu_legacy_video_video_filter_codecs() {
+  $codecs = array();
+  $codecs['youtube'] = array(
+    'name' => t('YouTube'),
+    'sample_url' => 'http://www.youtube.com/watch?v=uN1qUeId',
+    'callback' => 'vu_legacy_video_youtube',
+    'html5_callback' => 'vu_legacy_video_youtube',
+    'regexp' => vu_legacy_video_youtube_regex(),
+  );
+  return $codecs;
+}
+
+/**
+ * Retrieve the playlist ID from a YouTube playlist URL.
+ *
+ * @return string
+ *   Playlist ID.
+ */
+function vu_legacy_video_playlist_id($url) {
+  if (preg_match('/list=([a-z0-9\-_]+)/i', $url, $matches)) {
+    return $matches[1];
+  }
+}
+
+/**
+ * Video filter codec callback to generate HTML.
+ *
+ * @param array $video
+ *   Data extracted from token by video_filter module.
+ *
+ * @return string
+ *   Rendered video HTML.
+ */
+function vu_legacy_video_youtube(array $video) {
+  $video_id = $video['codec']['matches'][1];
+  $playlist_id = vu_legacy_video_playlist_id($video['source']);
+  $video['source'] = sprintf('https://www.youtube.com/embed/%srel=0&iframe=true&height=374&width=640',
+    $playlist_id ?  "videoseries?list=${playlist_id}&" : "$video_id?");
+  return vu_legacy_video_youtube_embed($video);
+}
+
+/**
+ * Video filter codec callback to generate HTML.
+ *
+ * @param array $video
+ *   Data extracted from token by video_filter module.
+ *
+ * @return string
+ *   Rendered video HTML.
+ */
+function vu_legacy_video_youtube_embed(array $video) {
+  $classes = video_filter_get_classes($video);
+  $mode = isset($video['mode']) ? $video['mode'] : FALSE;
+  $float = isset($video['float']) ? ' float-' . $video['float'] . '' : '';
+  $description = isset($video['description']) ? $video['description'] : '';
+  $vi = vu_legacy_video_parse_url($video['source']);
+  $preview = isset($video['thumb']) ? $video['thumb'] : "//img.youtube.com/vi/$vi/hqdefault.jpg";
+  $btn = isset($video['btn']) ? $video['btn'] : '';
+  $width = strpos($video['width'], '%') === FALSE ? $video['width'] . 'px' : $video['width'];
+  $output = '<div class="media-transcript-wrapper' . $float . '" style="max-width:' . $width . ';">';
+  $id = uniqid();
+
+  switch ($mode) {
+    case 'modal':
+      $output .= "<div class=\"video-modal-wrapper\" style=\"max-width: {$video['width']}px;\">";
+
+      $output .= "<a href=\"{$video['source']}\" data-uid=\"$id\" class=\"noext colorbox-load\">";
+      if ($btn != '') {
+        $output .= "<div class=\"video-btn $btn\"></div>";
+      }
+
+      $output .= "<img src=\"$preview\" width=\"{$video['width']}\" height=\"{$video['height']}\" />";
+      $output .= "<div id=\"description-$id\" class=\"video-modal-description\">$description</div>";
+      $output .= "</a>";
+
+      $output .= "</div>";
+      break;
+
+    case 'embed':
+    default:
+      $output .= '<iframe width="' . $video['width'] . '" height="' . $video['height'] . '" src="' . $video['source'] . '" frameborder="0" class="' . implode(' ', $classes) . '" allowfullscreen></iframe>';
+      $output .= "<div class=\"video-embed-description\">$description</div>";
+  }
+
+  $transcript = vu_legacy_video_find_by_hash_value($vi);
+  if (!empty($transcript) && is_object($transcript)) {
+    $output .= '<div id="transcript-' . $id . '" class="media-transcripts transcript-title" style="max-width:' . $video['width'] . 'px;">';
+    $title = $transcript->filename;
+    $output .= l($title, 'file/' . $transcript->fid);
+    $output .= '</div>';
+  }
+  $output .= '</div>';
+
+  return $output;
+}
+
+/**
+ * @param string $video_id
+ *    Video id (e.g. 9IHEsQV800)
+ * @return bool|mixed
+ *    File object if exists or FALSE
+ */
+function vu_legacy_video_find_by_hash_value($video_id) {
+  if (empty($video_id)) {
+    return FALSE;
+  }
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'file')
+    ->propertyCondition('uri', $video_id, 'CONTAINS')
+    ->range(0, 1)
+    ->execute();
+
+  if (!empty($result['file']) && is_array($result['file'])) {
+    $file_id = array_keys($result['file']);
+    $file = entity_load('file', $file_id);
+  }
+  return !empty($file) ? array_pop($file) : FALSE;
+}
+
+/**
+ * @todo Legacy function that is no longer needed. Remove it.
+ */
+function vu_legacy_video_hash_id($id) {
+  return sha1($id);
+}
+
+
+/**
+ *  Extract video id from Youtube url.
+ */
+function vu_legacy_video_parse_url($url) {
+  $url = trim($url);
+  $matches = array();
+  if (preg_match(vu_legacy_video_youtube_regex(), $url, $matches)) {
+    $url = ('videoseries' == $matches[1]) ?
+      vu_legacy_video_playlist_id($url) : $matches[1];
+  }
+  return $url;
+}

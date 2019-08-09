@@ -1,0 +1,179 @@
+//
+// Header layout
+//
+
+// Logo spacing.
+$spacing-vertical-logo-sm: 11px;
+$spacing-vertical-logo-md: 25px;
+
+@include breakpoint($breakpoint-sm-down) {
+  header.fixed-mobile-header {
+    height: 50px;
+  }
+}
+
+#page-header {
+  @include box-shadow(0 2px 6px 0 rgba(0, 0, 0, 0.04));
+
+  background: $color-white;
+  height: 50px;
+  position: relative;
+  // Show on top of sliders etc.
+  z-index: 201;
+
+  @include breakpoint($breakpoint-md-up) {
+    height: auto;
+  }
+
+  .pane-content {
+    padding-bottom: 0;
+  }
+
+  &.header-wrapper {
+    .logo {
+      display: inline-block;
+      float: left;
+      height: 30px;
+      left: $spacing-horizontal-header-gutter-md;
+      margin: $spacing-vertical-logo-sm 0;
+      padding: 0;
+      overflow: hidden;
+      top: 0;
+      width: 30px;
+      z-index: $zindex-header;
+
+      @include breakpoint($breakpoint-md-up) {
+        height: 50px;
+        margin: $spacing-vertical-logo-md 0;
+        margin-left: $spacing-horizontal-header-gutter-md;
+        width: 140px;
+      }
+
+      @include breakpoint($breakpoint-lg-up) {
+        margin-left: $spacing-horizontal-header-gutter-lg;
+      }
+
+      img {
+        max-height: 100%;
+      }
+    }
+
+    [data-shutter-item-target="#block-vu-core-vu-funnelback-search"] {
+      @include breakpoint($breakpoint-md-up) {
+        display: none;
+      }
+      @include breakpoint($breakpoint-sm-down) {
+        color: $color-blue-elephant;
+        font-size: 2em;
+        line-height: 18px;
+        position: absolute;
+        right: 65px;
+        top: 8px;
+      }
+    }
+
+    .page-title {
+      @include font(12px, 'futura');
+
+      float: left;
+      height: 30px;
+      margin: 11px 15px;
+      max-width: calc(100% - 135px);
+      overflow: hidden;
+
+      @include breakpoint($breakpoint-sm) {
+        max-width: 575px;
+      }
+
+      .inner {
+        display: table;
+        height: 30px;
+        line-height: 15px;
+        vertical-align: top;
+
+        span {
+          display: table-cell;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    &.with-header-content {
+      .container {
+        @include breakpoint($screen-sm-min) {
+          position: relative;
+        }
+      }
+      .logo {
+        @include breakpoint($breakpoint-md-up) {
+          position: absolute !important;
+        }
+      }
+    }
+  }
+}
+
+// Make header fixed on mobile and tablet.
+header[role="banner"] {
+  &.fixed-mobile-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: $zindex-sticky-header-mobile;
+
+    @include breakpoint($breakpoint-md-up) {
+      position: relative;
+    }
+  }
+}
+
+body.with-fixed-mobile-header {
+  // Add vertical spacing for body for the height of mobile header.
+  padding-top: $spacing-vertical-fixed-mobile-header-offset;
+  @include breakpoint ($breakpoint-md-up) {
+    padding-top: 0;
+  }
+}
+
+#logo {
+  display: block;
+
+  height: 30px;
+
+  svg#logo-element {
+    height: 48px;
+    padding-bottom: 5px;
+    @include breakpoint($breakpoint-md-up) {
+      height: 50px;
+      width: 140px;
+      padding-bottom: 0px;
+    }
+  }
+
+  svg#logo-element *:not(#diamond) {
+    visibility: hidden;
+  }
+
+  svg#logo-element #diamond * {
+    visibility: visible;
+  }
+
+  @include breakpoint ($breakpoint-md-up) {
+    svg#logo-element *:not(#diamond) {
+      visibility: visible;
+    }
+
+    svg#logo-element #diamond * {
+      visibility: visible;
+    }
+  }
+
+  &.diamond-only {
+    svg#logo-element *:not(#diamond) {
+      visibility: hidden;
+    }
+    svg#logo-element #diamond * {
+      visibility: visible;
+    }
+  }
+}

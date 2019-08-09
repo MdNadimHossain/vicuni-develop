@@ -1,0 +1,57 @@
+//
+// Breakpoints debug.
+//
+
+$debug-breakpoints: false !default;
+
+@if $debug-breakpoints {
+  body {
+    &:after {
+      @include font(12px, futura, 500);
+
+      background: $color-black-mine_shaft;
+      color: $color-white;
+      content: 'Screen Size';
+      height: auto;
+      position: fixed;
+      padding: 15px;
+      opacity: 0.8;
+      right: 10px;
+      top: 50px;
+      text-align: center;
+      text-transform: uppercase;
+      width: 150px;
+      z-index: $zindex-shutter + 1;
+    }
+    &:after {
+      // Small devices
+      @include breakpoint ($breakpoint-xs) {
+        content: 'Extra small';
+      }
+    }
+    &:after {
+      // Medium size devices
+      @include breakpoint ($breakpoint-sm) {
+        content: 'Small';
+      }
+    }
+    &:after {
+      // Large devices
+      @include breakpoint ($breakpoint-md) {
+        content: 'Medium';
+      }
+    }
+    &:after {
+      // Medium Large Devices
+      @include breakpoint ($breakpoint-lg) {
+        content: 'Large';
+      }
+    }
+    &:after {
+      // Extra Large Devices
+      @include breakpoint ($screen-xl-min) {
+        content: 'Extra large';
+      }
+    }
+  }
+}

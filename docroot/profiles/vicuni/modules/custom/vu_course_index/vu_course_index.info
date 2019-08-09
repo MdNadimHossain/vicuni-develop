@@ -1,0 +1,8 @@
+; $Id: $
+name = vu_course_index
+description = Course index functionality including web service
+package = VU
+version = "7.x-1.0"
+core = 7.x
+
+files[] = vu_course_index.functions.php

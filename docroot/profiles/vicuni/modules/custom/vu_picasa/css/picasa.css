@@ -1,0 +1,189 @@
+.picasa-gallery {
+    width: 100%;
+    margin-bottom: 10px;
+    clear: both;
+    overflow: hidden
+}
+
+.picasa-gallery ul {
+    margin: 0;
+    width: 311px;
+    list-style-type: none;
+    clear: both
+}
+
+.picasa-gallery ul li {
+    margin: 0 0 7px 5px;
+    padding: 0;
+    display: block;
+    float: left
+}
+
+.picasa-gallery ul .last-visible {
+    margin-right: 0
+}
+
+.picasa-gallery ul .hide {
+    display: none
+}
+
+.picasa-gallery ul .picasa-gallery-thumb {
+    display: block;
+    border: 1px solid #333333 !important;
+    overflow: hidden
+}
+
+.picasa-gallery ul .gallery-featured {
+    float: none;
+    margin: 0 auto 10px auto
+}
+
+.picasa-gallery ul .gallery-featured .picasa-gallery-thumb {
+    border: 1px solid #333333
+}
+
+.picasa-gallery ul .gallery-featured.singleimage {
+    margin: 0 0 10px 0
+}
+
+.picasa-gallery-title {
+    clear: both
+}
+
+#jb-overlay {
+    background: #000;
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    height: 100%;
+    left: 0;
+    width: 100%
+}
+
+#jb-window {
+    z-index: 1000;
+    position: fixed;
+    top: 0;
+    height: 100%;
+    left: 0;
+    width: 100%
+}
+
+#jb-window-inner {
+    background-color: #fff;
+    color: #444;
+    width: 50%;
+    height: 50%;
+    margin: auto;
+    overflow: auto
+}
+
+#jb-loading {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    line-height: 0;
+    display: block;
+    overflow: hidden
+}
+
+#jb-window.reactive {
+    background: transparent url(/profiles/vicuni/modules/custom/vu_picasa/img/reactive-overlay.png) right top no-repeat
+}
+
+#jb-window.loading #jb-window-inner {
+    background-image: url(/profiles/vicuni/modules/custom/vu_picasa/img/loading-black-on-white.gif);
+    background-position: center center;
+    background-repeat: no-repeat
+}
+
+.type-ajax #jb-window-content {
+    padding: 0 1em 1em
+}
+
+.type-media #jb-window-content {
+    padding: 0
+}
+
+#jb-window-content:focus {
+    outline: none
+}
+
+#jb-window-content .jb-caption {
+    display: block;
+    clear: both;
+    margin: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: #fff;
+    width: 100%
+}
+
+#jb-window-content .jb-caption span {
+    display: block;
+    padding: .5em 1em
+}
+
+#jb-window-inner .jb-video-caption {
+    border-collapse: collapse;
+    display: block;
+    padding: .5em;
+    padding-left: 1em
+}
+
+#jb-close-button img {
+    border: none
+}
+
+#jb-window.error-no-content #jb-window-content {
+    background: transparent url(/profiles/vicuni/modules/custom/vu_picasa/img/alert-64.png) 15px center no-repeat;
+    padding-left: 70px
+}
+
+#jb-gallery-prev,
+#jb-gallery-next {
+    height: 0;
+    padding-top: 85px;
+    width: 49px;
+    background: transparent url(/profiles/vicuni/modules/custom/vu_picasa/img/gallery-controls-sprite.png) left top no-repeat
+}
+
+#jb-gallery-next {
+    background-position: -49px top
+}
+
+#jb-gallery-prev:hover,
+#jb-gallery-prev:focus {
+    background-position: left -85px
+}
+
+#jb-gallery-next:hover,
+#jb-gallery-next:focus {
+    background-position: -49px -85px
+}
+
+#jb-gallery-prev.disabled,
+#jb-gallery-next.disabled {
+    background: none;
+    cursor: default
+}
+
+.type-iframe #jb-window-content iframe {
+    border: none;
+    background: transparent;
+    padding: 0
+}
+
+#jb-window-content .jb-caption span.caption-icon {
+    display: block;
+    float: right;
+    margin: 5px;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+}

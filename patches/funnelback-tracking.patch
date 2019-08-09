@@ -1,0 +1,12 @@
+diff --git src/Funnelback.class.php src/Funnelback.class.php
+index 9513089509..d44c474525 100644
+--- src/Funnelback.class.php
++++ src/Funnelback.class.php
+@@ -199,6 +199,7 @@ class Funnelback {
+         $item['cache_url'] = (string) $result_item['cacheUrl'];
+         $item['display_url'] = $result_item['displayUrl'];
+         $item['metaData'] = $result_item['metaData'];
++        $item['clickTrackingUrl'] = (string) $result_item['clickTrackingUrl'];
+         if (isset($result_item['metaData']['nodeId'])) {
+           $item['metaData']['nodeId'] = $result_item['metaData']['nodeId'];
+         }

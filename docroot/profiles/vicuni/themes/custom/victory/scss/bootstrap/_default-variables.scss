@@ -1,0 +1,60 @@
+/**
+ * Default Variables.
+ *
+ * Modify this file to provide default Bootstrap Framework variables. The
+ * Bootstrap Framework will not override any variables defined here because it
+ * uses the `!default` flag which will only set their default if not already
+ * defined here.
+ *
+ * You can copy existing variables directly from the following file:
+ * ./THEMENAME/bootstrap/assets/stylesheets/_variables.scss
+ */
+@import "../base/colours";
+
+// Set the proper directory for the Bootstrap Glyphicon font.
+$icon-font-path: '../../../../libraries/bootstrap-sass/assets/fonts/bootstrap/';
+
+// Breakpoints.
+$screen-sm-min: 768px;
+$screen-md-min: 1000px;
+$screen-lg-min: 1260px;
+$screen-xl-min: 1920px;
+$screen-xl-max: 2049px;
+$screen-xxl-min: 2561px;
+$screen-lg-max: ($screen-xl-min - 1);
+
+// Containers.
+$container-sm: 738px;
+$container-md: 970px;
+$container-lg: 1200px;
+$container-xl: $container-lg;
+
+$body-bg: $color-white;
+$text-color: $color-black-mine_shaft;
+
+$link-color: $color-black-mine_shaft;
+$link-hover-color: darken($link-color, 15%);
+$link-active-color: $link-color;
+$link-visited-color: $link-color;
+$link-hover-decoration: underline;
+
+// Font sizes.
+$font-size-base: 14px !default;
+$font-size-large: ceil(($font-size-base * 1.25)) !default; // ~18px
+$font-size-small: ceil(($font-size-base * 0.85)) !default; // ~12px
+
+$font-size-h1: floor(($font-size-base * 2.6)) !default; // ~36px
+$font-size-h2: floor(($font-size-base * 2.15)) !default; // ~30px
+$font-size-h3: floor(($font-size-base * 1.43)) !default; // ~20px
+$font-size-h4: ceil(($font-size-base * 1.25)) !default; // ~18px
+$font-size-h5: ceil(($font-size-base * 1.14)) !default; // ~16px
+$font-size-h6: ceil(($font-size-base * 0.85)) !default; // ~12px
+$line-height-base-pixels: 22px !default;
+$line-height-base: $line-height-base-pixels/$font-size-base !default; // 22/14
+
+//==== Tables.
+$table-cell-padding: 9px;
+$table-bg: transparent;
+$table-bg-accent: $color-white-alabaster;
+$table-border-color: $color-blue-cornflower;
+$table-column-border-color: $color-grey-gallery;

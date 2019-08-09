@@ -1,0 +1,129 @@
+//
+// Icons
+$fa-mail: '\f0e0';
+$fa-check: '\f00c';
+$fa-book: '\f02d';
+$fa-caret-right: '\f0da';
+$fa-times: '\f00d';
+$fa-microphone: '\f130';
+
+// Arrow for external link.
+%ext-arrow {
+  a {
+    $local-color: $color-grey-tundora;
+    $local-color-hover: $color-yellow-grandis;
+
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+    &:hover,
+    &:focus {
+      .arrow-wrapper {
+        top: -2px;
+        right: -2px;
+      }
+      .ext-box-break,
+      .ext-box-break-hover {
+        background-color: $local-color-hover;
+        border: solid 1px $local-color-hover;
+      }
+      .ext-box-break,
+      .ext-box-break-hover {
+        border: solid 1px $local-color-hover;
+      }
+      .ext-box {
+        border: solid 1px $local-color;
+      }
+      .ext-box-break {
+        border-bottom: solid 1px $local-color-hover;
+        border-left: solid 1px $local-color-hover;
+      }
+      .ext-arrow-head {
+        background-color: $local-color-hover;
+        border-top: solid 1px $local-color;
+        border-right: solid 1px $local-color;
+        border-bottom: solid 1px $local-color-hover;
+        border-left: solid 1px $local-color-hover;
+      }
+      .ext-arrow-stroke {
+        border-top: solid 1px $local-color;
+      }
+    }
+    &.ext:after {
+      content: '';
+    }
+    &.noext {
+      .external-link-wrapper {
+        display: none;
+      }
+    }
+  }
+  .external-link-wrapper {
+    position: relative;
+    display: inline-block;
+    float: right;
+  }
+  // Main rectangle.
+  .ext-box {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-block;
+    float: right;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 1.9px;
+    border: solid 1px $color-white;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  .arrow-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    @include transition(top 100ms, right 100ms);
+  }
+  // Overlay to break main rectangles border.
+  .ext-box-break {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: $color-blue-cello;
+    border: solid 1px $color-blue-cello;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  // Arrow head.
+  .ext-arrow-head {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0.8rem;
+    height: 0.8rem;
+    background-color: $color-blue-cello;
+    border-top: solid 1px $color-white;
+    border-right: solid 1px $color-white;
+    border-bottom: solid 1px $color-blue-cello;
+    border-left: solid 1px $color-blue-cello;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  // Hover state static cover. (stays in position to keep the break in the base border static)
+  .ext-box-break-hover {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: $color-blue-cello;
+    border: solid 1px $color-blue-cello;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+  }
+  .ext-arrow-stroke {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 0.95rem;
+    border-top: solid 1px $color-white;
+    @include transition(background-color 400ms, border 400ms, color 400ms);
+    @include transform(translateY(4px) translateX(5px) rotate(-45deg));
+  }
+}

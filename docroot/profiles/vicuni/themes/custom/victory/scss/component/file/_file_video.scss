@@ -1,0 +1,8 @@
+.file-video {
+  &.view-mode-full {
+    padding-top: 40px;
+  }
+  a {
+    @include default-link;
+  }
+}

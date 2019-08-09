@@ -1,0 +1,459 @@
+#block-vu-core-vu-on-page-nav {
+  color: $color-white;
+
+  a {
+    &, &:link {
+      color: $color-white;
+      text-decoration: none;
+    }
+
+    h2.block-title {
+      @include font($font-size-h3, 'futura', 500);
+      @include inline-block;
+
+      border-bottom: 1px solid $color-white;
+      line-height: 42px / $font-size-h3;
+      margin-bottom: 0;
+    }
+  }
+
+  &__content {
+    ul {
+      @include no-bullet;
+
+      margin-bottom: 0;
+      padding: 0;
+
+      li {
+        a {
+          &, &:link {
+            @include font($font-size-base, 'futura', 500);
+
+            color: $color-white;
+            line-height: 22px / $font-size-base;
+          }
+
+          &:focus,
+          &:hover {
+            text-decoration: underline;
+          }
+
+          &.more {
+            @include fa-after("\f107");
+            @include border-radius(2px);
+
+            border: 1px solid $color-blue-denim;
+            display: block;
+            height: 30px;
+            overflow: hidden;
+            padding: 1px 7px;
+            width: 100%;
+
+            &,
+            &:focus,
+            &:hover,
+            &[aria-expanded="true"] {
+              text-decoration: none;
+
+              &:after {
+                float: right;
+                font-size: $font-size-h3 !important;
+                line-height: 1em;
+              }
+            }
+
+            &[aria-expanded="true"] {
+              @include fa-after("\f106");
+            }
+
+            &:hover {
+              background-color: $color-blue-denim;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &__more {
+    @include border-radius(2px);
+
+    background-color: $color-blue-denim;
+    border: 1px solid $color-blue-denim;
+    padding-bottom: 10px !important;
+
+    li {
+      padding: 1px 7px;
+
+      a {
+        &:focus,
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// Title feature box variation.
+.title-box__feature {
+  #block-vu-core-vu-on-page-nav {
+    padding-left: 15px;
+
+    .container {
+      padding: 0;
+      width: inherit;
+    }
+
+    @include breakpoint($breakpoint-xs) {
+      a {
+        h2.block-title {
+          @include fa-after("\f107");
+        }
+
+        &[aria-expanded="true"] {
+          h2.block-title {
+            @include fa-after("\f106");
+          }
+        }
+      }
+
+      h2.block-title {
+        border: none;
+        display: block;
+        font-size: $font-size-h5;
+        margin: 0;
+
+        &:after {
+          color: $color-white;
+          font-size: 1.5em !important;
+          line-height: 1.35em;
+          position: absolute;
+          right: 15px;
+        }
+      }
+    }
+
+    @include breakpoint($breakpoint-sm-up) {
+      h2.block-title {
+        cursor: default;
+      }
+    }
+
+    &__content {
+      @include breakpoint($breakpoint-sm-up) {
+        display: block !important;
+        height: auto !important;
+        position: relative;
+        z-index: 1;
+      }
+
+      .container {
+        padding: 0;
+        width: inherit;
+      }
+
+      ul {
+        padding-bottom: 15px;
+        @include breakpoint($breakpoint-sm-up) {
+          padding-bottom: 0;
+        }
+
+        li {
+          padding-top: 8px;
+        }
+      }
+    }
+  }
+}
+
+.title-box--on-this-page {
+  .title-box {
+    .title-box__feature {
+      &:before {
+        content: ' ';
+        background: $color-charcoal;
+        opacity: .7;
+        width: 100%;
+        height: inherit;
+        position: absolute;
+        transform: skew(20deg);
+        left: 66px;
+        z-index: -8;
+        @include breakpoint($breakpoint-lg-up) {
+          width: 80%;
+        }
+        @include breakpoint($breakpoint-sm) {
+          height: 320px;
+        }
+      }
+    }
+    .page-header {
+      background: rgba(74, 74, 74, .7);
+      display: inline-block;
+      padding: 10px 10px 10px !important;
+    }
+    .breadcrumb {
+      display: inline-block;
+      background: rgba(74,74,74, .7);
+      padding: 10px;
+      height: auto;
+    }
+  }
+}
+
+// Below header variation w/Sticky.
+@mixin on-page-nav-inline {
+  background-color: $color-blue-lochmara;
+  margin-bottom: $spacing-vertical-bottom-sm;
+
+  @include breakpoint($breakpoint-md-up) {
+    margin-bottom: $spacing-vertical-bottom-lg;
+  }
+
+  // <= SM.
+  @include breakpoint($breakpoint-sm-down) {
+    .container {
+      padding: 0;
+      width: 100%;
+    }
+
+    a[aria-controls="block-vu-core-vu-on-page-nav__content"] {
+      display: block;
+
+      h2.block-title {
+        @include fa-after("\f107");
+
+        border: none;
+        display: block;
+        font-size: $font-size-h5;
+        line-height: 50px;
+        margin: 0;
+        padding: 0 15px;
+
+        &:after {
+          color: $color-white;
+          font-size: 1.5em !important;
+          line-height: 50px;
+          position: absolute;
+          right: 15px;
+        }
+      }
+
+      &[aria-expanded="true"] {
+        background-color: $color-blue-bahama;
+
+        h2.block-title {
+          @include fa-after("\f106");
+        }
+      }
+    }
+  }
+
+  // == SM
+  @include breakpoint($breakpoint-sm) {
+    a[aria-controls="block-vu-core-vu-on-page-nav__content"] {
+      h2.block-title {
+        margin: 0 auto;
+        width: $container-sm;
+      }
+    }
+  }
+
+  // >= MD
+  @include breakpoint($breakpoint-md-up) {
+    h2.block-title {
+      display: none;
+    }
+  }
+
+  #block-vu-core-vu-on-page-nav__content {
+    // >= MD
+    @include breakpoint($breakpoint-md-up) {
+      display: block !important;
+      height: auto !important;
+      position: relative;
+      z-index: 1;
+    }
+
+    ul.nav {
+      li {
+        a {
+          &:active {
+            background-color: $color-blue-cello;
+          }
+
+          &:focus,
+          &:hover {
+            background-color: $color-blue-bahama;
+            text-decoration: none;
+          }
+        }
+      }
+
+      // <= SM
+      @include breakpoint($breakpoint-sm-down) {
+        li {
+          &:before {
+            display: none;
+          }
+
+          a {
+            line-height: 40px;
+            padding: 0 !important;
+
+            span {
+              padding: 0 15px;
+            }
+          }
+
+          &.active {
+            a {
+              background-color: $color-blue-cello;
+            }
+          }
+        }
+      }
+
+      // >= SM
+      @include breakpoint($breakpoint-sm) {
+        li {
+          a {
+            span {
+              display: block;
+              margin: 0 auto;
+              width: $container-sm;
+            }
+          }
+        }
+      }
+
+      // >= MD
+      @include breakpoint($breakpoint-md-up) {
+        @include horizontal-list;
+
+        li {
+          padding: 0;
+          position: relative;
+
+          &:before {
+            display: none;
+          }
+
+          a {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            height: 50px;
+            line-height: 44px;
+            margin: 0;
+            padding: 4px 15px !important;
+            position: relative;
+
+            span {
+              display: inline-block;
+              line-height: 16px;
+              padding: 4px 0;
+              max-width: 160px;
+              text-align: center;
+              white-space: normal;
+            }
+          }
+
+          &.active {
+            a {
+              span {
+                &:after {
+                  border-bottom: 5px solid $color-white;
+                  bottom: 0;
+                  content: ' ';
+                  display: block;
+                  position: absolute;
+                  width: calc(100% - 30px);
+                }
+              }
+            }
+          }
+
+          &.on-page-nav__goto-enquire-now {
+            float: right;
+          }
+        }
+      }
+    }
+  }
+}
+
+.region-below-header #block-vu-core-vu-on-page-nav,
+#block-vu-core-vu-on-page-nav.sticky-on-page-nav {
+  @include on-page-nav-inline;
+}
+
+#block-vu-core-vu-on-page-nav.sticky-on-page-nav {
+  @include box-shadow(0 2px 6px 0 rgba(0, 0, 0, 0.04));
+
+  top: 50px;
+  width: 100%;
+
+  &.affix-top {
+    position: fixed;
+    top: -100%;
+    z-index: -1;
+  }
+}
+
+// VicPoly branding.
+.victoria-polytechnic #block-vu-core-vu-on-page-nav {
+  &__content ul li a.more {
+    border: 1px solid $color-branding-vicpoly-bg;
+
+    &:hover {
+      background-color: $color-branding-vicpoly-bg;
+    }
+  }
+
+  &__more {
+    background-color: $color-branding-vicpoly-bg;
+    border: 1px solid $color-branding-vicpoly-bg;
+  }
+}
+
+.victoria-polytechnic .sticky-on-page-nav,
+.victoria-polytechnic .region-below-header #block-vu-core-vu-on-page-nav.switch-on {
+  background-color: $color-branding-vicpoly-bg !important;
+
+  #block-vu-core-vu-on-page-nav__content {
+    ul.nav {
+      li {
+        a {
+          &:focus,
+          &:hover {
+            background-color: $color-branding-vicpoly-title-stripe;
+          }
+
+          &:active {
+            background-color: $color-branding-vicpoly-active;
+          }
+        }
+      }
+    }
+  }
+
+  @include breakpoint($breakpoint-sm-down) {
+    a[aria-controls="block-vu-core-vu-on-page-nav__content"] {
+      &[aria-expanded="true"] {
+        background-color: $color-branding-vicpoly-title-stripe;
+      }
+    }
+
+    ul.nav {
+      li {
+        &.active {
+          a {
+            background-color: $color-branding-vicpoly-active !important;
+          }
+        }
+      }
+    }
+  }
+}

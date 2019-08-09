@@ -1,0 +1,294 @@
+//
+// Lower footer component.
+//
+
+.footer {
+  #block-panels-mini-vu-block-lower-footer {
+    $local-font-size-h3: $font-size-base;
+    $local-font-size-strong-p: $font-size-base;
+    $local-header-color: $color-white;
+    $local-content-color: $color-white;
+    $local-link-color: $color-blue-botticelli;
+    $local-link-hover-color: $local-link-color;
+    $local-horizontal-bar-color: transparentize($color-white, 0.85);
+    $local-icon-font-size: 2 * $font-size-base;
+
+    background-color: $color-blue-elephant;
+    color: $color-white;
+    padding-bottom: $spacing-vertical-bottom;
+
+    @include breakpoint($breakpoint-sm-up) {
+      padding-top: $spacing-vertical-top-lg;
+    }
+
+    a {
+      @include link-color($local-link-color, $local-link-hover-color, $local-link-color, $local-link-color);
+    }
+
+    h3 {
+      @include font($local-font-size-h3);
+      line-height: $headings-line-height;
+      margin-top: 0;
+      margin-bottom: $spacing-vertical-bottom-xs;
+      color: $local-header-color;
+    }
+
+    strong p {
+      @include font($local-font-size-strong-p, 'default', bold);
+      line-height: 28px/$font-size-h3;
+      margin-top: 0;
+      margin-bottom: $spacing-vertical-bottom-xs;
+      color: $local-header-color;
+    }
+
+    .panel-pane {
+      .pane-content {
+        // Remove standard panel styles.
+        @include reset-box-model;
+      }
+    }
+    &.override-lower-footer-blocks {
+      .panel-pane .pane-content .fa {
+        margin-right: 14px;
+      }
+    }
+
+    .middle,
+    .bottom {
+      .panel-pane {
+        border-bottom: 1px solid $local-horizontal-bar-color;
+        text-align: center;
+
+        margin-top: 0;
+        padding-top: $spacing-vertical-top;
+        padding-bottom: $spacing-vertical-bottom;
+
+        @include breakpoint ($breakpoint-sm-up) {
+          border-bottom: none;
+          text-align: left;
+          margin-top: 0;
+          padding-top: 0;
+          &:first-child {
+            margin-top: 0;
+            padding-top: $spacing-vertical-top;
+          }
+        }
+
+        &.footer-call-us {
+          font-size: $font-size-small;
+          @include breakpoint($breakpoint-lg-up) {
+            font-size: $font-size-base;
+          }
+        }
+
+        &.footer-visit-us {
+          font-size: $font-size-small;
+          @include breakpoint ($breakpoint-sm-up) {
+            // Custom top spacing to make text position inline with chat bubble.
+            padding-top: 7px;
+          }
+          @include breakpoint ($breakpoint-lg-up) {
+            font-size: $font-size-base;
+            padding-top: 0;
+          }
+        }
+      }
+
+      &:first-child {
+        .panel-pane {
+          &:first-child {
+            margin-top: 0;
+            @include breakpoint ($breakpoint-sm-up) {
+              padding-top: 0;
+            }
+          }
+        }
+      }
+    }
+
+    // Add margin to all icons which are added to content.
+    .panel-pane .pane-title .fa {
+      margin-right: $spacing-horizontal-inline-icons;
+    }
+
+    .middle {
+      .footer-appstore {
+        .pane-content {
+          color: $local-content-color;
+          @include breakpoint($breakpoint-xs) {
+            @include center-block;
+            width: 60%;
+          }
+
+          // Special case of fonts being resized on specific breakpoints and then
+          // reverted back on larger breakpoints.
+          @include breakpoint($breakpoint-sm) {
+            font-size: $font-size-small;
+          }
+
+          @include breakpoint($breakpoint-md) {
+            font-size: $font-size-small;
+          }
+
+          .app-content-text {
+            @include breakpoint($breakpoint-xs) {
+              // Custom top margin.
+              margin-bottom: 12px;
+            }
+            @include breakpoint($breakpoint-sm-up) {
+              // Custom top margin.
+              margin-bottom: 24px;
+            }
+            @include breakpoint($breakpoint-lg-up) {
+              // Custom top margin.
+              margin-bottom: 12px;
+            }
+          }
+
+          .appstore {
+            display: inline;
+
+            img {
+              opacity: 0.8;
+              &.apple-store-icon {
+                width: 124px;
+                @include breakpoint($breakpoint-sm) {
+                  margin-left: 8px;
+                }
+                @include breakpoint($breakpoint-md) {
+                  margin-left: 8px;
+                }
+              }
+              &.google-play-logo {
+                width: 142px;
+              }
+            }
+            &:hover {
+              img {
+                opacity: 1;
+              }
+            }
+            &.google-link {
+              @include breakpoint($breakpoint-md-down) {
+                margin-top: 0px;
+              }
+            }
+          }
+        }
+      }
+
+      // Social media icons.
+      .pane-vumain-vumain-social-media-links {
+        .pane-content {
+          @include breakpoint($breakpoint-xs) {
+            @include center-block;
+            width: 3 * ($local-icon-font-size + $spacing-horizontal-block-icons * 2);
+          }
+
+          .social-media-links {
+            @include breakpoint($breakpoint-xs) {
+              // Special adjustment to compensate for inline icons having bottom
+              // margin and dropping to the second line.
+              margin-bottom: -1 * ($spacing-vertical-bottom - $spacing-vertical-bottom-xs) + 2;
+            }
+            li {
+              float: left;
+              margin-left: $spacing-horizontal-block-icons;
+              margin-right: $spacing-horizontal-block-icons;
+              @include breakpoint($breakpoint-sm-up) {
+                margin-left: 0;
+                margin-right: $spacing-horizontal-block-icons * 1.6;
+              }
+              @include breakpoint($breakpoint-md-up) {
+                margin-left: 0;
+                margin-right: $spacing-horizontal-block-icons * 2;
+              }
+
+              @include breakpoint($breakpoint-md-up) {
+                margin-right: $spacing-horizontal-block-icons * 3;
+                &:nth-child(4) {
+                  clear: left;
+                }
+              }
+
+              a {
+                @include link-color($local-link-color, $color-white, $local-link-color, $local-link-color);
+                @include no-underline();
+
+                &.fa-2x {
+                  font-size: $local-icon-font-size;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .bottom {
+      .panel-pane {
+        border-bottom: none;
+        padding-bottom: 0;
+
+        &:last-child {
+          padding-top: 0;
+        }
+      }
+
+      .pane-menu-menu-footer {
+        // Special case: inline menu items have bottom margin that
+        // cannot be removed from the items on the last line, making an
+        // additional vertical spacing. We compensate for this spacing by
+        // deducting this bottom margin from pre-defined panel bottom padding.
+        padding-bottom: $spacing-vertical-bottom-sm - ($spacing-vertical-bottom-xs / 2);
+
+        @include breakpoint ($breakpoint-sm-up) {
+          border-top: 1px solid $local-horizontal-bar-color;
+          padding-bottom: $spacing-vertical-bottom-sm;
+        }
+
+        ul.menu-footer {
+          @include reset-box-model;
+          text-align: center;
+
+          li {
+            display: inline-block;
+            margin-left: 15px;
+            margin-right: 15px;
+            margin-bottom: $spacing-vertical-bottom-xs / 2;
+
+            @include breakpoint($breakpoint-sm-up) {
+              float: none;
+              display: inline-block;
+              margin-right: 20px;
+              margin-left: 0;
+              margin-bottom: 0;
+              width: auto;
+            }
+
+            &:last-child {
+              margin-right: 0;
+            }
+
+            a {
+              font-size: $font-size-small;
+              white-space: nowrap;
+            }
+          }
+        }
+      }
+
+      .pane-vumain-vumain-copyright {
+        &.panel-pane {
+          font-size: $font-size-small;
+          text-align: center;
+          color: $color-white;
+          line-height: 1.66; // 20px/12px
+          @include breakpoint ($breakpoint-sm-up) {
+            padding-top: 0;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,545 @@
+@charset "UTF-8";
+// =========================================================
+// COLORS
+// =========================================================
+$blue: #0066cc;
+$blue2: #363492;
+$blue3: #0276a4;
+$blue4: #008be0;
+$blue5: #0068a8;
+$blue6: #36576f;
+$vuBlue: #0078c1;
+$blue7: #00a9ec;
+$blue8: #0098f4;
+$blue9: #00b1eb;
+$color-blue-fun_blue: #196aac;
+$dark_blue: #45637c;
+$dark_blue2: #123955;
+$dark_blue3: #00395b;
+$dark_blue4: #06629b;
+$dark_blue5: #0072b7;
+$dark_blue6: #095a8d;
+$dark_blue7: #1b557f;
+$dark_blue8: #2e5064;
+$dark_blue9: #213a48;
+$dark_blue10: #0f334d;
+$dark_blue11: rgba(#f1f1f1, 0.04);
+$dark_blue12: #1f435d;
+$light_blue: #ecf5fc;
+$light_blue2: #cce0ef;
+$light_blue3: #99c9e6;
+$light_blue4: #0078c9;
+$light_blue5: #e6f2f9;
+$light_blue6: #c0def5;
+$light_blue7: #e5f1f9;
+$light_blue8: #ddedf7;
+$light_blue9: #f3f8fb;
+$light_blue10: #00609a;
+$lightGreen: #f9fbf4;
+$lighterGreen: #e5ebbf;
+$lightestGreen: #fafbf6;
+$grey: #cccccc;
+$grey2: #666666;
+$grey3: #333333;
+$grey4: #222222;
+$grey5: #c5c5c5;
+$grey6: #ebebeb;
+$grey7: #d4d4d4;
+$grey8: #dddddd;
+$grey9: #999999;
+$grey10: #eeeeee;
+$grey11: #21455c;
+$grey12: #d6d6d6;
+$grey13: #555555;
+$grey14: #aaaaaa;
+$grey15: #fcfcfc;
+$grey_mid: #7d7d7d;
+$grey_lite: #e4e3e3;
+$grey12: #b3b3b3;
+$grey13: #e6e6e6;
+$grey16: #888888;
+$grey17: #444444;
+$green: #267101;
+$green2: #b0c23e;
+$orange: #ffb42d;
+$orange2: #ffd281;
+$offwhite: #f9f9f9;
+$offwhite2: #f5f5f5;
+$red: #cc1122;
+$yellow: #ffb837;
+$white: #ffffff;
+$white2: #fff8ea;
+$terracotta: #a94442;
+$soft-peach: #f2dede;
+$white_opaque: rgba($white, 0.6);
+$vpoly_black: #2d2926;
+$vpoly_teal: rgb(0, 118, 128);
+$dark80: rgba(18, 57, 85, 0.8);
+$dark90: rgba(18, 57, 85, 0.9);
+$dark05: rgba(0, 0, 0, 0.05);
+$dark15: rgba(0, 0, 0, 0.15);
+$dark25: rgba(0, 0, 0, 0.25);
+$dark50: rgba(0, 0, 0, 0.50);
+$darker50: rgba(18, 57, 85, 0.5);
+$dark60: rgba(18, 57, 85, 0.6);
+$blue50: rgba(0, 120, 193, 0.5);
+$blue80: rgba(0, 120, 193, 0.6);
+$white40: rgba(255, 255, 255, 0.4);
+$white80: rgba(255, 255, 255, 0.8);
+// =========================================================
+// SIZINGS
+// =========================================================
+$left_nav_width: 245px;
+$right_nav_width: 260px;
+$main_content_width: 628px;
+$main_content_width_larger: 648px;
+// =========================================================
+// BREAKPOINT SIZINGS
+// =========================================================
+$max_width: 992px;
+// @note: DO NOT USE 'minitablet_DEPRECATED' breakpoint. This is a legacy name.
+$breakpoint_minitablet_DEPRECATED: 480px;
+$breakpoint_tablet: 768px;
+$breakpoint_desktop: $max_width;
+$breakpoint_desktop_large: 1200px;
+// Tables
+// -------------------------
+$tableBackground: transparent; // overall background-color
+$tableBackgroundAccent: #f5f5f5; // for striping
+$tableBackgroundHover: #f9f9f9; // for hover
+$tableBackgroundHeader: $lighterGreen;
+$tableBorder: #dddddd; // table and cell border
+// Links
+$linkColor: $vuBlue;
+$linkColorHover: darken($linkColor, 15%);
+$linkColorVisited: purple;
+$linkColorActive: $vuBlue;
+// Buttons
+// -------------------------
+$btnBackground: white;
+$btnBackgroundHighlight: darken(white, 10%);
+$btnBorder: darken(white, 20%);
+$btnPrimaryBackground: $orange;
+$btnPrimaryBackgroundHighlight: lighten($orange, 5%);
+$btnBorder: darken(white, 20%);
+$btnInfoBackground: #5bc0de;
+$btnInfoBackgroundHighlight: #2f96b4;
+$btnSuccessBackground: #62c462;
+$btnSuccessBackgroundHighlight: #51a351;
+$btnWarningBackground: lighten($orange, 15%);
+$btnWarningBackgroundHighlight: $orange;
+$btnDangerBackground: #ee5f5b;
+$btnDangerBackgroundHighlight: #bd362f;
+$btnInverseBackground: $grey;
+$btnInverseBackgroundHighlight: $grey3;
+// Scaffolding / Layout
+// Basic and global styles for generating a grid system, structural layout, and page templates
+// -------------------------------------------------------------------------------------------
+$gridGutterWidth: 30px;
+$gridGutterWidth-old: 25px; //While we aren't on the grid, keep this around
+$boxPaddingSide: $gridGutterWidth;
+$boxPaddingTop: $boxPaddingSide - 8px;
+$boxPadding: $boxPaddingTop $boxPaddingSide;
+$slideshowMenuWidth: 360px;
+
+// Gutter size from compiled Bootstrap grid.
+$grid-gutter-width: 30px;
+
+// Typography
+// -------------------------
+$neonLineHeight: 1.43em;
+$baseFontSize: 1em;
+$baseFontSizePx: 14px;
+$baseLineHeight: 18px;
+
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// COMMON MIXINS ////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+//
+// Breakpoint.
+//
+@mixin breakpoint($class) {
+  @if $class==desktop {
+    @media (min-width: $breakpoint_desktop) {
+      @content;
+    }
+  } @else if $class==desktop_large {
+    @media (min-width: $breakpoint_desktop_large) {
+      @content;
+    }
+  } @else if $class==tablet {
+    @media (min-width: $breakpoint_tablet) {
+      @content;
+    }
+  } @else if $class==minitablet_DEPRECATED {
+    @media (min-width: $breakpoint_minitablet_DEPRECATED) {
+      @content;
+    }
+  } @else if $class==mobile_only {
+    @media (max-width: $breakpoint_tablet) {
+      @content;
+    }
+  } @else {
+    @warn "Breakpoint mixin supports: desktop_large, desktop, tablet, minitablet_DEPRECATED, mobile_only";
+  }
+}
+
+//
+// Custom breakpiont.
+//
+@mixin custom_breakpoint($prop_1, $value_1, $prop_2: NULL, $value_2: NULL) {
+  @if $prop_2==NULL {
+    @media ($prop_1: $value_1) {
+      @content;
+    }
+  } @else {
+    @media ($prop_1: $value_1) and ($prop_2: $value_2) {
+      @content;
+    }
+  }
+}
+
+//
+// Webkit-style focus.
+//
+@mixin tab-focus() {
+  // Default
+  outline: thin dotted $grey3;
+  // Webkit
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+//
+// RGBA background.
+//
+@mixin rgba-background($color) {
+  @include filter-gradient($color, $color);
+  @if $legacy-support-for-ie6 or $legacy-support-for-ie7 or $legacy-support-for-ie8 {
+    background: transparent;
+    // set filter as none for IE9+, because IE9+ supprot RGBa
+    :root & {
+      filter: none \0/ IE9;
+    }
+  }
+  background: $color;
+}
+
+//
+// Class for FontAwesome pseudo additions (i.e. not adding as an <i> tag).
+//
+@mixin fa-pseudo {
+  @include font-FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+}
+
+//
+// Add font Awesome icon before an element.
+//
+@mixin fa-before($content: "", $size: 1em, $color: inherit) {
+  position: relative;
+  &:before {
+    margin-right: 0.5em;
+    font-size: $size;
+    content: $content;
+    color: $color;
+    @include fa-pseudo;
+  }
+  &:hover, &:focus {
+    &:before {
+      text-decoration: none !important;
+    }
+  }
+}
+
+//
+// Add font Awesome icon after an element.
+//
+@mixin fa-after($content: "", $size: 1em, $color: inherit) {
+  position: relative;
+  &:after {
+    margin-left: 0.5em;
+    font-size: $size;
+    content: $content;
+    color: $color;
+    @include fa-pseudo;
+  }
+  &:hover, &:focus {
+    &:after {
+      text-decoration: none !important;
+    }
+  }
+}
+
+//
+// Use FA icons on the element itself as a pseudo-prefix.
+//
+@mixin fa-prefix($content: "", $size: 1em, $color: inherit) {
+  @include fa-before($content, $size, $color);
+  &:before {
+    display: inline-block;
+    line-height: 100%;
+    margin-right: $size/2;
+  }
+}
+
+//
+// Use FA icons on the element itself as a pseudo-suffix.
+//
+@mixin fa-suffix($content: "", $size: 1em, $color: inherit) {
+  @include fa-after($content, $size, $color);
+  &:after {
+    display: inline-block;
+    line-height: 100%;
+    margin-left: $size/2;
+  }
+}
+
+//
+// Screen reader only.
+//
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+//
+// Screen reader and focused.
+//
+@mixin sr-only-focused {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+//
+// Make element focusable.
+//
+@mixin sr-only-focusable {
+  &:active,
+  &:focus {
+    @include sr-only-focused();
+  }
+}
+
+//
+// Debug container.
+//
+@mixin debug-container($color:false) {
+  @if (global-variable-exists(debugContainer)) {
+    @if ($debugContainer) {
+      @if ($color == false) {
+        $red: random(256)-1;
+        $green: random(256)-1;
+        $blue: random(256)-1;
+        $color: rgb($red, $green, $blue);
+      }
+      @include single-box-shadow($color: $color, $inset: true);
+    }
+  }
+}
+
+//
+// Set element height using padding.
+//
+// If $lineHeight is set to false and $fontSize is provided, the line height
+// will be automatically calculated.
+//
+@mixin padding-from-height($height, $lineHeight: $baseLineHeight, $fontSize: $baseFontSizePx) {
+  @if ($lineHeight == false) {
+    @if ($fontSize == false) {
+      @warn "Font size must be provided";
+    }
+    $lineHeight: $fontSize * $baseLineHeight / $baseFontSizePx;
+  }
+  $ratio: $lineHeight / $fontSize;
+  padding-top: ($height - $lineHeight ) / 2;
+  padding-bottom: ($height - $lineHeight ) / 2;
+}
+
+//
+// Set gutter as inner padding.
+//
+@mixin gutter-inner($inner-gutter: $grid-gutter-width / 2 ) {
+  padding-left: $inner-gutter;
+  padding-right: $inner-gutter;
+}
+
+//
+// Set box padding as gutter value.
+//
+@mixin gutter-box-inner($inner-gutter: $grid-gutter-width / 2) {
+  padding: $inner-gutter;
+}
+
+//
+// Negate gutter values to break out of the grid.
+//
+@mixin gutter-negate($gutter: $grid-gutter-width / 2, $inner-gutter: $grid-gutter-width / 2) {
+  margin-left: -1 * $gutter;
+  margin-right: -1 * $gutter;
+  @if ($inner-gutter) {
+    @include gutter-inner($inner-gutter);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//////////////////// CUSTOM SHARED CONTENT-SPECIFIC MIXINS /////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// Normal link.
+//
+@mixin link($color:$linkColor, $hover:$linkColorHover, $visited:$linkColorVisited, $active: $linkColorActive) {
+  color: $color;
+  &:link {
+    color: $color;
+  }
+  &:visited {
+    color: $visited;
+  }
+  &.active,
+  &:active {
+    color: $active;
+  }
+  &:hover,
+  &:visited:hover {
+    color: $hover;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  &:focus {
+    color: $active;
+    text-decoration: none;
+  }
+}
+
+//
+// Futura font based link.
+//
+@mixin link-futura($color:$linkColor, $hover:$linkColorHover, $visited:$linkColorVisited, $active: $linkColorActive) {
+  @include futura;
+  @include link($color, $hover, $visited, $active);
+}
+
+//
+// Mixin for styling of any search results.
+//
+@mixin standard-search-results() {
+  list-style: none;
+  margin: 27px 0;
+  padding-top: 7px;
+  &:first-child {
+    margin-top: 0;
+  }
+  h3 {
+    font-weight: normal;
+    a {
+      text-decoration: none;
+      border-bottom: 1px solid $grey9;
+      &:visited {
+        border-bottom-color: purple;
+      }
+      &:hover, &:focus {
+        border-bottom-color: $blue2;
+      }
+    }
+  }
+  .course-meta, .result-item-meta {
+    display: inline-block;
+    color: $green;
+    font-size: 12px;
+    margin: 4px 0 2px 0;
+    padding: 0 6px 0 0;
+  }
+}
+
+//
+// Mixin for styling page summary in search pages.
+//
+@mixin standard-search-page-summary() {
+  border-top: 1px solid $grey8;
+  border-bottom: 1px solid $grey8;
+  padding: 18px 15px;
+  margin: 24px 0;
+}
+
+//
+// Add a play button overlay over video thumbnails if needed.
+//
+@mixin play-button-overlay() {
+  position: relative;
+  &::after {
+    background: transparent url(../images/youtube-play.png) no-repeat scroll center center;
+    content: "";
+    display: block;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 50;
+  }
+  &:hover::after, &:focus::after {
+    background-image: url(../images/youtube-play-hover.png);
+  }
+}
+
+//
+// Add a play button overlay over video thumbnails if needed. Part 2.
+//
+@mixin play-button-overlay2() {
+  position: relative;
+  &::after {
+    background: transparent url(../images/xbtn-play.png) no-repeat scroll top left;
+    content: "";
+    display: block;
+    pointer-events: none;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 50;
+    width: 38px;
+    height: 38px;
+  }
+  &:hover::after, &:focus::after {
+    background-position: 0 -38px;
+  }
+}
+
+//
+// Placeholder text
+//
+@mixin placeholder($color: $input-color-placeholder) {
+  // Firefox
+  &::-moz-placeholder {
+    color: $color;
+    opacity: 1; // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526
+  }
+  &:-ms-input-placeholder { color: $color; } // Internet Explorer 10+
+  &::-webkit-input-placeholder  { color: $color; } // Safari and Chrome
+}
+
+//
+// Creates a wrapper for a series of columns.
+//
+@mixin make-row($gutter: $grid-gutter-width) {
+  margin-left:  ($gutter / -2);
+  margin-right: ($gutter / -2);
+  @include clearfix();
+}

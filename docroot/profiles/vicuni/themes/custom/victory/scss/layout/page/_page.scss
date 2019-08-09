@@ -1,0 +1,85 @@
+//
+// Page layout.
+//
+
+header[role="banner"] {
+  // Required to make header elements appear over any overlays sitting
+  // in the root level of the DOM.
+  z-index: $zindex-header;
+}
+
+body {
+  background-color: $color-primary-background;
+
+  .main-container {
+    overflow: hidden;
+  }
+
+  &.page-node,
+  &.page-courses,
+  &.page-research,
+  &.page-search,
+  &.page-file {
+    .main-content {
+      .section {
+        @include victory-section;
+
+        padding-bottom: $spacing-vertical-bottom-sm;
+
+        @include breakpoint($breakpoint-md-up) {
+          padding-bottom: $spacing-vertical-bottom-lg;
+        }
+
+        + .section {
+          @include breakpoint($breakpoint-sm-up) {
+            margin-top: $spacing-vertical-bottom-sm;
+          }
+
+          @include breakpoint($breakpoint-lg-up) {
+            margin-top: $spacing-vertical-bottom-lg;
+          }
+        }
+      }
+      .qr-code-container {
+        display: none;
+        .page-url-qr-code {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.node-type-unit-set, &.node-type-unit {
+    .main-content {
+      .section:last-of-type {
+        @include breakpoint($breakpoint-sm-up) {
+          margin-bottom: $spacing-vertical-bottom-sm;
+        }
+
+        @include breakpoint($breakpoint-lg-up) {
+          margin-bottom: $spacing-vertical-bottom-lg;
+        }
+      }
+    }
+  }
+}
+
+.footer {
+  @include reset-box-model();
+  border: none;
+}
+
+// Allow to hide page title by setting this class to the <body>.
+.page-title-hidden {
+  .page-header {
+    display: none;
+  }
+}
+
+.region-below-header {
+  @include breakpoint($breakpoint-sm-up) {
+    position: relative;
+    display: table;
+    width: 100%;
+  }
+}

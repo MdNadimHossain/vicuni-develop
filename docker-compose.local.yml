@@ -1,0 +1,57 @@
+version: '2.3'
+
+x-volumes:
+  &default-volumes
+    # Define all volumes you would like to have real-time mounted into the docker containers
+    volumes:
+      - .:/app:delegated
+      # Uncomment below and comment-out above to start using docker-sync.
+      # The configuration is already provided.
+      # - docker-mac-sync:/app:nocopy
+
+x-php-environment:
+  &php-environment
+    # Uncomment below and restart container to enabling debugging.
+    # XDEBUG_ENABLE: "true"
+    PHP_MEMORY_LIMIT: "1G"
+    PHP_APC_SHM_SIZE: "256M"
+    PHP_MAX_EXECUTION_TIME: -1
+    PHP_MAX_INPUT_VARS: 4000
+
+services:
+  cli:
+    environment:
+      << : *php-environment
+    << : *default-volumes
+    volumes_from:
+      - container:amazeeio-ssh-agent
+  nginx:
+    environment:
+      AMAZEEIO_URL: vueduau.docker.amazee.io
+      AMAZEEIO: AMAZEEIO
+      AMAZEEIO_HTTP_PORT: 8080
+    << : *default-volumes
+    networks:
+      - amazeeio-network
+  php:
+    environment:
+      << : *php-environment
+    << : *default-volumes
+  mariadb:
+    ports:
+      # Expose the port 3306 with a random local port.
+      # Find it with `make info` or `docker-compose port mariadb 3306`.
+      - 3306
+  chrome:
+    image: selenium/standalone-chrome:3.141.59-oxygen
+    shm_size: '1gb'
+    << : *default-volumes
+networks:
+  amazeeio-network:
+    external: true
+
+# Uncomment below to start using docker-sync.
+# The configuration is already provided.
+#volumes:
+#    docker-mac-sync:
+#        external: true

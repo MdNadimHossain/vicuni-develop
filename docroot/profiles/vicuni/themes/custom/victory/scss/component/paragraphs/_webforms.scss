@@ -1,0 +1,8 @@
+.paragraphs-item-webforms {
+  .field-width-auto {
+    width: auto !important;
+  }
+  .webform-client-form {
+    @include vu-webforms;
+  }
+}

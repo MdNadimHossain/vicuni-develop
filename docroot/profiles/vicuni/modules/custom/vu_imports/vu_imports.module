@@ -1,0 +1,368 @@
+<?php
+
+/**
+ * @file
+ * Code for the VU imports feature.
+ */
+
+include_once 'vu_imports.features.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function vu_imports_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'feeds_tamper') {
+    return 'plugins/feeds_tamper';
+  }
+}
+
+/**
+ * Implements hook_feeds_plugins().
+ */
+function vu_imports_feeds_plugins() {
+  $path = drupal_get_path('module', 'vu_imports') . '/src';
+
+  return [
+    'VUImportsFeedsExXml' => [
+      'name'        => 'VU: XML Xpath parser',
+      'description' => 'Parse XML with XPath.',
+      'handler'     => [
+        'parent' => 'FeedsExXml',
+        'class'  => 'VUImportsFeedsExXml',
+        'file'   => 'VUImportsFeedsExXml.inc',
+        'path'   => $path,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_feeds_presave().
+ */
+function vu_imports_feeds_presave(FeedsSource $source, $entity, $item, $entity_id) {
+
+  // PW-5657 - Don't import a unit fee if no unit is attached.
+  if ($entity->feeds_item->id === 'unit_fees' && empty($item['unit_code'])) {
+    $entity->feeds_item->skip = TRUE;
+    // Add logging.
+    $source->log('import', 'Unit Fee not imported as unit code @code does not exists', ['@code' => $item['unit_code_original']], WATCHDOG_INFO);
+    drupal_set_message(t('Unit Fee not imported as unit code @code does not exists', ['@code' => $item['unit_code_original']]));
+  }
+
+  // PW-5795 - Don't import a course fee if no course is attached.
+  if ($entity->feeds_item->id === 'course_fees') {
+    $course_code_nid = field_get_items('node', $entity, 'field_course');
+    if (!$course_code_nid) {
+      $entity->feeds_item->skip = TRUE;
+      // Add logging.
+      $course_code = substr($item['course_code'], strpos($item['course_code'], '-') + 1);
+      $source->log('import', 'Course Fee not imported as course code @code does not exists', ['@code' => $course_code], WATCHDOG_INFO);
+      drupal_set_message(t('Course Fee not imported as course code @code does not exists', ['@code' => $course_code]));
+    }
+  }
+
+  // Only trigger on existing entities.
+  if (!$entity_id) {
+    return;
+  }
+
+  // Get the mapping from source.
+  $mappings = $source->importer->processor->config['mappings'];
+
+  // Init old entity, used to prevent multiple node loads.
+  $old_entity = NULL;
+
+  // Walk through fields mappings.
+  foreach ($mappings as $mapping) {
+    $value = $item[$mapping['source']];
+    if (is_array($value)) {
+      $value = reset($value);
+    }
+
+    // The below functions are only needed when the value is NULL, as when the
+    // value is NULL we wish to retain the previous field value.
+    if (!is_null($value)) {
+      continue;
+    }
+
+    $field_name = $mapping['target'];
+    if (!empty($mapping['real_target'])) {
+      $field_name = $mapping['real_target'];
+    }
+
+    // Get the first part of the field name (in case of field_image:uri).
+    $field_name = explode(':', $field_name);
+    $field_name = reset($field_name);
+
+    // Get unchanged entity if we had not yet.
+    if (is_null($old_entity)) {
+      $entity_type = $source->importer->processor->entityType();
+      $old_entity = entity_load_unchanged($entity_type, $entity_id);
+    }
+
+    // If we've got unchanged entity, get the value of the field from there
+    // and set it to the new entity.
+    if (!empty($old_entity)) {
+      // But we don't want to overwrite if there's already a value
+      // or we can ignore it anyway if the old value is empty.
+      if (empty($old_entity->{$field_name})
+        // Is there a new value?
+        || (isset($entity->{$field_name})
+          // Does it actually contain the required language key?
+          && isset($entity->{$field_name}[$entity->language])
+          // Is the array empty?
+          && (!empty($entity->{$field_name}[$entity->language])
+            // Is the value of the the field[lang][first_element] "Undefined?".
+            && strtolower(reset($entity->{$field_name}[$entity->language][0])) !== 'undefined'))) {
+        continue;
+      }
+
+      if (_vu_imports_courses_preserve_null($field_name)) {
+        // Some fields need to be saved as null and not reflect the old values.
+        // @see PW-5856.
+        $entity->{$field_name} = [];
+      }
+      else {
+        $entity->{$field_name} = $old_entity->{$field_name};
+      }
+    }
+  }
+
+  // We need to handle workbench moderation states here.
+  if ($entity->status == NODE_PUBLISHED && $old_entity->status == NODE_PUBLISHED) {
+    $entity->workbench_moderation_state_new = workbench_moderation_state_published();
+  }
+  else {
+    $entity->workbench_moderation_state_new = workbench_moderation_state_none();
+  }
+}
+
+/**
+ * Implements hook_feeds_tamper_default_alter().
+ */
+function vu_imports_feeds_tamper_default_alter(&$items) {
+  $plugins = feeds_tamper_get_plugins();
+  foreach ($items as $item) {
+    // Provide context to the skip null passthrough.
+    if (isset($plugins[$item->plugin_id]) && !empty($plugins[$item->plugin_id]['original callback'])) {
+      $item->settings['vu_imports_callback'] = $plugins[$item->plugin_id]['original callback'];
+    }
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_pre_alter().
+ */
+function vu_imports_ctools_plugin_pre_alter(&$plugin, &$info) {
+  if ($plugin['plugin module'] == 'feeds_tamper') {
+    $plugin['original callback'] = $plugin['callback'];
+    $plugin['callback'] = 'vu_imports_feeds_tamper_skip_null';
+  }
+}
+
+/**
+ * VU Imports not null tamper passthrough.
+ *
+ * This hijacks all feeds tampers and prevents them from running if the field
+ * value is NULL.
+ *
+ * @param FeedsParserResult $result
+ *   The Feeds parser result object.
+ * @param string $item_key
+ *   The item key.
+ * @param string $element_key
+ *   The Element key.
+ * @param string $field
+ *   The field being tampered.
+ * @param array $settings
+ *   The tamper settings array.
+ * @param FeedsSource $source
+ *   The Feeds source object.
+ */
+function vu_imports_feeds_tamper_skip_null(FeedsParserResult $result, $item_key, $element_key, &$field, array $settings, FeedsSource $source) {
+  // If we managed to set the vu_imports_callback, always run it, *UNLESS*
+  // it is courses importer - then we also need to check if *not null*.
+  if (isset($settings['vu_imports_callback']) && (!is_null($field) || $source->importer->id !== 'courses')) {
+    $function = $settings['vu_imports_callback'];
+    if (function_exists($function) && is_callable($function)) {
+      unset($settings['vu_imports_callback']);
+      $function($result, $item_key, $element_key, $field, $settings, $source);
+    }
+  }
+}
+
+/**
+ * Returns TRUE if the current feed file is the international xml file.
+ */
+function vu_imports_is_international_feed_import($source) {
+  // If this is the international feed import, skip handling course status
+  // because it should be handled in HE or VET course imports.
+  return !empty($source->current_item['international-offered']) || !empty($source->current_item['fees']) || !empty($source->current_item['semesterintakes']);
+}
+
+/**
+ * Add columns to and modify the parsed CSV data.
+ *
+ * @param FeedsSource $source
+ *   The Feeds source object.
+ * @param FeedsParserResult $result
+ *   The Feeds parser result object.
+ */
+function vu_imports_feeds_after_parse(FeedsSource $source, FeedsParserResult $result) {
+  // Load the importer info from our $source object.
+  $importer = $source->importer();
+
+  // Stop alterations if we’re not on the right importer.
+  switch ($importer->id) {
+    case 'course_fees':
+      foreach ($result->items as &$row) {
+        $row['title'] = _vu_imports_course_fee_title($row);
+        $row['fee_type'] = _vu_imports_fee_type_code($row);
+        $row['disclaimers'] = _vu_imports_disclaimer_tids($row);
+      }
+      break;
+
+    case 'unit_fees':
+      foreach ($result->items as &$row) {
+        $row['title'] = _vu_imports_unit_fee_title($row);
+        $row['fee_type'] = _vu_imports_fee_type_code($row);
+        $row['disclaimers'] = _vu_imports_disclaimer_tids($row);
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**
+ * Map the disclaimer codes from the CSV into term IDs.
+ *
+ * @param array $row
+ *   The current CSV row to being modified.
+ *
+ * @return array
+ *   The term IDs associated with the disclaimers column in this row.
+ */
+function _vu_imports_disclaimer_tids($row) {
+  $terms = [];
+  if ($row['disclaimers']) {
+    $disclaimer_codes = explode(';', $row['disclaimers']);
+    $disclaimer_codes_trimmed = array_map('trim', $disclaimer_codes);
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'taxonomy_term')
+      ->fieldCondition(
+        'field_disclaimer_code',
+        'value',
+        $disclaimer_codes_trimmed,
+        'IN'
+      )
+      ->execute();
+
+    if (isset($result['taxonomy_term'])) {
+      return array_keys($result['taxonomy_term']);
+    }
+  }
+  return $terms;
+}
+
+/**
+ * Get unique string from CSV columns to use for the course fee "title" field.
+ *
+ * @param array $row
+ *   The current CSV row to being modified.
+ *
+ * @return string
+ *   A unique string to use as the title of the course fee.
+ */
+function _vu_imports_course_fee_title($row) {
+  $course_code = ltrim($row['course_code'], 'course-');
+
+  $title = $course_code . ' - ' . $row['fee_year'];
+  $international = (bool) $row['international'];
+  if ($international) {
+    $title .= ' - International - ' . $row['sector'];
+    if ($row['sector'] === 'HE') {
+      $title .= ' - ' . $row['cohort_year'];
+    }
+  }
+  else {
+    $title .= ' - Domestic - ' . $row['fee_type'];
+  }
+
+  return $title;
+}
+
+/**
+ * Get unique string from CSV columns to use for the unit fee "title" field.
+ *
+ * @param array $row
+ *   The current CSV row to being modified.
+ *
+ * @return string
+ *   A unique string to use as the title of the unit fee.
+ */
+function _vu_imports_unit_fee_title($row) {
+  $node_id = $row['unit_code'];
+  $node = node_load($node_id);
+  $title = $node_id;
+  if ($node) {
+    $title = $node->field_unit_code[LANGUAGE_NONE][0]['value'];
+  }
+
+  $title .= ' - ' . $row['fee_year'] . ' - ' . $row['sector'] . ' - ' . $row['fee_type'];
+
+  $course_code = ltrim($row['course_code'], 'course-');
+  if ($course_code) {
+    $title .= ' - ' . $course_code;
+  }
+
+  return $title;
+}
+
+/**
+ * Retrieve the correct Fee Type taxonomy term using CSV columns.
+ *
+ * @param array $row
+ *   The current CSV row to being modified.
+ *
+ * @return string
+ *   A unique string to use as the title of the unit fee.
+ */
+function _vu_imports_fee_type_code($row) {
+  $sector = $row['sector'];
+  $feeType = $row['fee_type'];
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('fee_types');
+  $efq = new EntityFieldQuery();
+  $result = $efq->entityCondition('entity_type', 'taxonomy_term')
+    ->propertyCondition('vid', $vocabulary->vid)
+    ->fieldCondition('field_sector', 'value', $sector)
+    ->fieldCondition('field_display_name', 'value', $feeType)
+    ->execute();
+
+  if (!empty($result['taxonomy_term'])) {
+    return key($result['taxonomy_term']);
+  }
+
+  return '';
+}
+
+/**
+ * Check if fields need to be saved as empty.
+ *
+ * @param string $field
+ *   The current field to check.
+ *
+ * @return bool
+ *   Preserve empty if TRUE.
+ */
+function _vu_imports_courses_preserve_null($field) {
+  // Fields to preserve null values.
+  $fields = [
+    'field_pathways_cams',
+  ];
+
+  return in_array($field, $fields);
+}

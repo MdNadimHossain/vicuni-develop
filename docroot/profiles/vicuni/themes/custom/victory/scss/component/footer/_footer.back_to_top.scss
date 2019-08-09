@@ -1,0 +1,124 @@
+.sticky-btt,
+.sticky-print {
+  bottom: 0;
+  position: fixed !important;
+  z-index: 10;
+
+  a {
+    @include box-shadow(-2px -2px 2px 0 rgba(0, 0, 0, 0.1));
+    @include fa-before("\f106");
+
+    background-color: $color-white-alabaster;
+    color: $color-blue-elephant;
+    display: block;
+    font-size: 12px;
+    height: 40px;
+    line-height: 28px;
+    margin: 0;
+    min-width: inherit;
+    padding: 0;
+    text-align: center;
+    width: 40px;
+
+    &:before {
+      display: block;
+      font-size: 22px;
+      margin: 0;
+      margin-bottom: -15px;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: $color-blue-lochmara;
+      color: $color-white;
+    }
+  }
+
+  // <= SM.
+  @include breakpoint($breakpoint-sm-down) {
+    padding-right: $grid-gutter-width / 2;
+  }
+
+  // = MD.
+  @include breakpoint($breakpoint-md-up) {
+    right: calc((100% - #{$container-md}) / 2 + #{$grid-gutter-width} / 2) !important;
+  }
+
+  // >= MD.
+  @include breakpoint($breakpoint-md-up) {
+    transition: opacity 0.2s ease-in !important;
+
+    bottom: 50px;
+
+    a {
+      font-size: 20px;
+      height: 60px;
+      width: 60px;
+
+      &:focus {
+        border: 0;
+        margin: 0;
+      }
+
+      &:before {
+        font-size: 40px;
+        margin-bottom: -7.5px;
+      }
+    }
+  }
+
+  // >= LG.
+  @include breakpoint($breakpoint-lg-up) {
+    right: calc((100% - #{$container-lg}) / 2 + #{$grid-gutter-width} / 2) !important;
+  }
+
+  &.affix-top {
+    bottom: -100%;
+    opacity: 0;
+  }
+}
+
+.sticky-print {
+  margin-right: 70px;
+  a {
+    background-color: $color-yellow-grandis;
+    @include fa-before("\f02f");
+    &::before {
+      font-size: 20px !important;
+      margin-right: auto;
+      margin-left: auto;
+      &:focus,
+      &:hover {
+        background-color: $color-blue-lochmara;
+        color: $color-white;
+    }
+    }
+  }
+  // = MD.
+  @include breakpoint($breakpoint-md-down) {
+    display: none;
+  }
+  @include breakpoint($breakpoint-md-up) {
+    &.affix-top {
+      transition: opacity 0.2s ease-in !important;
+      bottom: 50px;
+      position: fixed !important;
+    }
+  }
+  @include breakpoint($breakpoint-lg-up) {
+    &.affix-top {
+      transition: opacity 0.2s ease-in !important;
+      bottom: 50px;
+      position: fixed !important;
+    }
+  }
+}
+
+.hellobar-enabled {
+  @include breakpoint($breakpoint-xs) {
+    .sticky-btt {
+      bottom: 150px;
+      padding-right: 0px;
+    }
+  }
+}

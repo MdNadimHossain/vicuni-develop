@@ -1,0 +1,683 @@
+<?php
+
+/**
+ * @file
+ * vu_courses.module
+ */
+
+require_once 'theme/templates/vu_courses.theme.inc';
+require_once 'includes/vu_courses.functions.inc';
+
+define('VU_COURSES_FIELD_PREFIX', 'vucrs_');
+
+/**
+ * Implements hook_theme().
+ */
+function vu_courses_theme() {
+  $path = drupal_get_path('module', 'vu_courses');
+
+  return [
+
+    'vu_courses_course_list' => [
+      'template' => 'course-list',
+      'path' => $path . '/theme/templates',
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_course_list_preprocess',
+      ],
+    ],
+
+    'vu_courses_imported_data' => [
+      'template' => 'imported-data',
+      'path' => $path . '/theme/templates',
+      'variables' => ['data' => ''],
+    ],
+
+    'vu_courses_description' => [
+      'template' => 'description',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_description_preprocess',
+      ],
+    ],
+
+    'vu_courses_domestic_admission_information' => [
+      'template' => 'admission-information',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Admission requirements'],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_domestic_admission_information_preprocess',
+      ],
+    ],
+
+    'vu_courses_international_admission_information' => [
+      'template' => 'admission-information',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Admission requirements'],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_international_admission_information_preprocess',
+      ],
+    ],
+
+    'vu_courses_careers' => [
+      'template' => 'careers',
+      'path' => $path . '/theme/templates',
+      'variables' => ['careers' => NULL, 'title' => 'Careers'],
+    ],
+    'vu_courses_domestic_study_pathways' => [
+      'template' => 'study-pathways',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Study pathways'],
+    ],
+    'vu_courses_international_study_pathways' => [
+      'template' => 'study-pathways',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Study pathways'],
+    ],
+    'vu_courses_domestic_course_objectives' => [
+      'template' => 'course-objectives',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Course objectives'],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_course_objectives_preprocess',
+      ],
+    ],
+    'vu_courses_international_course_objectives' => [
+      'template' => 'course-objectives',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Course objectives'],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_course_objectives_preprocess',
+      ],
+    ],
+
+    'vu_courses_domestic_units_and_electives' => [
+      'template' => 'units-and-electives',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Course structure'],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_units_and_electives_preprocess',
+      ],
+    ],
+    'vu_courses_international_units_and_electives' => [
+      'template' => 'units-and-electives',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL, 'title' => 'Course structure'],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_units_and_electives_preprocess',
+      ],
+    ],
+
+    'vu_courses_domestic_how_to_apply' => [
+      'template' => 'how-to-apply',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_domestic_how_to_apply_preprocess',
+      ],
+    ],
+    'vu_courses_international_how_to_apply' => [
+      'template' => 'how-to-apply',
+      'path' => $path . '/theme/templates',
+      'variables' => ['node' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_international_how_to_apply_preprocess',
+      ],
+    ],
+
+    'vu_courses_domestic_info_sessions' => [
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_info_sessions_preprocess',
+      ],
+      'template' => 'domestic/info-sessions',
+      'path' => $path . '/theme/templates',
+      'variables' => [
+        'nid' => NULL,
+        'audience' => 'domestic',
+        'events' => [],
+      ],
+    ],
+    'vu_courses_international_info_sessions' => [
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_info_sessions_preprocess',
+      ],
+      'template' => 'international/info-sessions',
+      'path' => $path . '/theme/templates',
+      'variables' => [
+        'nid' => NULL,
+        'audience' => 'international',
+        'events' => [],
+      ],
+    ],
+
+    'coursebrowser-list' => [
+      'template' => 'coursebrowser-list',
+      'path' => $path . '/theme/templates',
+      'variables' => [
+        'title' => '',
+        'topics' => [],
+        'is_international' => FALSE,
+      ],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_coursebrowser_list_preprocess',
+      ],
+    ],
+
+    'course-disclaimer' => [
+      'template' => 'course-disclaimer',
+      'path' => $path . '/theme/templates',
+      'variables' => ['is_tafe' => FALSE],
+    ],
+
+    'international-course-disclaimer' => [
+      'template' => 'international-course-disclaimer',
+      'path' => $path . '/theme/templates',
+    ],
+
+    'short-course-date-times' => [
+      'preprocess functions' => [
+        'template_preprocess',
+        'short_course_date_times_preprocess',
+      ],
+      'template' => 'short-course-date-times',
+      'path' => $path . '/theme/templates',
+      'variables' => ['date_entities' => []],
+    ],
+
+    'course-tile' => [
+      'template' => 'course-tile',
+      'path' => $path . '/theme/templates',
+      'variables' => ['feature' => NULL, 'url' => NULL],
+      'preprocess functions' => [
+        'template_preprocess',
+        'vu_courses_course_tile_preprocess',
+      ],
+    ],
+
+    'course-essentials-item' => [
+      'template' => 'course-essentials-item',
+      'path' => $path . '/theme/templates',
+      'variables' => [
+        'label' => '',
+        'value' => '',
+        'variants' => [],
+      ],
+    ],
+
+    'location-vu-sydney-note' => [
+      'template' => 'location-vu-sydney-note',
+      'path' => $path . '/theme/templates',
+      'variables' => [
+        'url' => '',
+      ],
+    ],
+
+    'publisher-notification-email' => [
+      'template' => 'publisher-notification-email',
+      'path' => $path . '/theme/templates',
+      'variables' => [
+        'courses' => [],
+      ],
+    ],
+    'aside-cta-head' => [
+      'path' => $path . '/theme/templates',
+      'template' => 'aside-cta-head',
+      'variables' => [
+        'label' => '',
+        'url' => '',
+        'icon' => 'play',
+      ],
+    ],
+    'aside_cta_box' => [
+      'path' => $path . '/theme/templates',
+      'template' => 'aside-cta-box',
+      'variables' => [
+        'content' => '',
+        'modifier' => '',
+      ],
+    ],
+    'special-cta' => [
+      'path' => $path . '/theme/templates',
+      'template' => 'special-cta',
+      'variables' => [
+        'url' => '',
+        'link' => '',
+      ],
+    ],
+    'topic-intro' => [
+      'path' => $path . '/theme/templates',
+      'template' => 'topic-intro',
+      'variables' => [
+        'teaser' => '',
+        'content' => '',
+      ],
+    ],
+    'banner' => [
+      'path' => $path . '/theme/templates',
+      'template' => 'banner',
+      'variables' => [
+        'url' => '',
+        'link' => '',
+        'text' => '',
+      ],
+    ],
+    'vu_courses_tafe_resources' => [
+      'path' => $path . '/theme/templates',
+      'template' => 'tafe-resources',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function vu_courses_node_view($node, $view_mode) {
+  // Only operate on course nodes.
+  if ($node->type != 'courses') {
+    return;
+  }
+
+  // Default callbacks for single long text field.
+  $callbacks = [
+    'is_empty' => function ($a) {
+      return empty($a) || !strlen($a[0]['value']);
+    },
+    'convert' => function ($a) {
+      return $a[0];
+    },
+  ];
+
+  $editable_field_pairs = _vu_courses_editable_field_pairs();
+  foreach ($editable_field_pairs as $imported => $editable) {
+    if (!is_array($editable)) {
+      // Since this is not an array, then use the default callbacks for a
+      // single long text field.
+      $editable = [$editable => []];
+    }
+    foreach ($editable as $id => $info) {
+      $info += $callbacks;
+      if (!empty($node->{$id}[$node->language]) && !$info['is_empty']($node->{$id}[$node->language])) {
+        $node->{$imported}[$node->language] = [0 => $info['convert']($node->{$id}[$node->language])];
+        break;
+      }
+    }
+  }
+
+  // Structure is XML - render it.
+  if (!empty($node->field_imp_structure)) {
+    foreach ($node->field_imp_structure[$node->language] as &$structure) {
+      $raw = $structure['value'];
+      $processed = vu_courses_transform_structure($raw);
+      $structure['safe_value'] = $processed;
+      $structure['value'] = $processed;
+    }
+  }
+}
+
+/**
+ * Returns an array of imported and editable field pairs.
+ *
+ * @return array
+ *   Imported fields and their editable counterparts.
+ */
+function _vu_courses_editable_field_pairs() {
+  $paragraph_conversion = [
+    'is_empty' => function ($a) {
+      if (is_array($a)) {
+        foreach ($a as $delta => $item) {
+          if ((is_numeric($delta) || $delta === 0) && !empty($item['value']) && is_numeric($item['value'])) {
+            return FALSE;
+          }
+        }
+      }
+
+      return TRUE;
+    },
+    'convert' => function ($items) {
+      // Render supplementary description field.
+      $entities = [];
+      foreach ($items as $delta => $item) {
+        if (!empty($item['value'])) {
+          if (!empty($item['revision_id'])) {
+            $entity = entity_load('paragraphs_item', [$item['value']], ['revision_id' => $item['revision_id']]);
+          }
+          else {
+            $entity = entity_load('paragraphs_item', [$item['value']]);
+          }
+          $entities[$delta] = reset($entity);
+        }
+      }
+
+      $render = entity_view('paragraphs_item', $entities, 'full');
+      $view = $render ? drupal_render($render) : '';
+
+      return [
+        'value' => $view,
+        'format' => 'full_html',
+        'safe_value' => $view,
+      ];
+    },
+  ];
+
+  $field_pairs = [
+    'field_imp_desc' => [
+      // Paragraph type field.
+      'field_paragraphs_left' => $paragraph_conversion,
+      'field_description_editable' => [],
+    ],
+    'field_imp_career' => [
+      'field_career_opportunities' => $paragraph_conversion,
+      'field_career' => [],
+    ],
+    'field_location_other' => 'field_location_other_editable',
+  ];
+
+  return $field_pairs;
+}
+
+/**
+ * Implements hook_preprocess_aside_cta_box().
+ */
+function vu_courses_preprocess_aside_cta_box(&$variables) {
+  $variables['class'] = 'aside-cta-box';
+  if (!empty($variables['modifier'])) {
+    $variables['class'] = sprintf('%s %s--%s', $variables['class'], $variables['class'], $variables['modifier']);
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function vu_courses_views_pre_render(&$view) {
+  if (!($view->name === 'international_courses_xml')) {
+    return;
+  }
+
+  foreach ($view->result as &$row) {
+    $row->field_field_int_sem_int[0]['rendered']['#markup'] = str_ireplace(
+      [
+        '<?xml version="1.0"?>',
+        '<semesterintakes>',
+        '</semesterintakes>',
+      ], '', $row->field_field_int_sem_int[0]['raw']['value']
+    );
+
+    if (preg_match('/\>(.*?)\<\/semesterintake>/', $row->field_field_int_sem_int[0]['rendered']['#markup'], $matches)) {
+      $row->field_field_int_sem_int[0]['rendered']['#markup'] = str_replace(
+        ">{$matches[1]}</semesterintake>",
+        '>' . vu_courses_get_inter_semester($matches[1]) . '</semesterintake>',
+        $row->field_field_int_sem_int[0]['rendered']['#markup']
+      );
+    }
+
+    $row->field_field_international_fees[0]['rendered']['#markup']
+      = str_ireplace(
+      [
+        '<?xml version="1.0"?>',
+        '<fees>',
+        '</fees>',
+      ], '', $row->field_field_international_fees[0]['raw']['value']
+    );
+
+    $value = $row->field_field_imp_admission_requirements[0]['raw']['value'];
+    $matches = [];
+    if (preg_match_all('/International:\s(.+?)<\/li>/s', $value, $matches)) {
+      $value = '';
+      foreach ($matches[1] as $match) {
+        $value .= "{$match}";
+      }
+    }
+    else {
+      $value = '';
+    }
+
+    $value = strip_tags($value);
+    $row->field_field_imp_admission_requirements[0]['rendered']['#markup']
+      = $value;
+
+    $row->field_field_course_sort_title_6[0]['rendered']['#markup'] = '';
+
+    $cricos_codes = [];
+    if (is_array($row->field_field_cricos_code)) {
+      foreach ($row->field_field_cricos_code as &$cricos_code) {
+        $row->field_field_course_sort_title_6[0]['rendered']['#markup']
+          .= sprintf(
+          '<cams_location>%s</cams_location>',
+          $cricos_code['raw']['value']
+        );
+        if (stripos($cricos_code['raw']['value'], 'sydney') !== FALSE) {
+          continue;
+        }
+        $cricos_codes[] = preg_replace('/\s\(.+/', '', $cricos_code['raw']['value']);
+      }
+    }
+    if (empty($cricos_codes) && is_array($row->field_field_cricos_code_1) && !empty($row->field_field_cricos_code_1[0]['raw']['value'])) {
+      foreach ($row->field_field_cricos_code_1 as &$cricos_code) {
+        $row->field_field_course_sort_title_6[0]['rendered']['#markup']
+          .= sprintf(
+          '<cams_location>%s</cams_location>',
+          $cricos_code['raw']['value']
+        );
+        if (stripos($cricos_code['raw']['value'], 'sydney') !== FALSE) {
+          continue;
+        }
+        $cricos_codes[] = preg_replace(
+          '/\s\(.+/', '',
+          $cricos_code['raw']['value']
+        );
+      }
+    }
+
+    $cricos_codes = array_unique($cricos_codes);
+    if (!empty($cricos_codes)) {
+      $row->field_field_cricos_code = [
+        $row->field_field_cricos_code[0],
+      ];
+      $row->field_field_cricos_code[0]['rendered']['#markup']
+        = $cricos_codes[0];
+    }
+
+    $row->field_field_imp_structure[0]['rendered']['#markup']
+      = vu_courses_transform_structure(
+      $row->field_field_imp_structure[0]['raw']['value']
+    );
+
+    $row->field_field_unit_lev[0]['rendered']['#markup'] = preg_replace(
+      [
+        '/TAFE.*/i',
+        '/.*undergrad.*/i',
+        '/short.*/i',
+        '/postgrad.*/i',
+      ],
+      [
+        'Vocational and Further Education',
+        'Undergraduate',
+        'Short course',
+        'Postgraduate',
+      ],
+      $row->field_field_unit_lev[0]['raw']['value']
+    );
+
+    $course_topic = '';
+    $study_area = '';
+    if (is_array($row->field_field_study_topic_area)) {
+      foreach ($row->field_field_study_topic_area as &$topic_or_area) {
+        $type
+          = empty($topic_or_area['raw']['entity']->field_study_topic)
+          ? 'course_topic' : 'study_area';
+        $$type .= sprintf(
+          '<%s>%s</%s>',
+          $type, $topic_or_area['rendered']['#markup'],
+          $type
+        );
+      }
+    }
+
+    $row->field_field_course_sort_title_1[0] = [
+      'rendered' => [
+        '#markup' => $study_area,
+      ],
+    ];
+    $row->field_field_course_sort_title_2[0] = [
+      'rendered' => [
+        '#markup' => $course_topic,
+      ],
+    ];
+
+    $row->field_field_course_sort_title[0]['rendered']['#markup']
+      = clean_title($row->node_title);
+    $row->field_field_course_sort_title_3[0]['rendered']['#markup']
+      = clean_title($row->node_title, TRUE);
+    $row->field_field_course_sort_title_4[0]['rendered']['#markup']
+      = clean_title($row->node_title, FALSE, TRUE);
+    // @TODO : Match structure.
+    $pathways = [];
+    $markup = '';
+    $markup_template = <<<END
+  <pathway>
+        <departure_course_code>%s</departure_course_code>
+        <departure_course_title>%s</departure_course_title>
+        <destination_course_code>%s</destination_course_code>
+        <destination_course_title>%s</destination_course_title>
+        <credit_units>%s</credit_units>
+        <credit_years>%s</credit_years>
+        <destination_course_specialisation>%s</destination_course_specialisation>
+      </pathway>\n
+END;
+    foreach ($pathways as $pathway) {
+      $markup .= sprintf(
+        $markup_template,
+        htmlspecialchars($pathway->departure_course_code),
+        htmlspecialchars($pathway->departure_course_title),
+        htmlspecialchars($pathway->destination_course_code),
+        htmlspecialchars($pathway->destination_course_title),
+        htmlspecialchars($pathway->credit_units),
+        htmlspecialchars($pathway->credit_years),
+        htmlspecialchars($pathway->destination_course_specialisation)
+      );
+    }
+    if (!empty($markup)) {
+      $markup = "\n    {$markup}";
+    }
+    $row->field_field_course_sort_title_5[0]['rendered']['#markup'] = $markup;
+  }
+}
+
+/**
+ * Get a list of all the fields.
+ */
+function _vu_courses_get_fields() {
+  $fields = &drupal_static(__FUNCTION__);
+
+  if (empty($fields)) {
+    $dirname = drupal_get_path('module', 'vu_courses');
+    $includes = file_scan_directory("{$dirname}/fields", '/.inc$/', [
+      'min_depth' => 1,
+    ]);
+
+    foreach ($includes as $file) {
+      $entity_type = preg_replace(';^.*/vu_courses/fields/(.*?)/.*$;i', '\1', $file->uri);
+      $fields[$entity_type][$file->name] = $file;
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * Convert the delta into the Class name.
+ */
+function _vu_courses_get_field_class_name($delta) {
+  return 'VuCourses' . vu_core_underscores_to_camelcase($delta, TRUE) . 'Field';
+}
+
+/**
+ * Convert the ds_field into the real delta.
+ */
+function _vu_courses_get_field_delta($field_name) {
+  if (strpos($field_name, 'vucrs_') !== FALSE) {
+    return drupal_substr($field_name, drupal_strlen(VU_COURSES_FIELD_PREFIX));
+  }
+}
+
+/**
+ * Implements hook_system_info_alter().
+ */
+function vu_courses_system_info_alter(&$info, $file, $type) {
+  $dirname = drupal_get_path('module', 'vu_courses');
+  if (drupal_dirname($file->filename) == $dirname) {
+    $types = _vu_courses_get_fields();
+
+    foreach ($types as $fields) {
+      foreach ($fields as $file) {
+        $info['files'][] = str_replace("{$dirname}/", '', $file->uri);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ds_fields_info().
+ */
+function vu_courses_ds_fields_info($entity_type) {
+  $fields = [];
+  $types = _vu_courses_get_fields();
+
+  if (!empty($types[$entity_type])) {
+    foreach ($types[$entity_type] as $delta => $file) {
+      $class_name = _vu_courses_get_field_class_name($delta);
+
+      // @codingStandardsIgnoreStart
+      if (!empty($class_name::$info)) {
+        $fields[$entity_type][VU_COURSES_FIELD_PREFIX . $delta] = [
+          'title' => 'VU Courses: ' . $class_name::$info,
+          'field_type' => DS_FIELD_TYPE_FUNCTION,
+          'function' => 'vu_course_ds_fields_build',
+          'properties' => [
+            'defaults' => $class_name::defaults(),
+          ],
+        ];
+      }
+      // @codingStandardsIgnoreEnd
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * Build the display of the field.
+ */
+function vu_course_ds_fields_build($info) {
+  $delta = _vu_courses_get_field_delta($info['field_name']);
+  $class_name = _vu_courses_get_field_class_name($delta);
+
+  $object = new $class_name($info);
+
+  return $object->build();
+}
+
+/**
+ * Implements hook_ds_field_settings_form().
+ */
+function vu_courses_ds_field_settings_form($info) {
+  $delta = _vu_courses_get_field_delta($info['name']);
+  $class_name = _vu_courses_get_field_class_name($delta);
+
+  $object = new $class_name($info);
+
+  return $object->settings();
+}

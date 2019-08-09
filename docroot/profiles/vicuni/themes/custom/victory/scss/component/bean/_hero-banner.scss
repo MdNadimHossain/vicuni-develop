@@ -1,0 +1,118 @@
+//
+// Hero banner style.
+//
+.field-name-field-hero-banner.field-type-paragraphs,.panel-pane.pane-bean-bundle-hero-banner {
+  height: 100%;
+  margin-bottom: $spacing-vertical-bottom-sm;
+  position: relative;
+  overflow: hidden;
+  width: 100% !important;
+
+  @include breakpoint($breakpoint-xs) {
+    max-height: 325px;
+  }
+
+  @include breakpoint($breakpoint-sm) {
+    max-height: 400px;
+  }
+
+  @include breakpoint($breakpoint-md) {
+    max-height: 495px;
+  }
+
+  @include breakpoint($breakpoint-lg-up) {
+    margin-bottom: $spacing-vertical-bottom-lg;
+    max-height: 532px;
+  }
+
+  @include hero-banner-pseudo-el(before, top);
+  @include hero-banner-pseudo-el(after, bottom);
+
+  &.rebrand-homepage::before {
+    transform: none;
+    background: none;
+  }
+
+  &.rebrand-homepage::after {
+    transform: none;
+    background: none;
+  }
+
+  .hero-banner {
+
+    @include hero-banner-default-values;
+
+    &__content {
+      padding-top: $spacing-vertical-top-lg;
+
+      @include breakpoint($breakpoint-sm) {
+        padding-top: 80px;
+      }
+      @include breakpoint($breakpoint-md-up) {
+        padding-top: 100px;
+      }
+    }
+
+    &__image {
+      height: 320px;
+
+      @include breakpoint($breakpoint-sm) {
+        height: 400px;
+      }
+
+      @include breakpoint($breakpoint-md) {
+        height: 550px;
+      }
+
+      @include breakpoint($breakpoint-lg-up) {
+        height: 532px;
+      }
+
+    }
+  }
+
+  &.rebrand-homepage .hero-banner {
+    &__header {
+      font-family: $font-engschrift;
+      font-style: normal;
+      font-weight: 500;
+
+      @include breakpoint($breakpoint-xs) {
+        line-height: 36px;
+      }
+
+      @include breakpoint($breakpoint-sm) {
+        line-height: 48px;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        line-height: 72px;
+      }
+    }
+
+    .field-name-field-hero-banner-message {
+      font-family: $font-tajawal-medium;
+      @include breakpoint($breakpoint-md-up) {
+        line-height: 26px;
+      }
+      p {
+        display: inline-block;
+        text-shadow: none;
+        a {
+          box-shadow: inset 0 -4px 0 $color-light-yellow;
+  
+          &:hover {
+            box-shadow: none;
+            background-color: $color-orange-light_orange;
+            text-decoration: none;
+          }
+        }
+      } 
+    }
+
+    .field-name-field-hero-banner-note {
+      font-family: $font-tajawal-medium;
+      font-size: 16px;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Embed picasa/google photos galleries.
+ */
+
+/**
+ * Implements hook_init().
+ *
+ * Add jQuery Picasa plugin and custom JavaScript.
+ */
+function vu_picasa_init() {
+
+  $module_path = drupal_get_path('module', 'vu_picasa');
+  $js_path = "${module_path}/js";
+
+  drupal_add_js("${js_path}/jquery.picasa.js");
+  drupal_add_js("${js_path}/jquery.resize-events.js");
+  drupal_add_js("${js_path}/jquery.butterfly.js");
+  drupal_add_js("${js_path}/picasa.js");
+
+  drupal_add_css("${module_path}/css/picasa.css");
+
+}

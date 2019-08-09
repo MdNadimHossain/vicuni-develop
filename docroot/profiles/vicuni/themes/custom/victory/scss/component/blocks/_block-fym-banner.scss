@@ -1,0 +1,57 @@
+.field-name-fym-banner-block {
+  background-color: $color-black !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  @include breakpoint($breakpoint-landscape) {
+    display: none;
+  }
+  @include breakpoint($breakpoint-sm) {
+    display: none;
+  }
+  .view-fym-banner-course-pages {
+    .views-row {
+      background-color: $color-black;
+      margin-bottom: 20px;
+      padding: 20px;
+      .field-name-field-fym-logo {
+        img {
+          max-width: 80%;
+        }
+      }
+      .field-name-field-fym-body-text {
+        margin-top: 12px;
+        h2 {
+          color: $color-white;
+        }
+        h3 {
+          font-family: $font-engschrift;
+          font-size: 25px;
+          line-height: 30px;
+          text-transform: uppercase;
+          color: $color-white;
+          a {
+            color: $color-white;
+          }
+        }
+        p {
+          font-family: $font-tajawal;
+          font-size: 16px;
+          line-height: 22px;
+          color: $color-white;
+          a {
+            color: $color-white;
+            font-family: $font-tajawal;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 26px;
+            box-shadow: inset 0 -4px 0 $color-grandis !important;
+            &:hover {
+              color: $color-black;
+              background-color: $color-grandis !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

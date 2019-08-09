@@ -1,0 +1,317 @@
+@charset "UTF-8";
+body {
+  @include font-helvetica-neue;
+  font-weight: 400;
+  font-size: $baseFontSizePx;
+  line-height: $baseLineHeight;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: $blue;
+  &:hover, &:focus, &:visited:hover {
+    color: $blue2;
+    text-decoration: underline;
+  }
+  .node &, .region-content & {
+    text-decoration: none;
+    border-bottom: 1px solid $grey9;
+    &:hover {
+      border-color: $blue2;
+    }
+    &.noborder {
+      text-decoration: none;
+      border-bottom: none;
+    }
+  }
+  &.ext:not([href*="vupolytechnic.edu.au"]):not([href*="tel:"]) {
+    position: relative;
+    &::after {
+      color: #999999;
+      content: "";
+      font-family: FontAwesome;
+      font-size: 0.9em;
+      font-style: normal;
+      font-weight: normal;
+      margin-left: 0.5em;
+      text-decoration: inherit;
+    }
+  }
+  &.ext.btn-primary::after, &.ext.btn-action::after {
+    color: black;
+  }
+  &:visited {
+    color: purple;
+    .node & {
+      border-color: purple;
+    }
+  }
+}
+
+hr {
+  margin: 18px 0;
+  border: 0;
+  border-top: 1px solid $grey;
+  border-bottom: 1px solid #ffffff;
+}
+
+.accessibility {
+  text-indent: -9999px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+}
+
+.text-lead {
+  @include font-helvetica-futurapt;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  line-height: 31px;
+  margin: 24px;
+}
+
+#page-background {
+  @include background-size(cover);
+  height: 100%;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: -100;
+}
+
+.container {
+  @include breakpoint(desktop) {
+    @for $i from 1 through 12 {
+      .col-md-#{$i}, .col-sm-#{$i}, .col-lg-#{$i} {
+        padding-left: $gridGutterWidth / 2;
+        padding-right: $gridGutterWidth / 2;
+      }
+    }
+    width: $max_width;
+    padding: 0;
+    .row {
+      margin: 0;
+    }
+  }
+  &.main-container {
+    padding-top: 0;
+    padding-bottom: 25px;
+    background: white;
+    position: relative;
+    .sidebar-first-wrapper {
+      padding-top: 30px;
+    }
+    .main-content-wrapper {
+      padding-top: 25px;
+      @include breakpoint(tablet) {
+        &.with-sidebar-second {
+          padding-left: 0;
+          padding-right: 40px;
+        }
+      }
+      .front & {
+        @include breakpoint(tablet) {
+          padding: 0;
+        }
+      }
+      .front & {
+        padding-top: 0;
+      }
+      > h1 {
+        @include font-helvetica-futurapt;
+        -webkit-font-smoothing: auto;
+      }
+    }
+    .sidebar-second-wrapper {
+      width: 100%;
+      @include breakpoint(minitablet_DEPRECATED) {
+        float: right;
+        width: percentage($right_nav_width/$max_width);
+      }
+      @include breakpoint(desktop) {
+        width: $right_nav_width;
+      }
+    }
+    .front & {
+      padding-bottom: 0;
+    }
+  }
+}
+
+.field-item .media-element {
+  table {
+    width: auto;
+    thead {
+      display: none;
+    }
+    tbody {
+      border: none;
+      > tr {
+        background: none;
+        > td {
+          border: none;
+          padding-right: 6px;
+          padding-bottom: 10px;
+          img {
+            margin-right: 4px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.ds-2col-stacked {
+  > .group-left, > .group-right {
+    width: 100%;
+    float: none;
+    @include breakpoint(tablet) {
+      width: 50%;
+      float: left;
+    }
+  }
+  .group-right {
+    @include breakpoint(tablet) {
+      float: right;
+    }
+  }
+}
+
+.bg-offwhite {
+  background-color: $offwhite;
+}
+
+.table-striped {
+  thead > tr > td, tr > th {
+    background-color: $lighterGreen;
+  }
+  .odd {
+    background-color: $tableBackgroundAccent;
+    border-bottom: none;
+  }
+  .even {
+    background-color: transparent;
+    border-bottom: none;
+  }
+}
+
+.table > thead > tr > th {
+  vertical-align: top;
+}
+
+.dotted-divider-grey {
+  border-bottom: 1px dotted #d4d4d4;
+  margin: 15px 0 20px;
+  padding-bottom: 20px;
+}
+
+.dotted-leader {
+  border-bottom: 1px dotted $grey9;
+  padding-top: 8px;
+  width: 100%;
+}
+
+// Style for jquery.ellipsis.js plugin.
+.ellip {
+  display: block;
+  height: 100%;
+}
+
+.ellip-line {
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: normal;
+  max-width: 100%;
+}
+
+.ellip, .ellip-line {
+  position: relative;
+  overflow: hidden;
+}
+
+// This is a fix for jquery.ellipsis.js
+// white-space set in JS causing cut words to appear on first line when they should
+// appear on second line.
+.ellipsis span:not(.ellip-line) {
+  white-space: normal !important;
+}
+
+// Colorbox Style
+#colorbox, #cboxOverlay, #cboxWrapper, #cboxContent {
+  overflow: visible;
+}
+
+#cboxOverlay {
+  opacity: 1 !important;
+  background: rgba(black, 0.7) url(../images/reactive-overlay.png) no-repeat top right;
+  cursor: default;
+}
+
+#cboxLoadedContent {
+  background: white;
+  iframe {
+    height: 100%;
+    min-height: 314px;
+    width: 100%;
+  }
+}
+
+#cboxClose, #cboxClose.cbox-close-plain {
+  position: absolute;
+  background: url(../images/close.png) no-repeat center center;
+  width: 36px;
+  height: 36px;
+  top: -20px;
+  right: -20px;
+  opacity: 1 !important;
+  text-indent: -99px;
+  overflow: hidden;
+}
+
+.news-media-see-all {
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 1em;
+  margin-bottom: 20px !important;
+  a:after {
+    content: '\0020\25B8';
+  }
+}
+
+.header-new-search-button {
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+  background: transparent url(../images/blue-arrow-right.png) no-repeat scroll right center;
+  display: block;
+  float: right;
+  font-size: 12px;
+  height: 29px;
+  line-height: 29px;
+  margin: -125px 0 0 0;
+  padding-left: 10px;
+  padding-right: 20px;
+  a {
+    color: white;
+    font-weight: bold;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// File entities.
+.file-icon {
+  &[title="application/pdf"] {
+    display: none;
+  }
+}
+.filesize {
+  font-size: 85%;
+  color: $grey17;
+}

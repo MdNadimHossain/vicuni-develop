@@ -1,0 +1,81 @@
+.victory_link_list {
+  h3 {
+    @include font(19px, 'futura', 500);
+
+    color: $color-grey-tundora;
+    margin-bottom: 12px;
+
+    &:after {
+      content: ':';
+    }
+  }
+
+  .item-list-wrapper {
+    $border: 3px solid $color-blue-loblolly;
+    border: {
+      bottom: $border;
+      top: $border;
+    }
+
+    .item-list {
+      @include clearfix;
+
+      padding: 1px 0 2px;
+
+      ul {
+        @include no-bullets;
+
+        margin: 0;
+
+        a {
+          @include font(19px, 'futura', 500);
+          @include victory-link-arrows(18px, 28px);
+
+          border-bottom: 1px solid $color-blue-loblolly;
+          color: $color-blue-elephant;
+          display: block;
+          line-height: 28px;
+          padding: {
+            bottom: 15px;
+            top: 16px;
+          }
+
+          &:active, &:focus, &:hover {
+            color: $color-blue-lochmara;
+            text-decoration: none;
+          }
+
+          @include breakpoint($breakpoint-sm) {
+            font-size: 16px;
+          }
+
+          @include breakpoint($breakpoint-md) {
+            @include victory-link-arrows(36px, 28px);
+          }
+
+          @include breakpoint($screen-lg-min) {
+            @include victory-link-arrows(36px, 28px);
+          }
+        }
+
+        // Remove last UL's last LI's bottom border in XS.
+        &:last-child {
+          li:last-child {
+            a {
+              border-bottom: none;
+            }
+          }
+        }
+
+        // Remove all UL's last LI's bottom border in > XS.
+        @include breakpoint($screen-sm) {
+          li:last-child {
+            a {
+              border-bottom: none;
+            }
+          }
+        }
+      }
+    }
+  }
+}

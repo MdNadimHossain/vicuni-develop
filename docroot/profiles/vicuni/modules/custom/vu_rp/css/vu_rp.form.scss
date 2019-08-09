@@ -1,0 +1,358 @@
+//
+// Styles for Researcher Profile form UI overrides.
+//
+
+// sass-lint:disable no-color-literals
+
+$rp-form-width: 1024px;
+$page-bg-color: #eee;
+$form-bg-color: #fff;
+
+.page-node-add-researcher-profile,
+.node-type-researcher-profile {
+
+  &.page-node-add,
+  &.page-node-edit {
+    background: $page-bg-color;
+
+    #page { // sass-lint:disable-line no-ids
+      background: transparent;
+
+      .group-researcher-profile {
+        background: $form-bg-color;
+
+        .section {
+          display: inline-flex;
+          width: 100%;
+
+          .col {
+            width: 100%;
+          }
+
+          .col-1 {
+            width: 60%;
+          }
+
+          .col-2 {
+            width: 38%;
+          }
+        }
+      }
+    }
+  }
+
+  .node-form-revision-information {
+    background: $form-bg-color;
+  }
+}
+
+.node-researcher_profile-form { // sass-lint:disable-line class-name-format
+  margin: 0 auto;
+  max-width: $rp-form-width;
+
+  fieldset {
+    &.horizontal-tabs-pane {
+      padding: 30px;
+    }
+  }
+
+  .js & .horizontal-tabs-panes {
+    .horizontal-tabs-pane {
+      display: none;
+
+      &:first-child {
+        display: block;
+      }
+    }
+  }
+
+  ul {
+    &.horizontal-tabs-list {
+      li {
+        &,
+        &.selected {
+          a {
+            font-size: 1.1em;
+            padding: 1em;
+          }
+        }
+      }
+    }
+  }
+
+  label {
+    &,
+    &.option {
+      font-size: 15px !important; // sass-lint:disable-line no-important
+      margin-bottom: 0;
+      padding-bottom: 10px;
+
+      h1,
+      strong {
+        font-size: 15px;
+      }
+    }
+  }
+
+  input {
+    &[type='text'] {
+      font-size: 1.1em;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  select {
+    font-size: 1.1em;
+  }
+
+  textarea {
+    font-size: 1.1em;
+  }
+
+  h1 {
+    font-size: 1.2em;
+  }
+
+  .chosen-container {
+    height: 30px;
+    width: 100% !important; // sass-lint:disable-line no-important
+  }
+
+  .field-markup {
+    strong {
+      font-size: .9em;
+    }
+
+    h1 {
+      font-size: 1.2em;
+      padding: 10px 0;
+    }
+  }
+
+  p {
+    &.description {
+      font-size: .8em !important; // sass-lint:disable-line no-important
+      font-style: normal !important; // sass-lint:disable-line no-important
+      font-weight: normal;
+      padding: 10px 0 0;
+    }
+  }
+
+  .form-item-field-rp-photo-und-0 {
+    li,
+    p {
+      font-size: .8em !important; // sass-lint:disable-line no-important
+      font-style: normal !important; // sass-lint:disable-line no-important
+      font-weight: normal;
+      padding: 10px 0 0;
+    }
+  }
+
+  .form-type-textfield {
+    .form-text {
+      border-radius: 3px;
+      height: 30px;
+    }
+  }
+
+  .field-name-field-rpa-first-name,
+  .field-name-field-rpa-middle-name,
+  .field-name-field-rpa-last-name,
+  .field-name-field-rpa-preferred-name,
+  .field-name-field-rpa-phone,
+  .field-name-field-rpa-email,
+  .field-name-field-rp-twitter,
+  .field-name-field-rp-facebook,
+  .field-name-field-rp-linkedin,
+  .field-name-field-rp-conversation-profile,
+  .field-name-field-rp-orcid-identifier,
+  .field-name-field-rp-institute-primary,
+  .field-name-field-rpa-job-title,
+  .field-name-field-rp-photo {
+    width: 60%;
+  }
+
+  .field-name-field-rpa-first-name,
+  .field-name-field-rpa-middle-name,
+  .field-name-field-rpa-last-name,
+  .field-name-field-rpa-preferred-name,
+  .field-name-field-rp-post-nominal,
+  .field-name-field-rpa-email {
+    input {
+      width: 55%;
+    }
+  }
+
+  .form-item-field-rp-name-variation-und {
+    margin-bottom: 0;
+  }
+
+  .field-name-field-rp-first-name {
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 5px 30px;
+  }
+
+  .form-group {
+    margin-bottom: 0;
+  }
+
+  .form-item-field-rp-first-name-und-0-value {
+    margin-top: 0;
+
+    input {
+      width: 38%;
+    }
+  }
+
+  .form-item-field-rp-last-name-und-0-value {
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 5px 30px;
+
+    input {
+      width: 38%;
+    }
+  }
+
+  .form-item-field-rp-title-und {
+    select {
+      border-radius: 5px;
+      height: 30px;
+      width: 22%;
+    }
+  }
+
+  .form-required {
+    display: none;
+  }
+
+  .field-name-field-rp-post-nominal {
+    margin-bottom: 7%;
+    width: 60%;
+  }
+
+  .field-name-field-rpa-phone {
+    input {
+      width: 120px;
+    }
+  }
+
+  .field-name-field-rp-twitter {
+    input {
+      width: 45%;
+    }
+  }
+
+  .field-name-field-rp-facebook,
+  .field-name-field-rp-linkedin,
+  .field-name-field-rp-conversation-profile,
+  .field-name-field-rp-orcid-identifier,
+  .field-name-field-rpa-job-title,
+  .field-name-field-rp-qualification {
+    input {
+      width: 100%;
+    }
+  }
+
+  .form-item-field-rp-institute-primary-und {
+    .chosen-single {
+      span,
+      b {
+        padding-top: 2px;
+      }
+    }
+
+    a {
+      &.chosen-single {
+        height: 30px;
+      }
+    }
+  }
+
+  .field-name-field-rp-institute-best-align,
+  .field-name-field-rp-job-title {
+    padding-left: 30px;
+    width: 60%;
+  }
+
+  .field-markup-expanded,
+  .field-markup-no-expanded {
+    color: #00008b;
+    padding: 0 10px;
+    position: relative;
+    width: 90%;
+    word-break: break-word;
+
+    h1 {
+      cursor: pointer;
+      font-size: 1em;
+    }
+  }
+
+  .field-markup-expanded {
+    background: #ccc;
+    border: 1px solid #ffd281;
+    margin-bottom: 20px;
+
+    div {
+      display: none;
+    }
+
+    h1 {
+      &::after {
+        background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjI4NC45MjlweCIgaGVpZ2h0PSIyODQuOTI5cHgiIHZpZXdCb3g9IjAgMCAyODQuOTI5IDI4NC45MjkiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDI4NC45MjkgMjg0LjkyOTsiDQoJIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPHBhdGggZD0iTTI4Mi4wODIsMTk1LjI4NUwxNDkuMDI4LDYyLjI0Yy0xLjkwMS0xLjkwMy00LjA4OC0yLjg1Ni02LjU2Mi0yLjg1NnMtNC42NjUsMC45NTMtNi41NjcsMi44NTZMMi44NTYsMTk1LjI4NQ0KCQlDMC45NSwxOTcuMTkxLDAsMTk5LjM3OCwwLDIwMS44NTNjMCwyLjQ3NCwwLjk1Myw0LjY2NCwyLjg1Niw2LjU2NmwxNC4yNzIsMTQuMjcxYzEuOTAzLDEuOTAzLDQuMDkzLDIuODU0LDYuNTY3LDIuODU0DQoJCWMyLjQ3NCwwLDQuNjY0LTAuOTUxLDYuNTY3LTIuODU0bDExMi4yMDQtMTEyLjIwMmwxMTIuMjA4LDExMi4yMDljMS45MDIsMS45MDMsNC4wOTMsMi44NDgsNi41NjMsMi44NDgNCgkJYzIuNDc4LDAsNC42NjgtMC45NTEsNi41Ny0yLjg0OGwxNC4yNzQtMTQuMjc3YzEuOTAyLTEuOTAyLDIuODQ3LTQuMDkzLDIuODQ3LTYuNTY2DQoJCUMyODQuOTI5LDE5OS4zNzgsMjgzLjk4NCwxOTcuMTg4LDI4Mi4wODIsMTk1LjI4NXoiLz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K');
+        background-size: contain;
+        content: '';
+        cursor: pointer;
+        height: 20px;
+        position: absolute;
+        right: 10px;
+        transform: rotate(180deg);
+        width: 20px;
+      }
+    }
+
+    &.open {
+      div {
+        display: block;
+      }
+
+      h1 {
+        &::after {
+          background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE2LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgd2lkdGg9IjI4NC45MjlweCIgaGVpZ2h0PSIyODQuOTI5cHgiIHZpZXdCb3g9IjAgMCAyODQuOTI5IDI4NC45MjkiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDI4NC45MjkgMjg0LjkyOTsiDQoJIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPHBhdGggZD0iTTI4Mi4wODIsMTk1LjI4NUwxNDkuMDI4LDYyLjI0Yy0xLjkwMS0xLjkwMy00LjA4OC0yLjg1Ni02LjU2Mi0yLjg1NnMtNC42NjUsMC45NTMtNi41NjcsMi44NTZMMi44NTYsMTk1LjI4NQ0KCQlDMC45NSwxOTcuMTkxLDAsMTk5LjM3OCwwLDIwMS44NTNjMCwyLjQ3NCwwLjk1Myw0LjY2NCwyLjg1Niw2LjU2NmwxNC4yNzIsMTQuMjcxYzEuOTAzLDEuOTAzLDQuMDkzLDIuODU0LDYuNTY3LDIuODU0DQoJCWMyLjQ3NCwwLDQuNjY0LTAuOTUxLDYuNTY3LTIuODU0bDExMi4yMDQtMTEyLjIwMmwxMTIuMjA4LDExMi4yMDljMS45MDIsMS45MDMsNC4wOTMsMi44NDgsNi41NjMsMi44NDgNCgkJYzIuNDc4LDAsNC42NjgtMC45NTEsNi41Ny0yLjg0OGwxNC4yNzQtMTQuMjc3YzEuOTAyLTEuOTAyLDIuODQ3LTQuMDkzLDIuODQ3LTYuNTY2DQoJCUMyODQuOTI5LDE5OS4zNzgsMjgzLjk4NCwxOTcuMTg4LDI4Mi4wODIsMTk1LjI4NXoiLz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K');
+          transform: rotate(360deg);
+        }
+      }
+    }
+  }
+
+  .hidden-element {
+    display: none;
+  }
+
+  .no-api-data {
+    border: 1px solid #d0021b;
+    max-width: $rp-form-width * .5;
+    padding: 30px;
+  }
+
+  .vu-rp-test-api-field {
+    border: solid 2px #ffa500;
+    margin-bottom: 10px;
+    padding: 10px;
+    position: relative;
+
+    &::before {
+      background: #ffa500;
+      color: #fff;
+      content: 'API field';
+      padding: 0 10px;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
+
+}

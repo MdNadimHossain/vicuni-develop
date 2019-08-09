@@ -1,0 +1,88 @@
+//
+// Shutter component.
+//
+
+.js-shutter {
+  $local-shutter-bg: rgba($color-blue-elephant, 0.98);
+  $local-shutter-color: $color-white;
+
+  .js-shutter-dialog {
+    background: $local-shutter-bg;
+    margin: 0 !important;
+    position: absolute;
+    width: 100% !important;
+
+    .js-shutter-header {
+      display: none;
+
+      @include breakpoint($breakpoint-md-up) {
+        display: inherit;
+        padding-top: 75px;
+
+        .logo {
+          padding-left: $spacing-horizontal-header-gutter-md;
+
+          @include breakpoint($breakpoint-lg-up) {
+            padding-left: $spacing-horizontal-header-gutter-lg;
+          }
+
+          a {
+            display: block;
+          }
+        }
+      }
+    }
+
+    .js-shutter-content {
+      // Reset BS styles.
+      @include border-radius(0);
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      margin-top: $spacing-vertical-top-lg;
+
+      .js-shutter-item {
+        display: none;
+        &.js-shutter-item-shown {
+          display: block;
+        }
+      }
+    }
+
+    .js-shutter-footer {
+      padding-bottom: 30px;
+      padding-top: 15px;
+
+      // Close button.
+      .close {
+        @extend %close;
+        opacity: 0.8;
+        color: $local-shutter-color;
+        @include box-shadow(none);
+
+        @include breakpoint($breakpoint-md) {
+          padding-right: $spacing-horizontal-header-gutter-md;
+        }
+
+        @include breakpoint($breakpoint-lg-up) {
+          padding-right: $spacing-horizontal-header-gutter-lg;
+        }
+
+        &:hover,
+        &:focus,
+        &.focus {
+          @include box-shadow(none);
+          border: none;
+          outline: none;
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+// Overlay styles.
+.modal-backdrop.in {
+  background: #333333;
+  opacity: 0.25;
+}

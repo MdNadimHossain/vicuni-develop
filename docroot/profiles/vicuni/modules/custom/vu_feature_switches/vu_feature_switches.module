@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Feature switching related functions.
+ */
+
+define('VU_FEATURE_SWITCHES_NAME', 'vu_feature_switches');
+
+/**
+ * Checks given feature switch to see if it's enabled.
+ *
+ * The switch array is stored in a drupal "variable".
+ *
+ * @param string $feature
+ *   The feature switch you want to check.
+ *
+ * @return bool
+ *   The feature switch value, or FALSE if not set.
+ */
+function vu_feature_switches_switch_state($feature = '') {
+  $feature_switches = vu_feature_switches_get();
+  if (empty($feature) || !isset($feature_switches[$feature])) {
+    return FALSE;
+  }
+
+  // Filter var will also handle string values like 'true', '1', 'false', 'on'.
+  return filter_var($feature_switches[$feature], FILTER_VALIDATE_BOOLEAN);
+}
+
+/**
+ * Sets a feature switch value, if no state is specified, it will toggle.
+ *
+ * @param string $feature
+ *   The feature switch you want to update.
+ * @param bool $new_state
+ *   The state to set the switch to.
+ *
+ * @return bool
+ *   Return TRUE if feauture switch was updated, return FALSE if the switch
+ *   could not be set (e.g. no new state, and no current state to toggle).
+ */
+function vu_feature_switches_switch_toggle($feature = '', $new_state = NULL) {
+  $feature_switches = vu_feature_switches_get();
+  if (empty($feature) || ($new_state === NULL && !isset($feature_switches[$feature]))) {
+    return FALSE;
+  }
+
+  // Negate or update switch.
+  $feature_switches[$feature] = $new_state === NULL ? !$feature_switches[$feature] : $new_state;
+
+  vu_feature_switches_set($feature_switches);
+  return TRUE;
+}
+
+/**
+ * Get all of the feature switches and their states.
+ *
+ * @return array
+ *   The features switches array with key => switch name, value => state.
+ */
+function vu_feature_switches_get() {
+  return variable_get(VU_FEATURE_SWITCHES_NAME, []);
+}
+
+/**
+ * Save the states of all the features switches.
+ *
+ * @param array $feature_switches
+ *   The feature switches array.
+ */
+function vu_feature_switches_set(array $feature_switches) {
+  $current_feature_switches = vu_feature_switches_get();
+
+  // Nothing has changed, no need to invalidate the cache.
+  if ($feature_switches == $current_feature_switches) {
+    return;
+  }
+
+  variable_set(VU_FEATURE_SWITCHES_NAME, $feature_switches);
+}
+
+/**
+ * Sets up the feature switches array.
+ *
+ * The switches are overlaid in the following order:
+ *   - Defaults
+ *   - Drupal variable state
+ *   - Dynamic switches
+ * This means that apart from dynamic switches, the values can be overridden.
+ *
+ * @return array
+ *   The initialised feature switch states.
+ */
+function vu_feature_switches_initialise_values() {
+  // Set up feature switches.
+  $feature_switches_dynamic = [
+    'preference-course-tile' => (strtotime(date('Y-m-d')) >= strtotime('2016-08-10') && strtotime(date('Y-m-d')) < strtotime('2016-11-24')),
+    // 2016 Change of preference course tile.
+    'cop-course-tile' => (strtotime(date('Y-m-d')) >= strtotime('2016-11-25') && strtotime(date('Y-m-d')) < strtotime('2016-12-21')),
+    // CoP 2014 mobile site homepage link.
+    'cop-mobile-home-link' => (strtotime(date('Y-m-d')) >= strtotime('2014-11-24') && strtotime(date('Y-m-d')) < strtotime('2015-01-08')),
+    // Post-graduate course tile.
+    'pg-course-tile' => (strtotime(date('Y-m-d')) >= strtotime('2015-09-24') && strtotime(date('Y-m-d')) < strtotime('2015-10-23')),
+    // Courses still available.
+    'csa-course-tile' => (strtotime(date('Y-m-d')) >= strtotime('2016-01-18') && strtotime(date('Y-m-d')) < strtotime('2016-02-05')),
+    // Midyear 2016.
+    'midyear-course-tile' => (strtotime(date('Y-m-d')) >= strtotime('2016-04-26') && strtotime(date('Y-m-d')) < strtotime('2016-07-22')),
+    // Start Now 2017.
+    'startnow-course-tile' => (strtotime(date('Y-m-d')) >= strtotime('2017-01-10') && strtotime(date('Y-m-d')) < strtotime('2017-02-15')),
+  ];
+
+  $feature_switches_default = [
+    // Domestic focused.
+    'courses-midyear-info' => FALSE,
+    'tafe-online-applications' => FALSE,
+    // International focused.
+    'courses-july-intake-info' => TRUE,
+    'courses-new-course-info' => FALSE,
+    'show-browse-by-study-area-links' => FALSE,
+    'front-student-links' => TRUE,
+    'vicpoly' => TRUE,
+    'vicpoly_prelaunch' => TRUE,
+    'open-day' => FALSE,
+    'preference' => TRUE,
+    'victory-homepage' => FALSE,
+    // Course page updates Novebmer 2017.
+    'course-pages-nov-2017' => TRUE,
+    // Admission transparency.
+    'courses-admission-transparency' => FALSE,
+    // Rebrand Homepage.
+    'rebrand-homepage' => FALSE,
+  ];
+
+  $feature_switches = vu_feature_switches_get();
+
+  // The defaults will get overridden by variable_set switches or conf switches,
+  // but the dynamic switches should always use the logic above rather than
+  // keeping the last value set, otherwise they'd never update.
+  $feature_switches = array_merge($feature_switches_default, $feature_switches, $feature_switches_dynamic);
+
+  return $feature_switches;
+}
+
+/**
+ * Implements hook_boot().
+ */
+function vu_feature_switches_boot() {
+  // Set up feature switches.
+  $feature_switches = vu_feature_switches_initialise_values();
+  vu_feature_switches_set($feature_switches);
+}

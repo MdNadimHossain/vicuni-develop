@@ -1,0 +1,118 @@
+.image--responsive {
+  line-height: 1;
+  width: 100%;
+  height: auto;
+  max-width: 100%
+}
+
+.image__caption--text {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  margin-bottom: 1em;
+  line-height: 14px
+}
+
+.image__caption {
+  margin-bottom: 10px;
+  margin-top: auto
+}
+
+.image__caption p,
+.image__caption figcaption {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  margin-bottom: 1em;
+  line-height: 14px
+}
+
+.image__caption--right {
+  margin-bottom: 10px;
+  margin-top: auto;
+  clear: right;
+  margin-left: 25px;
+  margin-right: 0;
+  float: right
+}
+
+.image__caption--right p,
+.image__caption--right figcaption {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  margin-bottom: 1em;
+  line-height: 14px
+}
+
+.image__caption--left {
+  margin-bottom: 10px;
+  margin-top: auto;
+  clear: left;
+  margin-right: 25px;
+  margin-left: 0;
+  float: left
+}
+
+.image__caption--left p,
+.image__caption--left figcaption {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  margin-bottom: 1em;
+  line-height: 14px
+}
+
+.image__caption--article {
+  margin-bottom: 10px;
+  clear: right;
+  margin-left: 25px;
+  margin-right: 0;
+  float: right;
+  margin-top: .2em
+}
+
+.image__caption--article p,
+.image__caption--article figcaption {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  margin-bottom: 1em;
+  line-height: 14px
+}
+
+.video__caption--text {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  line-height: 14px;
+  margin-bottom: .2em
+}
+
+.video-modal-description,
+.video-embed-description {
+  font-size: 12px;
+  color: #666;
+  margin-top: .5em;
+  line-height: 14px;
+  margin-bottom: .2em
+}
+
+.media-transcript-wrapper {
+  position: relative;
+}
+
+.video-modal-wrapper .video-btn {
+  position: absolute;
+  z-index: 800;
+  left: 42%;
+  top: 45%;
+  background: transparent url(../images/btn-play.png) left top no-repeat;
+  width: 38px;
+  height: 38px
+}
+
+.video-modal-wrapper:hover .video-btn,
+.video-modal-wrapper:focus .video-btn {
+  background-position: 0 -38px
+}

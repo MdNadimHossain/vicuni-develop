@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * Contains install and update functions for vumain.
+ */
+
+// PLEASE DO NOT ADD ANY UPDATES INTO THIS MODULE
+// UPDATES SHOULD NOW GO IN VU_CORE.INSTALL

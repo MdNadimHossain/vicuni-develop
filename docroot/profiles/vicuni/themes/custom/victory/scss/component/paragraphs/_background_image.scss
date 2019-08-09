@@ -1,0 +1,32 @@
+.paragraphs-item-image-background {
+  left: 50%;
+  margin-left: -384px;
+  position: absolute;
+  z-index: -10;
+
+  @include breakpoint($breakpoint-sm) {
+    margin-left: -512px;
+  }
+
+  @include breakpoint($breakpoint-md) {
+    margin-left: -640px;
+  }
+
+  @include breakpoint($breakpoint-lg) {
+    margin-left: -960px;
+  }
+
+  @include breakpoint($breakpoint-xl) {
+    margin-left: -1024px;
+  }
+  @include breakpoint($screen-xl-max) {
+    margin-left: -1280px;
+  }
+  @include breakpoint($screen-xxl-min) {
+    margin-left: -1440px;
+  }
+
+  .img-responsive {
+    max-width: none;
+  }
+}

@@ -1,0 +1,206 @@
+@charset "UTF-8";
+
+@mixin rgba-background($color) {
+  @include filter-gradient($color, $color);
+  @if $legacy-support-for-ie6 or $legacy-support-for-ie7 or $legacy-support-for-ie8 {
+    background: transparent;
+    // set filter as none for IE9+, because IE9+ supprot RGBa
+    :root & {
+      filter: none \0/
+      IE9;
+    }
+  }
+  background: $color;
+}
+
+#block-vumain-vumain-social-feeds {
+  .logo-widget {
+    height: 20px;
+    margin-bottom: 30px;
+    overflow: visible;
+  }
+
+  img.logo {
+    margin-right: 10px;
+    vertical-align: top;
+  }
+
+  .tweet-authorphoto, .ig-propic {
+    img {
+      border-radius: 4px;
+      display: block;
+      float: left;
+      height: 32px;
+      line-height: 32px;
+      margin-right: 10px;
+      text-align: center;
+      width: 32px !important;
+    }
+  }
+
+  .tweet-author {
+    a {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+    }
+  }
+
+  .row {
+    & > div {
+      @include breakpoint(tablet) {
+        padding-left: 13.5px;
+        padding-right: 13.5px;
+      }
+    }
+  }
+
+  .fb_iframe_widget > span {
+    margin-bottom: 20px;
+  }
+
+  .tweets-pulled-listing {
+    .tweet {
+      background: $color-white;
+      overflow: hidden;
+      padding: 10px 12px 12px;
+      position: relative;
+
+      @include breakpoint($breakpoint-sm-down) {
+        margin-bottom: $spacing-vertical-bottom-sm;
+      }
+
+      .tweet-authorphoto {
+        margin: 0;
+      }
+
+      .tweet-author-info {
+        position: relative;
+        width: 100%;
+
+        .tweet-icon {
+          color: #666;
+          font-size: 20px;
+          position: absolute;
+          right: 0;
+          top: 0;
+        }
+      }
+
+      .tweet-author {
+        a {
+          color: #06C;
+
+          &:visited {
+            color: purple;
+          }
+
+          &:hover, &:focus, &:visited:hover {
+            color: #363492;
+          }
+        }
+      }
+
+      .tweet-screenname {
+        color: #666;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .tweet-text {
+        padding-top: 10px;
+      }
+
+      .tweet-footer {
+        overflow: hidden;
+        padding-top: 10px;
+
+        .tweet-time, .tweet-actions {
+          a {
+            font-size: 14px;
+            font-weight: 400;
+          }
+        }
+
+        .tweet-actions {
+          a {
+            color: #666;
+            margin-left: 10px;
+
+            &:hover {
+              text-decoration: none;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .instagram-follow-button {
+    background-color: #0078C1;
+    border-radius: 4px;
+    color: white;
+    display: inline-block;
+    font-size: smaller;
+    font-weight: 800;
+    padding: 1px 8px;
+
+    &:visited, &:hover {
+      color: white !important;
+      text-decoration: none !important;
+    }
+
+    &:hover {
+      background-color: lighten(#0078C1, 10%);
+    }
+
+    &:before {
+      content: '\f16d';
+      font-family: fontawesome;
+      padding-right: 3px;
+    }
+  }
+
+  .view-instagram-feed {
+    background: white;
+    position: relative;
+
+    .top {
+      position: relative;
+
+      img {
+        width: 100%;
+      }
+
+      .ig-author-pic-wrapper {
+        @include rgba-background(rgba(0, 0, 0, 0.3));
+
+        height: 80px;
+        left: 0;
+        padding: 10px 12px 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        a {
+          color: white;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .bottom {
+      overflow: hidden;
+      padding: 10px 12px 12px;
+
+      .ig-content {
+        color: #333;
+        margin-bottom: 9px;
+      }
+
+      .ig-time {
+        color: #666;
+      }
+    }
+  }
+}

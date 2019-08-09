@@ -1,0 +1,9 @@
+.paragraphs-item-course-browse {
+  h2.block-title {
+    @include font(19px, 'futura');
+
+    &:after {
+      content: ':';
+    }
+  }
+}

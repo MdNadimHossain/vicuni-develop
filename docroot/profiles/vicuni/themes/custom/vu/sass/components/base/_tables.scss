@@ -1,0 +1,139 @@
+@charset "UTF-8";
+//
+// Tables.scss
+// Tables for, you guessed it, tabular data
+// ----------------------------------------
+// BASELINE STYLES
+// ---------------
+table {
+  max-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background-color: $tableBackground;
+  th, tr {
+    border-bottom: none;
+  }
+  th, td {
+    padding: 8px;
+    line-height: $baseLineHeight;
+    text-align: left;
+    vertical-align: top;
+    border-top: 1px solid $tableBorder;
+  }
+  td {
+    small {
+      font-size: $baseFontSize - 2;
+      color: $grey2;
+    }
+  }
+  caption {
+    display: none;
+    &.show {
+      display: table-caption;
+      font-weight: bold;
+    }
+  }
+}
+
+table, tbody {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  border: none;
+  background-color: transparent;
+  border-bottom: 1px solid $tableBorder;
+}
+
+.sticky-header {
+  display: none;
+}
+
+// ZEBRA-STRIPING
+// --------------
+
+/*
+Tables are zebra-striped by default with each alternating row transparent or coloured.
+The first row is designated as the 'header' row and should contain <th> elements.
+
+```
+<table class="table table-striped">
+  <tr><th>Column 1 Heading</th><th>Column 2 heading</th><th>Column 3 heading</th></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+</table>
+```
+
+Styleguide base/tables/stripe
+*/
+
+.table-striped, .region-content table:not(.no-stripe):not(.simple):not(.table-simple):not(.s-lc-whw){
+  thead > tr > td, tr > th {
+    background-color: $tableBackgroundHeader;
+  }
+  .odd, tr:nth-child(odd) {
+    background-color: $tableBackgroundAccent;
+    border-bottom: none;
+  }
+  .even, tr:nth-child(even) {
+    background-color: transparent;
+    border-bottom: none;
+  }
+}
+
+// SIMPLE TABLES
+// --------------
+
+/*
+Simple accessible table with dotted lines separating each row.
+```
+<table class="table table-simple">
+  <tr><th>Column 1 Heading</th><th>Column 2 heading</th><th>Column 3 heading</th></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+  <tr><td>table data</td><td>table data</td><td>table data</td></tr>
+</table>
+```
+
+Styleguide base/tables/simple
+*/
+
+.table-simple {
+  th, td {
+    border-top: 1px dotted $tableBorder;
+    background-color: transparent;
+  }
+  thead > tr > td, tr > th {
+    border-top: none;
+    background-color: transparent;
+    border-bottom: 1px solid $tableBorder;
+  }
+}
+
+// FLUID TABLES
+// --------------
+
+/*
+Applies 100% width to tables. When give the suffix of -all in the class, it applies 100% to the current table and all subsequent tables in that conainer
+```
+<table class="table-fluid">
+  ...
+</table>
+<table class="table-fluid-all">
+  ...
+</table>
+```
+
+Styleguide base/tables/fluid
+*/
+
+//Applies 100% width
+.table-fluid, .table-fluid-all {
+  width: 100%;
+}
+
+// Applies all subsequent tables fluidity of 100% width
+.table-fluid-all ~ .table {
+  width: 100%;
+}

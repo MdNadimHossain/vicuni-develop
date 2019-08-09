@@ -1,0 +1,649 @@
+.node-type-courses,
+.page-courses,
+.node-type-unit,
+.node-type-unit-set {
+
+  .section {
+    // LHS styles.
+    .col-md-7 {
+      clear: left;
+    }
+
+    // RHS styles.
+    .col-md-4 {
+      @include breakpoint($breakpoint-sm-down) {
+        margin-top: $spacing-vertical-bottom-sm;
+      }
+
+      > * {
+        background-color: $color-white-alabaster;
+        margin-bottom: $spacing-vertical-bottom-sm;
+        padding: $spacing-vertical-bottom-sm;
+
+        h3 {
+          margin-top: 0;
+        }
+
+        &.panel-separator {
+          display: none;
+        }
+
+        .inline-entities-basic-body-text {
+          > h2 {
+            display: none;
+          }
+        }
+      }
+      .field-name-field-body{
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+
+      .field-name-field-paragraphs-right,
+      .field-name-field-para-supp-career-info,
+      .field-name-field-sidebar-content,
+      .field-name-field-supplementary-career-info {
+        background-color: $color-white;
+        padding: 0px;
+      }
+    }
+
+    .course-essentials__item__label {
+      font-weight: bold;
+    }
+
+    .accordion .accordion-inner--active .pathway {
+      background-color: $color-white-alabaster;
+      margin-bottom: 3px;
+      padding: $spacing-vertical-bottom-sm;
+
+      .pathway__title {
+        margin-bottom: 1em;
+      }
+    }
+
+    .container__bottom {
+      padding: $spacing-vertical-bottom-sm 0;
+
+      @include breakpoint($breakpoint-xs) {
+        padding: $spacing-vertical-bottom-sm 15px;
+      }
+    }
+
+    .pane-vu-core-vu-cbs-hta-vtac-open > .pane-content > .table-responsive {
+      // Fix overlapping table cells for xs screens
+      @include breakpoint($breakpoint-xs) {
+        table {
+          margin: 0;
+          & > thead:first-child > tr:first-child > th,
+          & > tbody > tr > td {
+            white-space: normal
+          }
+        }
+      }
+    }
+
+    .field-name-courses-disclaimer {
+      font-size: $font-size-small;
+    }
+
+    /**
+    * A styled box with a teal background as used in the sidebar of TAFE course
+    * pages for CTAs.
+    */
+    .field-name-courses-tafe-resources {
+      padding-top: 16px;
+      background-color: $color-branding-vicpoly-bg;
+
+      &, & a {
+        color: white;
+      }
+
+      & a {
+        border-bottom: none !important;
+      }
+
+      & .tafe-resources-box__header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+
+        & svg {
+          fill: white;
+          width: 36px;
+          height: auto;
+        }
+      }
+
+      & .tafe-resources-box__content {
+
+        ul {
+          margin-left: 0;
+
+          li {
+            margin-bottom: 1em;
+
+            a {
+              vertical-align: middle;
+              display: inline;
+              padding: 0;
+              box-shadow: inset 0 -4px 0 $color-blue-loblolly;
+              @include font($font-size-h3, 'futura', 500);
+              line-height: 28px/$font-size-h3;
+              margin-bottom: $spacing-vertical-bottom-xs;
+
+              &:hover, &:focus {
+                background-color: #fff;
+                color: $color-black;
+              }
+            }
+
+            h3 {
+              margin-bottom: 0;
+              font-weight: 400;
+            }
+          }
+
+          & .free-tafe, & .info-sessions, & .fee-subsidies {
+            &:before {
+              line-height: 1em;
+              vertical-align: middle;
+              width: 40px;
+              padding-right: 0;
+              text-align: center;
+              border-right: 10px solid transparent;
+            }
+          }
+
+          & .free-tafe {
+            @include fa-before($content: '\f058', $size: 24px);
+          }
+
+          & .info-sessions {
+            @include fa-before($content: '\f05a', $size: 24px);
+          }
+
+          & .fee-subsidies {
+            @include fa-before($content: '\f155', $size: 24px);
+          }
+
+        }
+      }
+    }
+  }
+
+  // Specific section styles.
+  #overview {
+    // @TODO: Remove after course page updates (nov-2017).
+    #course-essentials,
+    #unitsets-details,
+    #unit-details {
+      margin: 0 -2px $spacing-vertical-bottom-sm;
+
+      .course-essentials__item,
+      .unitsets-detail-item,
+      .unit-detail-item {
+        background-color: $color-white-alabaster;
+        border: 2px solid $color-white;
+        padding: 10px 70px;
+
+        // Fix overlapping table cells for xs screens
+        @include breakpoint($breakpoint-xs) {
+          padding-right: 6px;
+          padding-left: 50px;
+          table {
+            margin: 0;
+
+            & > thead:first-child > tr:first-child > th,
+            & > tbody > tr > td { white-space: normal }
+          }
+        }
+
+        .course-essentials__item__label {
+          .fa-stack {
+            margin-left: -46px;
+            position: absolute;
+
+            .fa-circle {
+              color: $color-blue-cerulean;
+            }
+          }
+        }
+
+        .field-name-field-locations {
+          .field-item {
+            display: inline;
+
+            &:after {
+              content: ', ';
+            }
+
+            &:last-of-type {
+              &:after {
+                content: '';
+              }
+            }
+          }
+        }
+      }
+    }
+    .view-short-dates-and-times-revision .views-table {
+      margin-top: 0;
+
+      @include breakpoint($breakpoint-xs) {
+        td {
+          display: block;
+          border-top: none;
+          text-align: center;
+        }
+
+        td:first-child,
+        td:nth-of-type(2) {
+          border-bottom: none;
+        }
+
+
+      }
+    }
+
+    #mini-panel-vu_courses_hta_rhs, #mini-panel-vu_courses_related {
+      .panel-separator {
+        margin-top: 20px;
+      }
+      .pane-vu-core-vu-cbs-hta-enquire-button + .panel-separator {
+        margin-top: 0;
+      }
+    }
+
+    #how-to-apply {
+      .btn-primary {
+        width: 100%;
+      }
+
+      .btn-primary + h3 {
+        margin-top: 20px;
+      }
+    }
+
+    #supplementary-description,
+    .supplementary-description {
+      background-color: transparent;
+      padding: 0;
+
+      .field-type-text {
+        padding: 0 $spacing-vertical-bottom-sm $spacing-vertical-bottom-sm;
+      }
+
+      figcaption {
+        padding: $spacing-vertical-bottom-sm;
+      }
+    }
+
+    #vu-core-course-search-form #edit-search-group {
+      .form-item-query {
+        padding-bottom: $spacing-vertical-bottom-sm;
+      }
+
+      .form-item-query,
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  #careers {
+    #success-story {
+      .field-name-field-image {
+        .img-responsive {
+          margin: -20px;
+          margin-bottom: 20px;
+          max-width: calc(100% + 40px);
+          width: calc(100% + 40px);
+        }
+      }
+    }
+    .col-md-4 .field-item > .inline-entities-basic-body-text {
+      background-color: $color-white-alabaster;
+      margin-bottom: $spacing-vertical-bottom-sm;
+      padding: $spacing-vertical-bottom-sm;
+    }
+  }
+
+  #course-structure {
+    #units-and-electives {
+      dl {
+        font-size: $font-size-small;
+
+        dt {
+          &:after {
+            content: ': '
+          }
+        }
+
+        dt, dd {
+          display: inline;
+        }
+
+        .dd-code {
+          &:after {
+            content: ' | '
+          }
+        }
+      }
+    }
+  }
+
+  #apply-now {
+    .field-name-vu-courses-hta {
+      .panel-separator {
+        margin-top: 20px;
+      }
+      .pane-vu-core-vu-cbs-hta-open-heading + .panel-separator {
+        margin-top: 0;
+        border: none;
+      }
+    }
+  }
+
+  #enquire-now {
+    .webform-client-form {
+      padding-top: $spacing-vertical-bottom-sm;
+
+      .form-text {
+        width: 100%;
+        @include breakpoint($breakpoint-sm-up) {
+          width: 40%;
+        }
+      }
+
+      label {
+        input[type='checkbox'] {
+          margin-right: 10px;
+        }
+      }
+
+      .webform-component--opt-in {
+        label[for='edit-submitted-opt-in'] {
+          display: none;
+        }
+      }
+    }
+    .captcha {
+      margin-bottom: 10px;
+      .g-recaptcha .recaptcha-validate {
+        border: 1px $color-red solid;
+        &::after {
+          background-color: $soft-peach;
+          color: $terracotta;
+          content: "Please verify you are a human.";
+        }
+      }
+    }
+  }
+
+  #block-ds-extras-title-area-course-information {
+    color: #fff;
+    margin: 5px 0;
+
+    a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .field-name-field-college .field-label {
+      font-weight: normal;
+    }
+
+    .field-items {
+      font-size: 102%;
+    }
+
+    .field-label {
+      margin-right: 8px;
+    }
+
+    @include breakpoint($breakpoint-sm-up) {
+      line-height: 18px;
+      .field-items {
+        line-height: 18px;
+      }
+      .field-name-field-unit-code,
+      .field-name-vucrs-cricos-code {
+        display: inline-block;
+      }
+
+      .field-name-vucrs-cricos-code .field-label:before  {
+        content: "|";
+        padding: 0 10px 0 5px;
+      }
+    }
+  }
+
+  .paragraphs-items-field-fees-section-right {
+    background-color: unset !important;
+    margin-bottom: 0px !important;
+    padding: 0px !important;
+
+    .entity-paragraphs-item.paragraphs-item-wysiwyg {
+      margin: 20px 0px;
+    }
+  }
+}
+
+.node-type-unit #overview,
+.node-type-unit-set #overview,
+.overview-padding {
+  padding-top: $spacing-vertical-bottom-lg;
+}
+
+// Sticky CTA.
+.sticky-cta {
+  position: fixed !important;
+
+  &.affix {
+    @include breakpoint($breakpoint-sm-down) {
+      bottom: 0;
+      display: flex;
+      flex-direction: row-reverse;
+      padding-right: $grid-gutter-width / 2 + 40px;
+      width: 100%;
+
+      .btn-apply {
+        order: 1;
+        z-index: 5;
+      }
+      .btn-apply-modal-open {
+        order: 1;
+        z-index: 5;
+      }
+
+
+      .btn {
+        @include box-shadow(-2px -2px 2px 0 rgba(0, 0, 0, 0.1));
+
+        display: block;
+        float: right;
+        margin: 0;
+        z-index: 10;
+
+        &:focus {
+          border: none;
+        }
+      }
+    }
+
+    // >= MD.
+    @include breakpoint($breakpoint-md-up) {
+      top: 1px;
+      z-index: 1000;
+    }
+
+    // = MD.
+    @include breakpoint($breakpoint-md) {
+      right: calc((100% - #{$container-md}) / 2 + #{$grid-gutter-width} * 2);
+    }
+
+    // >= LG.
+    @include breakpoint($breakpoint-lg-up) {
+      right: calc((100% - #{$container-lg}) / 2 + #{$grid-gutter-width} * 2);
+    }
+
+    .btn-secondary {
+      font-size: 16px;
+      padding: 8px 20px;
+
+      &.ext {
+        @include fa-suffix('\f08e', 12px);
+
+        &::after {
+          background-image: none;
+        }
+      }
+    }
+  }
+}
+
+@include breakpoint($breakpoint-sm-down) {
+  .with-fixed-cta .footer #block-panels-mini-vu-block-lower-footer {
+    padding-bottom: 70px;
+  }
+}
+
+.field-name-audience-indicator {
+  background-color: #f9f9f9 !important;
+  color: #262626;
+  padding: 20px 0 20px !important;
+
+  .atar-audience-indicator {
+    h3, h4, p,.audience-indicator-advice, .qualification-dropdown {
+      padding: 0px 20px 0px;
+    }
+    .audience-indicator-advice {
+      background-color: #186AAC;
+      color: #fff;
+      p {
+        padding: 0px !important;
+        &:first-child {
+          padding-top: 10px !important;
+        }
+        &:last-child {
+          padding-bottom: 10px !important;
+        }
+      }
+      .selection-text span {
+        font-weight: bold;
+      }
+    }
+    .bootstrap-select {
+      border: 2px solid $color-grey-dusty_gray;
+      border-radius: 4px;
+      background-color: $color-white;
+      width: 100% !important;
+
+      button[role='button'] {
+        line-height: 22px;
+        font-size: 14px;
+        padding: 6px 25px 6px 12px;
+        color: $color-grey-tundora;
+        margin: 0px;
+
+      }
+
+      button:active, button:focus {
+        background-color: $color-white !important;
+      }
+      .popover-title {
+        color: #333333;
+        font-weight: bold;
+
+        button.close {
+          color: #333333;
+          opacity: 1;
+        }
+      }
+
+      li {
+        display: list-item;
+        margin-left: 0px;
+
+        &::before {
+          content: ' ';
+        }
+
+        .check-mark {
+          display: inline-block !important;
+          position: absolute;
+          right: 15px;
+          margin-top: 5px;
+
+          &::before {
+            content: "\e157" !important;
+          }
+        }
+
+        &.selected {
+          .check-mark::before {
+            content: '\f14a' !important;
+            font-family: fontawesome;
+          }
+        }
+      }
+
+      .text {
+        margin-right: 0px;
+        white-space: normal;
+      }
+    }
+
+    .dropdown-menu {
+      width: 100% !important;
+    }
+
+  }
+}
+
+.hta-direct, .hta-vu-online, .hta-vtac {
+  border: 1px solid #979797;
+  padding: 0px 20px 20px;
+}
+
+#direct-apply-info, #vuonline-apply-info, #vtac-apply-info {
+  .hta-direct, .hta-vu-online, .hta-vtac {
+    border: none;
+    padding: 0px;
+  }
+}
+
+.pane-vu-core-vu-cbs-hta-direct-closed + .panel-separator {
+  margin-top: 0px !important;
+}
+
+#apply-now {
+  .before-you-apply {
+    h3 {
+      margin-top: 0px;
+    }
+  }
+  .hta-vu-online {
+    margin-top: 20px;
+  }
+  .vu-online-container .hta-vu-online {
+    margin-top: 0px;
+  }
+  .field-name-courses-how-to-apply-title {
+    @include clearfix;
+  }
+  @include breakpoint($breakpoint-sm-down) {
+    .vu-online-container .hta-vu-online {
+      margin-top: 20px;
+    }
+  }
+}
+
+.field-name-admission-additional-information {
+  background-color: #f9f9f9;
+  padding: 10px 20px 20px;
+  margin-top: 20px;
+}

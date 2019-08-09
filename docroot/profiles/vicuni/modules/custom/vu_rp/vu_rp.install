@@ -1,0 +1,245 @@
+<?php
+
+/**
+ * @file
+ * Code for the VU Researcher Profile demo content.
+ */
+
+use Drupal\drupal_helpers\Feature;
+use Drupal\drupal_helpers\General;
+use Drupal\drupal_helpers\Menu;
+use Drupal\drupal_helpers\Module;
+use Drupal\drupal_helpers\Taxonomy;
+
+/**
+ * Implements hook_install().
+ */
+function vu_rp_install() {
+  Feature::revert('vu_core', 'user_permission');
+  Feature::revert('vu_rp');
+  Feature::revert('vu_core', 'user_permission');
+  Module::enable('vu_rp_api');
+  Module::enable('vu_rp_log');
+  Module::enable('vu_rp_list');
+
+  _vu_rp_install_create_research_institutes();
+  _vu_rp_install_create_menu_items();
+  _vu_rp_install_update_admin_menu_sources();
+  _vu_rp_install_create_membership_roles();
+  _vu_rp_install_create_professional_memberships();
+
+  // Enables myworkbench.
+  variable_set('workbench_myworkbench_disabled', FALSE);
+
+  // Disable view changes button.
+  variable_set('diff_show_preview_changes_node_researcher_profile', FALSE);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function vu_rp_uninstall() {
+  variable_del('vu_rp_helpdesk_email');
+}
+
+/**
+ * Provision research institutes.
+ */
+function _vu_rp_install_create_research_institutes() {
+  $institutes = [
+    [
+      'name' => 'Australian Health Policy Collaboration (AHPC)',
+      'url' => 'australian-health-policy-collaboration',
+      'abbr' => 'AHPC',
+      'is_flagship' => FALSE,
+    ],
+    [
+      'name' => 'Sir Zelman Cowen Centre',
+      'url' => 'https://www.vu.edu.au/sir-zelman-cowen-centre',
+      'abbr' => 'SZCC',
+      'is_flagship' => FALSE,
+    ],
+    [
+      'name' => 'The Mitchell Institute',
+      'url' => 'http://www.mitchellinstitute.org.au/',
+      'abbr' => 'Mitchell',
+      'is_flagship' => FALSE,
+    ],
+    [
+      'name' => 'Centre for International Research on Education Systems (CIRES)',
+      'url' => 'centre-for-international-research-on-education-systems-cires',
+      'abbr' => 'CIRES',
+      'is_flagship' => FALSE,
+    ],
+    [
+      'name' => 'Centre for Policy Studies (CoPs)',
+      'url' => 'centre-of-policy-studies-cops',
+      'abbr' => 'CoPS',
+      'is_flagship' => FALSE,
+    ],
+    [
+      'name' => 'Institute for Health & Sport',
+      'url' => 'research/institute-for-health-sport',
+      'abbr' => 'IHES',
+      'is_flagship' => TRUE,
+    ],
+    [
+      'name' => 'Institute for Sustainable Industries & Liveable Cities',
+      'url' => 'research/institute-for-sustainable-industries-liveable-cities',
+      'abbr' => 'ISILC',
+      'is_flagship' => TRUE,
+    ],
+  ];
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('research_institutes');
+  foreach ($institutes as $institute) {
+    $term = (object) [
+      'name' => $institute['name'],
+      'vid' => $vocabulary->vid,
+      'vocabulary_machine_name' => $vocabulary->machine_name,
+      'field_research_institutes_link' => [LANGUAGE_NONE => [['url' => $institute['url']]]],
+      'field_research_institutes_abbr' => [LANGUAGE_NONE => [['value' => $institute['abbr']]]],
+      'field_research_institutes_is_f' => [LANGUAGE_NONE => [['value' => (int) $institute['is_flagship']]]],
+    ];
+
+    taxonomy_term_save($term);
+
+    General::messageSet(format_string('Created term "@name" (tid: @tid)', [
+      '@name' => $term->name,
+      '@tid' => $term->tid,
+    ]));
+  }
+}
+
+/**
+ * Provision Researcher menu.
+ */
+function _vu_rp_install_create_menu_items() {
+  $tree = [
+    'My workbench' => 'admin/workbench',
+  ];
+  Menu::import('menu-researcher-role', $tree);
+
+  $tree = [
+    'My workbench' => 'admin/workbench',
+    'Content' => 'admin/content',
+    'Add Researcher Profile' => 'node/add/researcher-profile',
+    'Taxonomy' => 'admin/structure/taxonomy',
+    'Reports' => 'admin/reports',
+  ];
+  Menu::import('menu-researcher-profile-admin', $tree);
+}
+
+/**
+ * Update admin menu sources with correct role ids.
+ */
+function _vu_rp_install_update_admin_menu_sources() {
+  $map = [
+    'Researcher' => 'menu-researcher-role',
+    'Researcher Profile Admin' => 'menu-researcher-profile-admin',
+    'Researcher Profile Approver' => 'menu-researcher-profile-admin',
+  ];
+
+  $settings = variable_get('admin_menu_source_settings', []);
+  foreach ($map as $role_name => $menu_name) {
+    $role = user_role_load_by_name($role_name);
+    if (!$role) {
+      throw new \Exception('Unable to load role ' . $role_name);
+    }
+    $settings[$role->rid]['source'] = $menu_name;
+  }
+
+  variable_set('admin_menu_source_settings', $settings);
+}
+
+/**
+ * Provision Professional memberships.
+ */
+function _vu_rp_install_create_professional_memberships() {
+  $memberships = [
+    'Exercise & Sports Science Australia (ESSA)',
+    'Allied Health Professions Australia (AHPA)',
+    'British Association of Sport and Exercise Sciences (BASES)',
+    'International Council of Sport Science and Physical Education (ICSSPE)',
+    'Sports Medicine Australia (SMA)',
+    'Australian Psychological Society (APS)',
+    'Australian Sports Technologies Network (ASTN)',
+    'European Association of Sports Management (EASM)',
+    'VicHealth',
+    'American College of Sports Medicine (ACSM)',
+    'Australian Physiological Society',
+    'European College of Sport Science (ECSS)',
+    'Human Genetics Society of Australasia (HGSA)',
+  ];
+  Taxonomy::saveTermTree('membership_organisations', $memberships);
+}
+
+/**
+ * Provision Memberships roles.
+ */
+function _vu_rp_install_create_membership_roles() {
+  $roles = [
+    'Member',
+    'Life member',
+    'Fellow',
+    'Life fellow',
+    'Board member',
+    'Committee member',
+    'Executive member',
+    'Treasurer',
+    'Chair',
+    'President',
+    'Director',
+    'Working group member',
+    'Affiliate',
+  ];
+  Taxonomy::saveTermTree('membership_levels', $roles);
+}
+
+/**
+ * Helper to provision profile for specified staff id.
+ */
+function vu_rp_install_provision_profile($staff_id) {
+  General::messageSet(t('Provisioning Researcher Profiles for staff id @id', [
+    '@id' => $staff_id,
+  ]));
+
+  vu_rp_list_record_save($staff_id);
+
+  $existing_node = vu_rp_get_researcher_profile_by_staff_id($staff_id);
+  if ($existing_node) {
+    General::messageSet(sprintf('Found existing node %s for staff id %s', $existing_node->nid, $staff_id));
+
+    return $existing_node->nid;
+  }
+
+  $starttime = time();
+  try {
+    $provisioned_nid = vu_rp_api_provision_profile($staff_id, FALSE);
+  }
+  catch (Exception $exception) {
+    // Intentionally empty.
+  }
+  $endtime = time() - $starttime;
+  General::messageSet(sprintf('Elapsed time: %s seconds', $endtime));
+
+  if ($provisioned_nid) {
+    General::messageSet(t('SUCCESS: Provisioned Researcher Profiles for staff id @id', [
+      '@id' => $staff_id,
+    ]));
+  }
+  else {
+    General::messageSet(t('ERROR: Unable to provision Researcher Profiles for staff id @id', [
+      '@id' => $staff_id,
+    ]), '-- ', 4);
+  }
+
+  return $provisioned_nid;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function vu_rp_update_7001() {
+  variable_set('admin_menu_source_settings', FALSE);
+}

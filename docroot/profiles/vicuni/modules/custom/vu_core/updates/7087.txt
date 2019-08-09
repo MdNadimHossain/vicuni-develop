@@ -1,0 +1,2 @@
+PW-5035 - Remove Short courses fees (Details) and Migrate RP data to new field.
+PW-5033 - Clear out old data from field_location_other_editable tables.

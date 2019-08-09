@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * @file
+ * VU Core hubspot webform fields master mapping functionality.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function vu_core_hubspot_map_menu() {
+  // @note: The page for a list of fields is handled by views.
+  $items['admin/config/hubspot'] = [
+    'title' => 'Hubspot webform',
+    'description' => 'Configuring HubSpot fields.',
+    'access arguments' => ['manage hubspot field mapping'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+
+  $items['admin/config/hubspot/fields/list'] = [
+    'title' => 'HubSpot webform fields list',
+    'description' => 'Shows the list of all hubspot fields.',
+    'page callback' => 'vu_core_hubspot_map_show_fields',
+    'access arguments' => ['manage hubspot field mapping'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+
+  $items['admin/config/hubspot/fields/add'] = [
+    'title' => 'Add new hubspot field',
+    'description' => 'Add new webform field',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_core_hubspot_map_add_form'],
+    'access arguments' => ['manage hubspot field mapping'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'vu_core_hubspot_map.admin.inc',
+  ];
+
+  $items['admin/config/hubspot/fields/delete'] = [
+    'title' => 'Delete webform field',
+    'description' => 'Delete a specific field from the master map.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_core_hubspot_map_delete_form'],
+    'access arguments' => ['manage hubspot field mapping'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'vu_core_hubspot_map.admin.inc',
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function vu_core_hubspot_map_permission() {
+  return [
+    'manage hubspot field mapping' => [
+      'title' => t('Manage a list of hubspot webform fields'),
+      'description' => t('Manage a list of hubspot fields'),
+    ],
+  ];
+}
+
+/**
+ * Check if existing webform field.
+ *
+ * @param string $webform_field_name
+ *   Webform field name from master map.
+ *
+ * @return bool
+ *   True if the field exists.
+ *   or false.
+ */
+function vu_core_hubspot_map_is_existing_field($webform_field_name) {
+  $result = db_select('vu_core_hubspot_map', 'hs')
+    ->fields('hs')
+    ->condition('webform_field_name', $webform_field_name)
+    ->countQuery()
+    ->execute()
+    ->fetchField();
+
+  if ($result) {
+    return TRUE;
+  }
+}
+
+/**
+ * Delete list record with specified webform field.
+ */
+function vu_core_hubspot_map_record_delete($webform_field_name) {
+
+  db_delete('vu_core_hubspot_map')
+    ->condition('webform_field_name', $webform_field_name)
+    ->execute();
+}
+
+/**
+ * Save record.
+ */
+function vu_core_hubspot_map_record_save($webform_field_name, $crm_field_name) {
+  $result = db_insert('vu_core_hubspot_map')
+    ->fields([
+      'webform_field_name' => $webform_field_name,
+      'crm_field_name' => $crm_field_name,
+    ])
+    ->execute();
+
+  return $result;
+}
+
+/**
+ * Get hubspot webform fields from db.
+ *
+ * @return string
+ *   hubspot webform fields.
+ */
+function vu_core_hubspot_map_show_fields() {
+  $query = db_select('vu_core_hubspot_map', 'hp');
+  $query->fields('hp', ['webform_field_name', 'crm_field_name', 'field_type']);
+  $results = $query->execute();
+
+  $header = [t('Webform Fields'), t('CRM Fields'), t('Field Type')];
+  $rows = [];
+
+  foreach ($results as $result) {
+    $rows[] = [
+      $result->webform_field_name,
+      $result->crm_field_name,
+      $result->field_type,
+    ];
+  }
+
+  return theme('table', ['header' => $header, 'rows' => $rows]);
+}

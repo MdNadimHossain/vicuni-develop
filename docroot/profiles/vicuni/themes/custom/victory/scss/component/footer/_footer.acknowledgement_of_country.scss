@@ -1,0 +1,26 @@
+//
+// Acknowledgement of country block.
+//
+.footer {
+  #block-vumain-vumain-acknowledgement-country {
+    background-color: $color-white;
+
+    padding-top: $spacing-vertical-top-lg;
+    padding-bottom: $spacing-vertical-bottom-lg;
+
+    .footer-aoc-title {
+      margin-top: 0px;
+      line-height: 1;
+      @include breakpoint($breakpoint-xs) {
+        margin-top: $spacing-vertical-top-xs;
+      }
+    }
+
+    a {
+      @include text-link();
+      &:hover {
+        @include text-link-hover();
+      }
+    }
+  }
+}

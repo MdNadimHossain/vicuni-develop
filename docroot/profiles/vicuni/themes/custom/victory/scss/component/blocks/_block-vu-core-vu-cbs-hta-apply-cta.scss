@@ -1,0 +1,90 @@
+#block-vu-core-vu-cbs-hta-apply-cta {
+  width: 100%;
+  padding: 15px 0;
+
+  @include breakpoint($breakpoint-xs) {
+    top: 0px !important;
+    padding-top: 0px;
+    padding-bottom: 20px;
+  }
+
+  .apply-block {
+    &__button-container .btn {
+      min-width: 100%;
+      margin: 4px 0;
+
+      &:focus {
+        margin: 0;
+      }
+      &.ext {
+        @include fa-suffix('\f08e', 12px);
+
+        &.ext::after {
+          background-image: none;
+        }
+      }
+    }
+    @include breakpoint($breakpoint-sm) {
+      margin-top: 18px !important;
+    }
+  }
+
+  // >= MD breakpoint.
+  @include breakpoint($breakpoint-sm-up) {
+    padding: 0;
+    position: absolute;
+    right: calc((100% - #{$container-sm}) / 2);
+    top: 90px;
+    width: 440px;
+
+    .apply-block {
+      display: table;
+      width: 100%;
+
+      &__message {
+        display: table-cell;
+        vertical-align: middle;
+        line-height: 1.4em;
+        padding-right: $spacing-horizontal-header-gutter-md * 2;
+        text-align: right;
+
+        p {
+          margin: 0;
+        }
+      }
+
+      &__button-container {
+        display: table-cell;
+        text-align: right;
+
+        & .btn {
+          min-width: 200px;
+        }
+      }
+    }
+  }
+
+  // >= MD breakpoint.
+  @include breakpoint($breakpoint-md-up) {
+    width: $container-sm / 2;
+    top: 70px;
+
+    .apply-block {
+      &__message {
+        text-align: left;
+      }
+    }
+  }
+
+  // MD breakpoint.
+  @include breakpoint($breakpoint-md) {
+    right: calc((100% - #{$container-md}) / 2);
+    width: $container-md / 2;
+  }
+
+  // >= LG breakpoint.
+  @include breakpoint($breakpoint-lg-up) {
+    right: calc((100% - #{$container-lg}) / 2);
+    width: $container-lg / 2;
+  }
+}

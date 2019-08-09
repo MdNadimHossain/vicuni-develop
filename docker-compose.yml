@@ -1,0 +1,29 @@
+version: '2.3'
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    image: cli
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    networks:
+      - default
+    depends_on:
+      - cli
+    expose:
+      - "8080"
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+    depends_on:
+      - cli
+  mariadb:
+    build:
+      context: .
+      dockerfile: Dockerfile.mariadb
+  memcached:
+    image: memcached:alpine

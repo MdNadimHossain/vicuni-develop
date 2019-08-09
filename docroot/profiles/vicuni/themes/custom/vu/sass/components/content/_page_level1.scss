@@ -1,0 +1,349 @@
+@charset "UTF-8";
+.level1-wrapper {
+  .level1-top-content {
+    margin-bottom: 25px;
+    padding-top: 25px;
+    @include breakpoint(tablet) {
+      width: 50%;
+      min-height: 140px;
+    }
+  }
+  .level1-subpage-tiles-wrapper {
+    position: relative;
+    @include breakpoint(tablet) {
+      margin: 0 -27px 0 0;
+    }
+    .level1-subpage-tile {
+      color: $grey3;
+      float: none;
+      line-height: 20px;
+      position: relative;
+      max-width: 350px;
+      @include breakpoint(tablet) {
+        max-width: none;
+        padding: 0 27px 25px 0;
+        width: 50%;
+        float: left;
+      }
+      @include breakpoint(desktop) {
+        padding: 0 27px 25px 0;
+        width: 33.333%;
+        float: left;
+      }
+      &.custom-tile {
+        margin-bottom: 25px;
+        @include breakpoint(tablet) {
+          margin-bottom: 0;
+        }
+        &.library {
+          .custom-tile-wrapper {
+            box-shadow: 0 2px 3px $grey9;
+            color: white;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            padding-left: 40px;
+            @include breakpoint(tablet) {
+              height: 254px;
+            }
+            @include breakpoint(desktop) {
+              height: 215px;
+            }
+            h2 {
+              font-size: 18px;
+              line-height: 36px;
+            }
+            ul {
+              list-style-type: square;
+              margin: 0 0 0 15px;
+              color: $white;
+              li {
+                font-size: 12px;
+                line-height: 20px;
+                a {
+                  color: $white;
+                  border-bottom: 0;
+                  display: inline;
+                  &:hover {
+                    text-decoration: underline;
+                  }
+                  &:after {
+                    color: $white;
+                  }
+                }
+              }
+            }
+          }
+        }
+        // The off-canvas ribbon style.
+        &.library-form, &.coursefinder {
+          .custom-tile-wrapper {
+            padding: 15px;
+            min-width: 270px;
+            @include breakpoint(tablet) {
+              position: relative;
+              min-width: 0;
+              height: 254px;
+              margin-left: -30px;
+              padding-top: 31px;
+              padding-left: 40px;
+              padding-right: 0;
+              padding-bottom: 0;
+              box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+              &:after {
+                content: '';
+                display: block;
+                width: 0;
+                position: absolute;
+                bottom: -15px;
+                background: transparent;
+                border-top: 15px solid black;
+                left: 0;
+                border-left: 15px solid transparent;
+              }
+            }
+            @include breakpoint(desktop) {
+              height: 213px;
+              margin-left: -42px;
+            }
+          }
+        }
+        &.library-form {
+          .custom-tile-wrapper {
+            padding-top: 22px;
+          }
+          .library-search-form {
+            position: relative;
+            margin-right: 37px;
+          }
+          h2 {
+            font-size: 18px;
+            font-weight: normal;
+            margin-top: 0;
+            margin-bottom: 10px;
+            line-height: 24px;
+            margin-bottom: 10px;
+          }
+          a {
+            color: $white;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: right;
+            border-bottom: 0;
+            margin-right: -9px;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding: 5px 0;
+            &:hover {
+              text-decoration: underline;
+            }
+            &:after {
+              color: $white;
+            }
+            .accessibility {
+              font-size: 0;
+            }
+          }
+          .form-type-textfield {
+            margin: 0;
+            .form-text {
+              width: 100%;
+            }
+          }
+          .form-radios {
+            margin-top: 7px;
+          }
+          .form-type-radio {
+            font-size: 12px;
+            height: 18px;
+            margin: 0;
+            margin-bottom: 3px;
+            label {
+              padding-left: 23px;
+            }
+            input[type="radio"] {
+              margin-left: -23px;
+            }
+          }
+          .btn-primary.form-submit {
+            color: $grey3;
+            width: auto;
+            @include font-helvetica-futurapt;
+            font-weight: 500;
+            text-align: left;
+            background-color: transparent;
+            background-position: top right;
+            background-repeat: no-repeat;
+            font-size: 18px;
+            padding: 4px 22px 4px 10px;
+            text-decoration: none;
+            text-shadow: none;
+            vertical-align: middle;
+            -webkit-filter: none;
+            filter: none;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            height: 36px;
+            background-image: url(../images/btn-lg-arrow-orange.png);
+            // Float beside radio buttons.
+            position: absolute;
+            margin: 0;
+            top: 78px;
+            right: -9px;
+          }
+        }
+        &.coursefinder {
+          @include coursefinder_form;
+          @include coursefinder_form_dark_radio;
+          h3 {
+            line-height: 18px;
+            -webkit-font-smoothing: auto;
+            @include font-helvetica-futurapt;
+            letter-spacing: .3px;
+            font-weight: 400;
+            font-size: 1.875em;
+            .fa-search {
+              font-size: 18px;
+              margin-right: 8px;
+              color: $light_blue3;
+            }
+          }
+          .form-item-iam.form-type-radios {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 0;
+            & > .control-label {
+              display: inline-block;
+              position: absolute;
+              font-weight: normal;
+            }
+            label.control-label {
+              font-size: 14px !important;
+            }
+            .form-radios {
+              display: block;
+              margin-left: 50px;
+              margin-bottom: 5px;
+            }
+            .form-type-radio {
+              margin-bottom: 8px;
+            }
+          }
+          button.submit {
+            vertical-align: top;
+            margin-top: 0;
+          }
+          .form-type-textfield {
+            margin: 0;
+            input[type=text] {
+              padding-left: 7px;
+              width: 200px;
+              @include breakpoint(minitablet_DEPRECATED) {
+                width: 214px;
+              }
+            }
+          }
+          a {
+            color: $white;
+            border-bottom: 0;
+            margin-top: 8px;
+            &:hover {
+              text-decoration: underline;
+            }
+            &:before {
+              display: inline-block;
+              font: normal normal normal 14px/1 FontAwesome;
+              font-size: inherit;
+              text-rendering: auto;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              content: '\f0b0';
+              color: $light_blue3;
+              font-size: 1.1em;
+              margin-right: 8px;
+            }
+            &:after {
+              display: inline-block;
+              font: normal normal normal 14px/1 FontAwesome;
+              font-size: inherit;
+              text-rendering: auto;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              content: '\f054';
+              color: $white;
+              margin-left: 8px;
+            }
+          }
+        }
+        .custom-tile-wrapper {
+          color: $white;
+          background: $vuBlue;
+        }
+      }
+    }
+    a {
+      color: $grey3;
+      position: relative;
+      overflow: hidden;
+      display: block;
+      margin-bottom: 25px;
+      @include breakpoint(tablet) {
+        margin-bottom: 0px;
+      }
+      h2 {
+        font-size: 18px;
+        line-height: 20px;
+        background: transparent url(../images/white-arrow-bg.png) no-repeat scroll right center;
+        line-height: 20px;
+        margin-top: 30px;
+        padding-left: 15px;
+        padding-right: 30px;
+        padding-top: 15px;
+        position: relative;
+        width: 72.41%;
+        height: 77px;
+        z-index: 2;
+        position: absolute;
+        overflow: hidden;
+      }
+      .level1-subpage-tile-teaser-wrapper {
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        padding: 117px 15px 0;
+        background: url(../images/first-level-featured-content-bg.png) center center;
+        .level1-subpage-tile-teaser {
+          display: none;
+        }
+      }
+      img {
+        width: 100%;
+      }
+      &:hover {
+        color: white;
+        h2 {
+          background-image: url(../images/gradient-arrow-bg.png);
+        }
+        .level1-subpage-tile-teaser-wrapper {
+          display: block;
+          .level1-subpage-tile-teaser {
+            @include breakpoint(tablet) {
+              display: block;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.with-sidebar-second {
+  .level1-wrapper .level1-subpage-tiles-wrapper .level1-subpage-tile {
+    @include breakpoint(tablet) {
+      width: 50%;
+    }
+  }
+}

@@ -1,0 +1,65 @@
+//
+// Shutter component.
+//
+
+.js-shutter {
+  $shutterBg: rgba($dark_blue2, 0.98);
+  $shutterColor: rgba($white, 0.8);
+
+  .js-shutter-dialog {
+    width: 100% !important;
+    margin: 0 !important;
+    position: absolute;
+    background: $shutterBg;
+
+    .js-shutter-header {
+      padding-top: 77px;
+      padding-bottom: 15px;
+
+      .logo {
+        a {
+          display: block;
+        }
+      }
+    }
+
+    .js-shutter-content {
+      // Reset BS styles.
+      @include border-radius(0);
+      border: none;
+      box-shadow: none;
+      background: transparent;
+
+      .js-shutter-item {
+        display: none;
+        &.js-shutter-item-shown {
+          display: block;
+        }
+      }
+    }
+
+    .js-shutter-footer {
+      padding-top: 15px;
+      padding-bottom: 30px;
+
+      // Close button.
+      .close {
+        @extend %close;
+        color: $shutterColor;
+
+        &:focus,
+        &.focus {
+          @include box-shadow(none);
+          outline: none;
+          border: none;
+        }
+      }
+    }
+  }
+}
+
+// Overlay styles.
+.modal-backdrop.in {
+  opacity: 0.25;
+  background: #333333;
+}

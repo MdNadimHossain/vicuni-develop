@@ -1,0 +1,122 @@
+.entity-paragraphs-item.paragraphs-item-quick-facts {
+  background-color: $color-blue-lochmara;
+  height: 370px;
+  text-align: center;
+  @include breakpoint($breakpoint-md) {
+    height: 293px;
+  }
+  @include breakpoint($breakpoint-sm) {
+    height: 216px;
+  }
+
+  &.quick-fact-bg-color-change {
+    background-color: $color-orange-yellow_orange;
+    h2, h3, p {
+      color: $color-grey-tundora !important;
+    }
+  }
+
+  .group-quick-facts-container {
+    margin: 70px auto;
+    width: 85%;
+    @include breakpoint($breakpoint-sm) {
+      margin: 40px auto;
+    }
+
+    i {
+      font-family: FontAwesome;
+    }
+    h2 {
+      height: auto;	
+      width: auto;	
+      color: $color-white;
+      font-family: "futura-pt";	
+      font-size: 70px;
+      font-weight: 500;	
+      text-align: center;
+      margin-bottom: 0px;
+      line-height: 70px;
+      @include breakpoint($breakpoint-md) {
+        font-size: 45px;
+        line-height: 45px;
+      }
+      @include breakpoint($breakpoint-sm) {
+        font-size: 42px;
+        line-height: 42px;
+      }
+      @include breakpoint($breakpoint-xs) {
+        font-size: 56px;
+        line-height: 56px;
+      }
+    }
+  
+    h3 {
+      height: auto;	
+      width: auto;	
+      color: $color-white;
+      font-family: "futura-pt";	
+      font-size: 26px;	
+      font-weight: 500;	
+      text-align: center;
+      margin-top: 20px;
+      line-height: 26px;
+      @include breakpoint($breakpoint-md) {
+        font-size: 24px;
+        margin-top: 10px;
+        line-height: 24px;
+      }
+      @include breakpoint($breakpoint-sm) {
+        font-size: 18px;
+        margin-top: 0px;
+        line-height: 18px;
+        padding-top: 6px;
+      }
+    }
+  
+    p {
+      width: auto;	
+      color: $color-white;
+      font-family: "futura-pt";	
+      font-size: 20px;	
+      font-weight: 300;	
+      text-align: center;
+      margin-top: 30px;
+      line-height: 22px;
+      word-wrap: break-word;
+      overflow: hidden;
+      line-height: 20px;
+      @include breakpoint($breakpoint-md) {
+        font-size: 18px;
+        line-height: 18px;
+        margin-top: 20px;
+      }
+      @include breakpoint($breakpoint-sm) {
+        font-size: 14px;
+        line-height: 14px;
+        margin-top: 0px;
+      }
+    }
+  }
+
+}
+a.quick-facts {
+  text-decoration: none;
+  background-color: $color-blue-lochmara;
+  .entity-paragraphs-item.paragraphs-item-quick-facts {
+    &:hover {
+      background-color: $color-yellow-grandis;
+      h2, h3, p {
+        color: $color-grey-tundora;
+      }
+    }
+  }
+  .entity-paragraphs-item.paragraphs-item-quick-facts.quick-fact-bg-color-change {
+    &:hover {
+      background-color: $color-yellow-grandis;
+    }
+  }
+  .link-arrow {
+    display: none;
+  }
+}
+

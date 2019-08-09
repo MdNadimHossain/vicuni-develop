@@ -1,0 +1,59 @@
+//
+// Section paragraph style.
+//
+.paragraphs-items-field-page-paragraphs {
+  .field-name-field-page-paragraphs > .field-items > .field-item {
+    @include breakpoint($breakpoint-sm-up) {
+      margin-bottom: $spacing-vertical-bottom-sm;
+    }
+
+    @include breakpoint($breakpoint-lg-up) {
+      margin-bottom: $spacing-vertical-bottom-lg;
+    }
+
+    &:last-child {
+      @include breakpoint($breakpoint-xs) {
+        margin-bottom: $spacing-vertical-bottom-sm;
+      }
+    }
+
+    & > .section {
+      .paragraphs-items-field-paragraphs-left {
+        @include breakpoint($breakpoint-xs) {
+          padding-bottom: $spacing-vertical-bottom-sm;
+        }
+       @include padding-right-one-column;
+      }
+
+      .field-name-field-paragraphs-left,
+      .field-name-field-paragraphs-right {
+        & > .field-items > .field-item:not(.field-item-accordion) {
+          padding-bottom: $spacing-vertical-bottom-sm;
+
+          &:last-child {
+            padding-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .paragraphs-item-page-intro {
+    padding-top: $spacing-vertical-top-sm;
+
+    @include breakpoint($breakpoint-md-up) {
+      padding-top: $spacing-vertical-top-lg;
+    }
+
+    .field-name-field-body {
+      padding-bottom: $spacing-vertical-bottom-sm;
+      @include padding-right-one-column;
+    }
+
+    .paragraphs-items-field-paragraphs-right {
+      @include breakpoint($breakpoint-xs) {
+        padding-top: $spacing-vertical-bottom-sm;
+      }
+    }
+  }
+}

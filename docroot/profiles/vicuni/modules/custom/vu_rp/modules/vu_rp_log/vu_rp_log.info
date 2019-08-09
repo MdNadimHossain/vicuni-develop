@@ -1,0 +1,11 @@
+name = VU Researcher Profile Log
+description = Loggin functiontionality for Researcher Profiles
+core = 7.x
+package = VU
+
+dependencies[] = vu_rp
+
+files[] = handlers/VuRpLogEventFilterHandler.inc
+files[] = handlers/VuRpLogSeverityFieldHandler.inc
+files[] = handlers/VuRpLogSeverityFilterHandler.inc
+files[] = handlers/VuRpLogTimestampFieldHandler.inc

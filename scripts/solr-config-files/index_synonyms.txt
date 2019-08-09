@@ -1,0 +1,20 @@
+# Change how words are indexed, these rules should match the triggers in synonyms.txt
+
+hairdressing => hair dressing
+uni => university
+vu => victoria university
+phd => doctor of philosophy
+mba => master of business administration
+postgrad => postgraduate
+undergrad => undergraduate
+mba => master of business administration
+dip => diploma
+cert => certificate
+grad => graduate
+bach => bachelor
+vet => veterinary
+rpl => recognition of prior learning
+erp => enterprise resource planning
+bookkeeping => book keeping
+ohs => occupational health and safety
+osteo => osteopathy

@@ -1,0 +1,179 @@
+.paragraphs-item-component-section, .paragraphs-item-page-intro, .paragraphs-item-section {
+  .paragraphs-item-success-story {
+    a {
+      text-decoration: none;
+    }
+    .field-name-field-featured-tile-text {
+      line-height: 28px;
+    }
+  }
+
+  .paragraphs-item-component-row {
+
+    & .row-6-6 {
+      & > .field-items {
+        & > .field-item {
+          .paragraphs-item-success-story {
+            @include breakpoint($breakpoint-lg-up) {
+              .featured-entity__text {
+                padding-bottom: 20px;
+              }
+            }
+
+            @include breakpoint($breakpoint-md) {
+              .featured-entity__text {
+                padding-bottom: 15px;
+              }
+            }
+
+            @include breakpoint($breakpoint-md-up) {
+              .featured-entity__person-details {
+                margin-bottom: 25px;
+              }
+              .featured-entity__image {
+                height: 250px;
+              }
+            }
+
+            @include breakpoint($breakpoint-sm) {
+              .featured-entity__person-details {
+                padding-bottom: 20px;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    & .row-8-4 {
+      & > .field-items {
+        & > .field-item {
+          &:first-child {
+            .paragraphs-item-success-story {
+
+              @include breakpoint($breakpoint-lg-up) {
+                .featured-entity__text {
+                  padding-bottom: 20px;
+                }
+              }
+
+              @include breakpoint($breakpoint-md) {
+                .featured-entity__text {
+                  padding-bottom: 15px;
+                }
+              }
+
+              @include breakpoint($breakpoint-sm) {
+                .featured-entity__person-details {
+                  padding-bottom: 20px;
+                }
+              }
+
+              @include breakpoint($breakpoint-md-up) {
+                .featured-entity__image {
+                  height: 325px;
+                }
+                .featured-entity__person-details {
+                  margin-bottom: 25px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    & .row-4-8 {
+      & > .field-items {
+        & > .field-item {
+          &:nth-child(2) {
+            .paragraphs-item-success-story {
+
+              @include breakpoint($breakpoint-lg-up) {
+                .featured-entity__text {
+                  padding-bottom: 20px;
+                }
+              }
+
+              @include breakpoint($breakpoint-md) {
+                .featured-entity__text {
+                  padding-bottom: 15px;
+                }
+              }
+
+              @include breakpoint($breakpoint-sm) {
+                .featured-entity__person-details {
+                  padding-bottom: 20px;
+                }
+              }
+
+              @include breakpoint($breakpoint-md-up) {
+                .featured-entity__image {
+                  height: 325px;
+                }
+                .featured-entity__person-details {
+                  margin-bottom: 25px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    & .row-4-4-4 {
+      & > .field-items {
+
+        @include breakpoint($breakpoint-sm-up) {
+          display: flex;
+        }
+
+        & > .field-item {
+          @include breakpoint($breakpoint-sm-up) {
+            display: flex;
+            flex-direction: column;
+
+            .paragraphs-item-success-story {
+              .featured-entity--success-story {
+                height: 100%;
+              }
+            }
+          }
+
+          & > div {
+            @include breakpoint($breakpoint-sm-up) {
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    .paragraphs-item-success-story {
+
+      @include breakpoint($breakpoint-xs) {
+        .featured-entity__text {
+          padding: 30px 0;
+        }
+        .featured-entity__person-details {
+          padding-bottom: 10px;
+        }
+        .field-name-field-featured-tile-text {
+          padding-bottom: 10px;
+        }
+      }
+
+      @include breakpoint($breakpoint-sm) {
+        .featured-entity__person-details {
+          margin-bottom: 15px;
+        }
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        .featured-entity__text {
+          padding-bottom: 20px;
+        }
+      }
+    }
+  }
+}

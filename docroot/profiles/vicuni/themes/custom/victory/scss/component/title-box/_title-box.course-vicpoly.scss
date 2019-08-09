@@ -1,0 +1,91 @@
+//
+// Vicpoly title box styling.
+//
+
+#title-box.victoria-polytechnic {
+  background: $color-branding-vicpoly-bg;
+
+  @include breakpoint($breakpoint-sm-up) {
+    background: linear-gradient(to right, $color-branding-vicpoly-bg, $color-branding-vicpoly-bg 45%, $color-branding-vicpoly-title-stripe 45%);
+  }
+
+  .title-box {
+    @include angled-borders(345px, 130px, $color-branding-vicpoly-bg);
+
+    .left-angled-shape {
+      background-color: transparent;
+    }
+
+    .right-angled-shape {
+      background-color: transparent;
+      border-left-color: transparent;
+      border-top-color: transparent;
+
+      @include breakpoint($breakpoint-lg-up) {
+        border-top-color: $color-branding-vicpoly-bg;
+      }
+    }
+
+    &__logo {
+      display: table-cell;
+
+      &--top {
+        @include breakpoint($breakpoint-sm-up) {
+          position: absolute;
+          right: 80px;
+          top: -220px;
+          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            // IE10+ Fix.
+
+            top: -275px;
+          }
+        }
+
+        @include breakpoint($breakpoint-md-up) {
+          top: -210px;
+          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            // IE10+ Fix.
+
+            top: -270px;
+          }
+        }
+        @include breakpoint($breakpoint-lg-up) {
+          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            // IE10+ Fix.
+
+            top: -270px;
+          }
+        }
+      }
+
+      &, &--top {
+        img, svg {
+          margin-top: 3px;
+          width: 118px;
+
+          @include breakpoint($breakpoint-sm-up) {
+            width: 100px;
+            display: block;
+            background-color: $color-branding-vicpoly-bg;
+            @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+              // IE10+ Fix.
+
+              background-color: transparent;
+            }
+          }
+          @include breakpoint($breakpoint-xs) {
+            @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+              // IE10+ Fix.
+
+              height: 60px;
+            }
+          }
+
+          @include breakpoint($breakpoint-md-up) {
+            width: 118px;
+          }
+        }
+      }
+    }
+  }
+}

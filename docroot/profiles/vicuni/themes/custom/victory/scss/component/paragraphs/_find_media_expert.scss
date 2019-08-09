@@ -1,0 +1,226 @@
+.paragraphs-item-component-section,
+.paragraphs-item-page-intro,
+.paragraphs-item-section,
+.view-researchers-profile-search {
+
+  .paragraphs-item-find-media-expert,
+  .paragraphs-item-find-researcher,
+  #block-vu-rp-researcher-profile-search {
+    @include vu-search-component;
+  }
+
+  .paragraphs-item-component-row,
+  #block-vu-rp-researcher-profile-search {
+
+    & .row-6-6 {
+      & > .field-items {
+        & > .field-item {
+          .paragraphs-item-find-media-expert,
+          .paragraphs-item-find-researcher {
+
+            @include breakpoint($breakpoint-lg-up) {
+              .form-text {
+                width: 50%;
+                float: left;
+              }
+              .form-submit {
+                width: 150px;
+                float: left;
+              }
+            }
+
+            @include breakpoint($breakpoint-sm-up) {
+              @include researcher-search-order-change;
+            }
+
+            @include breakpoint($breakpoint-md-down) {
+
+              .form-text {
+                width: 100%;
+                clear: right;
+              }
+              .form-submit {
+                min-width: 100%;
+              }
+              .find-media-expert-a,
+              .researcher-link {
+                padding-top: 30px;
+              }
+            }
+
+          }
+        }
+      }
+    }
+
+    & .row-8-4 {
+      & > .field-items {
+        & > .field-item {
+          &:first-child {
+            .paragraphs-item-find-media-expert,
+            .paragraphs-item-find-researcher {
+
+              @include breakpoint($breakpoint-lg-up) {
+                .form-text {
+                  width: 60%;
+                  float: left;
+                }
+                .form-submit {
+                  width: 150px;
+                  float: left;
+                }
+              }
+
+              @include breakpoint($breakpoint-md-down) {
+                .form-text {
+                  width: 55%;
+                  clear: right;
+                }
+                .form-submit {
+                  min-width: 150px;
+                }
+              }
+
+              @include breakpoint($breakpoint-sm) {
+                .form-text {
+                  width: 100%;
+                  clear: right;
+                }
+                .form-submit {
+                  min-width: 100%;
+                }
+                .find-media-expert-a,
+                .researcher-link {
+                  padding-top: 30px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    & .row-8-4 {
+      & > .field-items {
+        & > .field-item {
+          &:nth-child(2) {
+            .paragraphs-item-find-media-expert,
+            .paragraphs-item-find-researcher {
+
+              @include breakpoint($breakpoint-sm-up) {
+                .form-text{
+                  width: 100%;
+                }
+                .form-submit {
+                  min-width: 100% !important;
+                }
+                .find-media-expert-a,
+                .researcher-link {
+                  padding-top: 30px;
+                }
+              }
+              @include researcher-search-order-change;
+            }
+          }
+        }
+      }
+    }
+
+    & .row-4-8 {
+      & > .field-items {
+        & > .field-item {
+          &:first-child {
+            .paragraphs-item-find-media-expert,
+            .paragraphs-item-find-researcher {
+
+              @include breakpoint($breakpoint-sm-up) {
+                .form-text{
+                  width: 100%;
+                }
+                .form-submit {
+                  min-width: 100% !important;
+                }
+                .find-media-expert-a,
+                .researcher-link {
+                  padding-top: 30px;
+                }
+              }
+              @include researcher-search-order-change;
+            }
+          }
+        }
+      }
+    }
+
+    & .row-4-8 {
+      & > .field-items {
+        & > .field-item {
+          &:nth-child(2) {
+            .paragraphs-item-find-media-expert,
+            .paragraphs-item-find-researcher {
+              @include breakpoint($breakpoint-lg-up) {
+                .form-text {
+                  width: 60%;
+                  float: left;
+                }
+                .form-submit {
+                  width: 150px;
+                  float: left;
+                }
+              }
+
+              @include breakpoint($breakpoint-md-down) {
+                .form-text {
+                  width: 55%;
+                  clear: right;
+                }
+                .form-submit {
+                  min-width: 150px;
+                }
+              }
+
+              @include breakpoint($breakpoint-sm) {
+                .form-text {
+                  width: 100%;
+                  clear: right;
+                }
+                .form-submit {
+                  min-width: 100%;
+                }
+                .find-media-expert-a,
+                .researcher-link {
+                  padding-top: 30px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .paragraphs-item-find-media-expert {
+      @include breakpoint($breakpoint-xs) {
+        @include find-expert-media-xs;
+      }
+    }
+
+    .paragraphs-item-find-researcher,
+    &.block-vu-rp {
+      @include breakpoint($breakpoint-xs) {
+        @include researcher-search-order-change;
+        .form-text, .form-submit {
+          width: 100% !important;
+        }
+      }
+    }
+
+    & .row-4-4-4 {
+      @include researcher-search-order-change;
+      .researcher-search-form {
+        .form-text, .form-submit {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

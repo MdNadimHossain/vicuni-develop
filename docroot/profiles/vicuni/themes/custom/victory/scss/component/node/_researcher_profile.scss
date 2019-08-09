@@ -1,0 +1,418 @@
+.node-type-researcher-profile {
+  // Hide all tab contents.
+  .researcher-content-section,
+  #researcher-overview-contact-details-modal {
+    display: none;
+
+    &.js-researcher-content-section-selected {
+      display: block;
+    }
+  }
+
+  &.no-js {
+    // But show all tab contents when no JS is enabled.
+    .researcher-content-section,
+    #researcher-overview-contact-details-modal {
+      display: block;
+    }
+  }
+
+  .content div ul {
+    margin: 0;
+    padding-left: 0;
+    li {
+      display: block;
+      margin-bottom: 16px;
+      margin-left: 0;
+      &:before {
+        content: $fa-caret-right;
+        display: inline-block;
+        font-family: $fa;
+        font-size: 18px;
+        line-height: 1;
+        padding-right: 12px;
+        vertical-align: middle;
+      }
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .supervise-no-higher,
+  .supervise-higher {
+    padding: 0 10px;
+    p {
+      @include auto-line-height(14px, 22px);
+      color: $color-black-mine_shaft;
+      display: inline;
+      font-family: $font-futura;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+    &:before {
+      color: $color-black-mine_shaft;
+      font-family: $fa;
+      font-size: 18px;
+      line-height: 1;
+      margin: 0 10px 20px 0;
+    }
+  }
+  .supervise-higher:before {
+    content: $fa-check;
+  }
+  .supervise-no-higher:before {
+    content: $fa-times;
+  }
+
+  .media-no-higher,
+  .media-higher {
+    padding: 10px 10px;
+    p {
+      @include auto-line-height(14px, 22px);
+      color: $color-black-mine_shaft;
+      display: inline;
+      font-family: $font-futura;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+    &:before {
+      color: $color-black-mine_shaft;
+      font-family: $fa;
+      font-size: 18px;
+      line-height: 1;
+      margin: 0 10px 20px 0;
+    }
+  }
+  .media-higher p{
+    padding-left: 6px;
+  }
+  .media-no-higher p{
+    padding-left: 4px;
+  }
+  .media-higher:before {
+    content: $fa-microphone;
+  }
+  .media-no-higher:before {
+    content: $fa-times;
+  }
+
+  .field-name-rp-supervision {
+    // Since we are re-using the same block for Overview and Supervision tabs,
+    // it is easier to simply hide media flag.
+    .media-higher {
+      display: none;
+    }
+  }
+
+  .researcher-details-unavailable {
+    @include auto-line-height(20px, 26px);
+    color: $color-black-mine_shaft;
+    font-family: $font-futura;
+    font-weight: 300;
+    margin-top: 34px;
+  }
+  h2.victory-title__stripe {
+    display: block;
+    float: none;
+  }
+  #researcher-career-industry-roles,
+  #researcher-career-academic-roles,
+  #researcher-supervising-past-students,
+  #researcher-supervising-current-students,
+  #researcher-overview-contact-details-related {
+    display: block;
+  }
+  #researcher-overview-contact-details,
+  #researcher-career-academic-roles-xs,
+  #researcher-career-industry-roles-xs,
+  #researcher-supervising-past-students-xs,
+  #researcher-supervising-current-students-xs {
+    display: none;
+  }
+  #career {
+    #researcher-career-awards,
+    #researcher-career-keynotes {
+      table {
+        thead tr th.year {
+          width: 15%;
+          @include breakpoint($breakpoint-sm-down) {
+            width: 20%;
+          }
+        }
+        tbody tr.more {
+          display: none;
+        }
+      }
+      .show-more {
+        color: $color-blue-lochmara;
+        cursor: pointer;
+        font-family: $font-futura;
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+  }
+  div.main-content .researcher-content-section .section {
+    margin-bottom: 30px;
+    margin-top: 0;
+  }
+
+  @include breakpoint($breakpoint-sm-down) {
+    div.main-content .researcher-content-section .section {
+      margin-bottom: 40px;
+    }
+    #researcher-overview-contact-details,
+    #researcher-career-industry-roles-xs,
+    #researcher-career-academic-roles-xs,
+    #researcher-supervising-past-students-xs,
+    #researcher-supervising-current-students-xs {
+      display: block;
+    }
+    #researcher-career-academic-roles,
+    #researcher-career-industry-roles,
+    #researcher-supervising-past-students,
+    #researcher-supervising-current-students {
+      display: none;
+    }
+    #researcher-overview-contact-details {
+      background-color: $color-white;
+      padding-left: 20px;
+      h3 {
+        background-color: $color-white;
+        font-weight: 600;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-left: 0;
+        padding-top: 10px;
+      }
+      li a {
+        font-size: 16px !important;
+        padding-bottom: 5px !important;
+        padding-top: 5px !important;
+        &:after {
+          content: ' ' !important;
+          background: none !important;
+        }
+        .text {
+          padding-bottom: 20px;
+          span.title {
+            text-align: left;
+          }
+        }
+        .icon {
+          float: left;
+          padding-right: 30px !important;
+          width: 24px;
+        }
+        .conversation {
+          background: url($image-conversation-bw-icon);
+          background-repeat: no-repeat;
+          background-size: 16px 16px;
+          height: 16px;
+          width: 16px;
+        }
+        .orcid {
+          background: url($image-orcid-bw-icon);
+          background-repeat: no-repeat;
+          background-size: 16px 16px;
+          height: 16px;
+          width: 16px;
+        }
+      }
+    }
+    .victory-researcher-profile-related-links {
+      margin-bottom: 20px;
+    }
+    h2.victory-title__stripe {
+      font-size: 18px;
+    }
+  }
+
+  .accordion {
+    .accordion-inner {
+      .accordion-content {
+        > *:first-child {
+          padding-top: 0;
+        }
+
+        table {
+          margin-top: 0;
+
+          tr {
+            td {
+              background-color: $color-white !important;
+              border-bottom: none !important;
+              padding-bottom: 20px;
+              vertical-align: top;
+            }
+          }
+        }
+      }
+    }
+
+    .accordion-inner--active {
+      border-bottom: none !important
+    }
+  }
+
+  // Overview section
+  .researcher-overview {
+    .field-name-researcher-is-supervising .block > div:last-child p {
+      margin-bottom: 5px;
+    }
+    .list__style--tools {
+      padding-bottom: 20px;
+      div.victory-researcher-profile-related-links ul > li > a {
+        align-items: center;
+        display: flex;
+        padding-right: 55px;
+      }
+    }
+    .researcher-overview-key-details .block-vu-rp > ul {
+      align-items: flex-start;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 30px;
+      margin-top: 20px;
+      padding: 0;
+      li {
+        @include auto-line-height(14px, 22px);
+        border: 1px solid $color-blue-cornflower;
+        color: $color-black-mine_shaft;
+        display: block;
+        font-family: $fonts-default;
+        margin: 0 0 5px;
+        padding: 4px 10px;
+        &:before {
+          display: none;
+        }
+      }
+    }
+    .research-overview-about-details .field-name-field-rp-biography ul {
+      margin-left: 0;
+      margin-top: 15px;
+      li {
+        display: list-item;
+        list-style-type: disc;
+        margin: 0;
+        &:before {
+          display: none;
+        }
+      }
+    }
+    .researcher-overview-qualifications .clear-content {
+      margin-bottom: 0 !important;
+    }
+  }
+  // Career section
+  .researcher-career {
+    table {
+      border: 0;
+      margin-top: 0;
+      table-layout: auto;
+      td {
+        border-color: $color-grey-alto;
+        padding-bottom: 22px;
+        padding-top: 22px;
+      }
+      &.three-cell td {
+        &:first-child {
+          width: 18%;
+        }
+        &:nth-child(2) {
+          width: 26%;
+        }
+      }
+    }
+    .xs-table table td:first-child {
+      padding-left: 0;
+      width: 25%;
+    }
+    .table-more table tbody tr:nth-child(3) ~ tr {
+      display: none;
+    }
+    .show-more-table-cell {
+      background: none !important;
+      box-shadow: none !important;
+      color: $color-blue-bahama;
+      font-family: $font-futura;
+      font-size: 18px;
+      font-weight: 500;
+      i {
+        @include auto-line-height(24px, 28px);
+        color: $color-blue-bahama;
+        font-weight: bold;
+        margin-top: -3px;
+        vertical-align: middle;
+      }
+    }
+    .researcher-career-media {
+      margin-bottom: 15px;
+      p {
+        margin-bottom: 5px;
+      }
+    }
+  }
+  // Supervising section
+  .researcher-supervising {
+    table {
+      border-bottom: 1px solid $color-grey-alto;
+      border-top: 0;
+      margin-bottom: 8px;
+      table-layout: auto;
+      td:first-child {
+        width: 150px;
+      }
+    }
+    .table-last {
+      margin-bottom: 40px;
+    }
+  }
+  // Funding section
+  #research-funding {
+    .row.first {
+      .section {
+        margin-bottom: 0;
+        ul {
+          li {
+            padding-left: 16px;
+            display: inline-flex;
+            &:before {
+              content: "•";
+              padding-top: 4px;
+            }
+          }
+        }
+      }
+    }
+    #block-vu-rp-researcher-profile-fundings {
+      table {
+        border-bottom: 1px solid transparent;
+        border-top: 1px solid transparent;
+      }
+    }
+    .funding-details {
+      margin-bottom: 10px;
+    }
+  }
+  #key-publications {
+    .publications-link-sentence {
+      padding-bottom: 5%;
+      line-height: 20px;
+      p {
+        margin: 0;
+      }
+    }
+    #block-vu-rp-researcher-profile-pubs {
+      table {
+        border-bottom: 1px solid transparent;
+        border-top: 1px solid transparent;
+      }
+    }
+  }
+
+  .researcher-photo-wrapper {
+    margin-bottom: 20px;
+  }
+}

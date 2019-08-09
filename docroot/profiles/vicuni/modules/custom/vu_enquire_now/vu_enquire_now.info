@@ -1,0 +1,13 @@
+name = VU Enquire Now
+description = Displays the Enquire Now webform on Course pages
+core = 7.x
+package = VU
+version = 7.x-1.0
+
+files[] = vu_enquire_now.admin.inc
+files[] = vu_enquire_now.boomi.inc
+
+dependencies[] = entityreference
+dependencies[] = entityreference_autocomplete
+dependencies[] = webform
+dependencies[] = vu_rightnow_forms

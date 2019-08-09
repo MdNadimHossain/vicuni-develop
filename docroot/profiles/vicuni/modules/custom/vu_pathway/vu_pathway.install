@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * VU Pathways custom field.
+ */
+
+/**
+ * Implements custom hook_field_schema().
+ */
+function vu_pathway_field_schema($field) {
+  $schema = [
+    'columns' => [
+      'type' => [
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => FALSE,
+      ],
+      'code' => [
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+      ],
+      'course_node_id' => [
+        'description' => 'The target course NID (if applicable).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'title' => [
+        'type' => 'varchar',
+        'length' => 200,
+        'not null' => FALSE,
+      ],
+      'institution' => [
+        'type' => 'varchar',
+        'length' => 150,
+        'not null' => FALSE,
+      ],
+      'country' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => FALSE,
+      ],
+      'credit_points' => [
+        'type' => 'int',
+        'not null' => FALSE,
+      ],
+      'guaranteed_entry' => [
+        'type' => 'int',
+        'not null' => FALSE,
+      ],
+    ],
+    'indexes' => [
+      'code' => ['code'],
+      'course_node_id' => ['course_node_id'],
+    ],
+    'foreign keys' => [
+      'node' => [
+        'table' => 'node',
+        'columns' => ['course_node_id' => 'nid'],
+      ],
+    ],
+  ];
+
+  return $schema;
+}

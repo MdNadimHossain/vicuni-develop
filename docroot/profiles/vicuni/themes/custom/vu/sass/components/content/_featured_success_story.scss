@@ -1,0 +1,65 @@
+@charset "UTF-8";
+.featured-success-story {
+  position: relative;
+  margin-top: 30px;
+  .img-responsive {
+    @include breakpoint(tablet) {
+      max-width: auto;
+      width: 100%;
+    }
+  }
+  .testimonial-box {
+    color: #ffffff;
+    padding: 10px 10px 10px 25px;
+    background-color: rgba(18, 57, 85, 0.9);
+    @include breakpoint(tablet) {
+      position: absolute;
+      bottom: 0;
+    }
+    blockquote {
+      padding: 0;
+      margin: 0;
+      border: 0;
+      position: relative;
+      text-indent: -15px;
+      font-size: 1.1em;
+      div:before, div:after {
+        font-size: 65px;
+        font-weight: 500;
+        position: relative;
+      }
+      div:before {
+        vertical-align: baseline;
+        left: 0;
+        margin-right: 5px;
+        top: 30px;
+        content: "\201C";
+      }
+      div:after {
+        content: "\201D";
+        vertical-align: top;
+        top: 18px;
+        margin-left: 5px;
+        left: auto;
+      }
+      cite {
+        display: block;
+        font-family: "futura-pt", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 28px;
+        text-align: right;
+        font-style: normal;
+        padding-top: 10px;
+        a {
+          color: #ffffff;
+          text-decoration: none;
+          border-bottom: 1px solid #999999;
+        }
+        a:hover {
+          border-bottom-color: #ffffff;
+        }
+      }
+    }
+  }
+}

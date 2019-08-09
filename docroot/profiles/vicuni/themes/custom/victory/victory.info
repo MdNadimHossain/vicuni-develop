@@ -1,0 +1,74 @@
+name = Victory
+description = V is for Victory!
+core = 7.x
+base theme = bootstrap
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Regions
+;;;;;;;;;;;;;;;;;;;;;
+
+regions[navigation]         = 'Navigation'
+regions[header]             = 'Header'
+regions[highlighted]        = 'Highlighted'
+regions[help]               = 'Help'
+regions[below_header]       = 'Below header'
+regions[content]            = 'Content'
+regions[sidebar_first]      = 'Primary'
+regions[sidebar_second]     = 'Secondary'
+regions[footer]             = 'Footer'
+regions[page_top]           = 'Page top'
+regions[page_bottom]        = 'Page bottom'
+regions[shutter]            = 'Shutter'
+regions[title_box_feature]  = 'Title box feature'
+regions[title_box_bottom]   = 'Title box bottom'
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Stylesheets
+;;;;;;;;;;;;;;;;;;;;;
+
+stylesheets[all][] = build/css/victory.min.css
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Scripts
+;;;;;;;;;;;;;;;;;;;;;
+
+scripts[] = build/js/victory.min.js
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Settings
+;;;;;;;;;;;;;;;;;;;;;
+
+; Disable the CDN provider so compiled source files can be used.
+settings[bootstrap_cdn] = ''
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Fonts
+;;;;;;;;;;;;;;;;;;;;;
+
+fonts[typekit_api][] = "futura-pt#n4"
+fonts[typekit_api][] = "futura-pt-condensed#n7"
+fonts[typekit_api][] = "futura-pt-condensed#n4"
+fonts[typekit_api][] = "futura-pt-condensed#n8"
+fonts[typekit_api][] = "futura-pt#n3"
+fonts[typekit_api][] = "futura-pt#n5"
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Plugins
+;;;;;;;;;;;;;;;;;;;;;
+
+plugins[panels][layouts] = plugins/panels/layouts
+plugins[panels][styles] = plugins/panels/styles
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Breakpoints
+;;;;;;;;;;;;;;;;;;;;;
+
+breakpoints[xs] = (min-width: 0) and (max-width: 767px)
+breakpoints[sm] = (min-width: 768px) and (max-width: 999px)
+breakpoints[md] = (min-width: 1000px) and (max-width: 1259px)
+breakpoints[lg] = (min-width: 1260px) and (max-width: 1919px)
+breakpoints[xl] = (min-width: 1920px)

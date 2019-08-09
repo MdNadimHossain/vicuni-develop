@@ -1,0 +1,97 @@
+.important-dates-block {
+  position: relative;
+  font-weight: 500;
+  padding-bottom: 2px;
+  background-color: #FFFFFF;
+  box-shadow: 0px 3px 18px 0px rgba(0,0,0,0.04);
+  .event-container-left {
+    display: inline-block;
+    float: left;
+    .event-date {
+      background-color: #123955;
+      color: #FFFFFF;
+      text-align: center;
+      padding-top: 26px;
+      width: 102px;
+      height: 120px;
+      .month {
+        font-family: "Helvetica Neue";
+        font-size: 14px;
+        line-height: 17px;
+      }
+      .date {
+        @include font(40px, 'Futura');
+        line-height: 53px;
+      }
+      .date-range {
+        @include font(24px, 'Futura');
+        line-height: 32px;
+      }
+      .date-multiple {
+            line-height: 16px;
+            font-size: 13px;
+      }
+    }
+  }
+  .event-container-right {
+    overflow: hidden;
+    .event-title {
+      color: #666666;
+      line-height: 18px;
+      padding: 15px 20px 0px;
+      @include font(16px, 'Futura');
+      height: 70px;
+      overflow: hidden;
+    }
+    .event-link {
+      padding: 15px 20px 0px;
+      bottom: 15px;
+      position: absolute;
+      a {
+        text-decoration: none;
+        @include text-link('light');
+        display: inline;
+        &:hover {
+          box-shadow: none;
+          background-color: $color-yellow-grandis;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
+
+@include breakpoint($breakpoint-sm) {
+  .important-dates-block {
+    height: 155px;
+    .event-container-left {
+      float: none;
+      .event-date {
+        width: 180px;
+        height: 41px;
+        padding-top: 0px;
+        padding-left: 10px;
+        text-align: left;
+        .date-multiple {
+          padding-top: 10px;
+          line-height: 17px;
+          font-size: 14px;
+          .date-start, .date-end {
+            display: inline;
+          }
+        }
+        .month, .date, .date-range {
+          display: inline;
+          vertical-align: middle;
+          padding-top: 3px;
+        }
+        .date, .date-range {
+          @include font(24px, 'Futura');
+          line-height: 38px;
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,264 @@
+version: 2
+aliases:
+  # Variables.
+  # For YAML support of anchors and references, @see http://blog.daemonl.com/2016/02/yaml.html
+
+  # SSH key fingerprint to deploy code. Add private key of the user who is
+  # allowed to push to $DEPLOY_REMOTE repo under "SSH Permissions" in
+  # CircleCI UI.
+  - &deploy_ssh_fingerprint "77:ae:df:d8:b7:0e:5a:e6:28:ea:bf:67:56:90:28:1e"
+
+  - &container_config
+    working_directory: /app
+    environment: &container_config_environment
+      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+    docker:
+      - image: integratedexperts/circleci2-builder
+        environment:
+          COMPOSER_ALLOW_SUPERUSER: 1
+          COMPOSE_PROJECT_NAME: vu
+          COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
+          # How often to cache DB dump for.
+          DB_TIMESTAMP: +%Y_%m_%d
+  # Step to configure git to connect to remote servers for deployment.
+  - &step_configure_git
+    run:
+      name: Configure git
+      command: |
+        git config --global user.email "$DEPLOY_USER_EMAIL" && git config --global user.name "$DEPLOY_USER_NAME"
+        mkdir -p ~/.ssh/ && echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}" && DEPLOY_SSH_FILE="id_rsa_${DEPLOY_SSH_FILE//\"}" && ssh-add -D && ssh-add ~/.ssh/$DEPLOY_SSH_FILE
+
+jobs:
+  database:
+    <<: *container_config
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 17.06.0-ce
+      - run:
+          name: Set timestamp for database caching
+          command: echo "$(date $DB_TIMESTAMP)" > /tmp/DB_TIMESTAMP && cat /tmp/DB_TIMESTAMP
+      - restore_cache:
+          keys:
+            - v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}-v3-db7-{{ checksum ".dev/sanitize.sql" }}
+      - run:
+          name: Downloading database
+          command: if [ ! -f .data/db.sql ] ; then touch /tmp/db-new; make download-db; else echo "Using cached DB dump";fi
+      - run:
+          name: Start containers
+          command: |
+            if [ -f /tmp/db-new ]; then
+              echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+              make docker-pull
+              make docker-start
+            fi
+      - run:
+          name: Import DB
+          command: |
+            if [ -f /tmp/db-new ]; then
+              make import-db-dump
+            fi
+      - run:
+          name: Sanitize DB
+          command: |
+            if [ "DB_SANITIZE" != "" ] && [ -f /tmp/db-new ]; then
+              make sanitize-db
+            fi
+      - run:
+          name: Dump DB
+          command: |
+            if [ -f /tmp/db-new ]; then
+              make export-db-dump
+            fi
+      - save_cache:
+          key: v3-db7-{{ checksum "/tmp/DB_TIMESTAMP" }}-v3-db7-{{ checksum ".dev/sanitize.sql" }}
+          paths:
+            - .data
+
+  build:
+    <<: *container_config
+    parallelism: 2
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /workspace
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 17.06.0-ce
+      - run:
+          name: Composer validate
+          command: composer validate --ansi --strict || true
+      - restore_cache:
+          keys:
+            - v3-db7-
+      - run:
+          name: Check DB dump availability
+          command: |
+            if [ ! -f .data/db.sql ] ; then echo "Unable to find DB"; exit 1; fi
+      - run:
+          name: Pull newest Docker images
+          command: make docker-pull
+      - run:
+          name: Start containers
+          command: |
+            echo "COMPOSE_FILE=$COMPOSE_FILE">>.env
+            make docker-start -- --build
+      # Since app is being built inside of the containers without dev
+      # dependencies and they will be installed later to run tests, but
+      # deployment code should not contain any dev dependencies, we have
+      # to store built codebase into workspace to later use it in 'deploy'
+      # job.
+      - run:
+          name: Copy built codebase into workspace for future deployment
+          command: |
+            mkdir -p /workspace/code
+            docker cp -L $(docker-compose ps -q cli):/app/. /workspace/code
+            docker exec $(docker-compose ps -q cli) rm -Rf /workspace/code
+            rm -rfv $(ls /workspace/code/docroot/*.txt)
+      - run:
+          name: Site setup
+          command: |
+            make import-db
+            make docker-cli -- mkdir -p /app/screenshots
+            make docker-cli -- mkdir -p /tmp/artifacts/simpletest
+      - run:
+          name: Copy development files and configurations into container
+          command: |
+            docker cp -L behat.yml $(docker-compose ps -q cli):/app/
+            docker cp -L Makefile $(docker-compose ps -q cli):/app/
+            docker cp -L phpcs.xml $(docker-compose ps -q cli):/app/
+            docker cp -L phpunit.xml $(docker-compose ps -q cli):/app/
+            docker cp -L tests $(docker-compose ps -q cli):/app/
+      - run:
+          name: Install dev dependencies
+          command: make install
+      - run:
+          name: Lint code
+          command: make lint
+      - run:
+          name: Run unit tests
+          command: make test-unit
+      - run:
+          name: Run Simpletest tests
+          command: |
+            mkdir -p /tmp/artifacts/simpletest
+            make test-simpletest -- --xml /tmp/artifacts/simpletest
+      - run:
+          name: Run Behat tests
+          command: |
+            [ "$CIRCLE_NODE_TOTAL" -gt "1" ] && BEHAT_PROFILE=--profile=p$CIRCLE_NODE_INDEX && echo "BEHAT_PROFILE=$BEHAT_PROFILE">>.env.local
+            make test-behat || make test-behat -- --rerun
+      - run:
+          name: Copy artifacts
+          command: |
+            mkdir -p /tmp/artifacts/behat
+            mkdir -p /tmp/artifacts/simpletest
+            docker cp $(docker-compose ps -q cli):/app/screenshots /tmp/artifacts/behat
+            docker cp $(docker-compose ps -q cli):/tmp/artifacts/simpletest /tmp/artifacts/simpletest
+          when: always
+      - store_artifacts:
+          path: /tmp/artifacts
+      - run:
+          name: Remove dependencies before persisting.
+          command: |
+            rm -Rf node_modules
+            rm -Rf vendor
+      - persist_to_workspace:
+          root: /workspace
+          paths:
+            - code
+
+  # Deploy primary branches.
+  deploy:
+    <<: *container_config
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+      - *step_configure_git
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Install dev dependencies
+          command: |
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+      - run: |
+          cp -a .git /workspace/code
+          cp -a .gitignore.artefact /workspace/code
+      - run:
+          name: Push artefact to remote repository
+          command: |
+            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt;
+            else
+              echo "Skipping deployment";
+            fi
+      - store_artifacts:
+          path: /tmp/artifacts
+
+  # Deploy tags.
+  deploy_tags:
+    <<: *container_config
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+      - *step_configure_git
+      - attach_workspace:
+          at: /workspace
+      - run:
+          name: Install dev dependencies
+          command: |
+            composer install -n --ansi --prefer-dist --ignore-platform-reqs
+      - run: |
+          cp -a .git /workspace/code
+          cp -a .gitignore.artefact /workspace/code
+      - run:
+          name: Push artefact to remote repository
+          command: |
+            if [ \"$SHOULD_DEPLOY\" != \"\" ]; then
+              vendor/bin/robo --ansi --load-from vendor/integratedexperts/robo-git-artefact/RoboFile.php artefact $DEPLOY_REMOTE --root=/app --src=/workspace/code --gitignore=/workspace/code/.gitignore.artefact --push --report=/tmp/artifacts/deployment_report.txt --branch=deployment/[tags:-];
+            else
+              echo "Skipping deployment";
+            fi
+      - store_artifacts:
+          path: /tmp/artifacts
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - database:
+          filters:
+            tags:
+              only: /.*/
+      - build:
+          requires:
+            - database
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: /develop|ci.*|(release\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|(hotfix\/)?[0-9]+(\.[0-9]+)+(-rc[0-9]+)?|feature\/[a-zA-z0-9\-\.\,]+/
+            tags:
+              ignore: /.*/
+      - deploy_tags:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^[0-9]+(\.[0-9]+)+(-rc[0-9]+)?$/
+            branches:
+              ignore: /.*/

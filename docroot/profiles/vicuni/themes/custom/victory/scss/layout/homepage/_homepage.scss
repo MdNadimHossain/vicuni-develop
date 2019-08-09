@@ -1,0 +1,25 @@
+.front {
+  #panel-pane--success-story {
+    @include breakpoint($breakpoint-xs) {
+      .pane-content {
+        padding-bottom: 0;
+      }
+    }
+  }
+
+  #views_view__courses_lists__course_browser_block {
+    margin-bottom: 0;
+
+    h3.victory-title__stripe {
+      padding-top: $spacing-vertical-bottom-sm;
+    }
+  }
+
+  .pane-bean-bundle-promo {
+    padding-bottom: $spacing-vertical-bottom-sm;
+
+    @include breakpoint($breakpoint-md-up) {
+      padding-bottom: $spacing-vertical-bottom-lg;
+    }
+  }
+}

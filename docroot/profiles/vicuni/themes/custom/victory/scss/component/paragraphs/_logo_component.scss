@@ -1,0 +1,206 @@
+.section.entity-paragraphs-item.paragraphs-item-section, .paragraphs-items-field-row-components .field-type-paragraphs {
+  &.row-8-4 {
+    .field-items .field-item.even {
+      .field-name-field-large-logo-row {
+        .field-items .field-item.even {
+          .large-logo-container {
+            margin-right: 10px;
+            @include breakpoint($breakpoint-xs) {
+              margin-right: 0px;
+            }
+            @include breakpoint($breakpoint-md) {
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+  .paragraphs-items-field-paragraphs-left {
+    .large-logo-container {
+      margin-right: 10px !important;
+      @include breakpoint($breakpoint-xs) {
+        margin-right: 0px !important;
+      }
+      @include breakpoint($breakpoint-md) {
+        margin-right: 8px !important;
+      }
+    }
+  }
+  &.row-4-8 {
+    .field-items .field-item.odd {
+      .field-name-field-large-logo-row {
+        .field-items .field-item.even {
+          .large-logo-container {
+            margin-right: 10px;
+            @include breakpoint($breakpoint-xs) {
+              margin-right: 0px;
+            }
+            @include breakpoint($breakpoint-md) {
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+  .field-name-field-paragraphs-right {
+    .large-logo-container {
+      margin-right: 10px !important;
+      @include breakpoint($breakpoint-xs) {
+        margin-right: 0px !important;
+      }
+      @include breakpoint($breakpoint-md) {
+        margin-right: 8px !important;
+      }
+    }
+  }
+  .entity-paragraphs-item.paragraphs-item-large-logos {
+    .paragraphs-items-field-large-logo-row .field-name-field-large-logo-row {
+      @include breakpoint($breakpoint-xs) {
+        text-align: center;
+      }
+      .large-logo-container {
+        margin-bottom: 4px;
+        @include breakpoint($breakpoint-sm-up) {
+          margin-right: 16px;
+        }
+      }
+      .field-items {
+        display: inline;
+        .field-item {
+          display: inline-block;
+          a.large_logo_link {
+            box-shadow: none !important;
+            padding-bottom: 0px !important;
+            display: table-cell;
+            vertical-align: middle;
+            overflow: hidden;
+            &.ext::after {
+              display: none;
+            }
+            &:hover {
+              background-color: transparent !important;
+            }
+            &:active {
+              background-color: transparent !important;
+            }
+            &:focus {
+              background-color: transparent !important;
+              outline: 0px auto -webkit-focus-ring-color !important;
+            }
+          }
+          .paragraphs-item-large-logo {
+            width: 320px;
+            height: 270px;
+            padding: 10px;
+            overflow: hidden;
+            display: table-cell;
+            vertical-align: middle;
+            @include breakpoint($breakpoint-md) {
+              width: 253px;
+              height: 210px;
+            }
+            @include breakpoint($breakpoint-sm) {
+              width: 185px;
+              height: 154px;
+            }
+            @include breakpoint($breakpoint-xs) {
+              width: 370px;
+            }
+          }
+        }
+      }
+    }
+  }
+  &.row-4-8 {
+    .field-items .field-item.even {
+      .paragraphs-items-field-small-logo-row {
+        .field-items .field-item.even {
+          .small-logo-container {
+            margin-right: 6px;
+          }
+        } 
+      }
+    }
+  }
+  &.row-8-4 {
+    .field-items .field-item.odd {
+      .paragraphs-items-field-small-logo-row {
+        .field-items .field-item.even {
+          .small-logo-container {
+            margin-right: 6px;
+          }
+        } 
+      }
+    }
+  }
+  .field-name-field-paragraphs-right {
+    .small-logo-container {
+      margin-right: 6px !important;
+    }
+  }
+  .entity-paragraphs-item.paragraphs-item-small-logos {
+    .paragraphs-items-field-small-logo-row .field-name-field-small-logo-row {
+      @include breakpoint($breakpoint-xs) {
+        text-align: center;
+      }
+      .small-logo-container {
+        margin-bottom: 4px;
+        @include breakpoint($breakpoint-sm-up) {
+          margin-right: 19px;
+        }
+      }
+      .field-items {
+        display: inline;
+        .field-item {
+          display: inline-block;
+          a.small_logo_link {
+            box-shadow: none !important;
+            padding-bottom: 0px !important;
+            display: table-cell;
+            vertical-align: middle;
+            overflow: hidden;
+            &.ext::after {
+              display: none;
+            }
+            &:hover {
+              background-color: transparent !important;
+            }
+            &:active {
+              background-color: transparent !important;
+            }
+            &:focus {
+              background-color: transparent !important;
+              outline: 0px auto -webkit-focus-ring-color !important;
+            }
+          }
+          .paragraphs-item-small-logo {
+            width: 170px;
+            height: 170px;
+            padding: 10px;
+            overflow: hidden;
+            display: table-cell;
+            vertical-align: middle;
+            @include breakpoint($breakpoint-md) {
+              width: 132px;
+              height: 132px;
+            }
+            @include breakpoint($breakpoint-sm) {
+              width: 93px;
+              height: 93px;
+              padding: 5px;
+            }
+          }
+        }
+        .field-item.even {
+          .small-logo-container {
+            @include breakpoint($breakpoint-xs) {
+              margin-right: 24px !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

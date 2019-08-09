@@ -1,0 +1,816 @@
+<?php
+
+/**
+ * @file
+ * Link management module file.
+ */
+
+use Drupal\bulk_field_process\FieldProcessor;
+
+// Regex pattern for link tokens.
+define('LINK_MANAGEMENT_LINKS_TOKEN', '/\[links:([^\]\[]+)\]/');
+
+/**
+ * Implements hook_token_info().
+ */
+function link_management_token_info() {
+  return [
+    'types' => [
+      'links' => [
+        'name' => 'Links',
+        'description' => t('Tokens for making links to content.'),
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function link_management_tokens($type, $tokens, array $data = [], array $options = []) {
+  $replacements = [];
+
+  if ($type == 'links') {
+    foreach ($tokens as $name => $original) {
+      $replacements[$original] = link_management_process_token($name);
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Return the appropriate value for the given token.
+ *
+ * @param string $token
+ *   The token to parse.
+ * @param string $language
+ *   The language code use for looking up paths.
+ *
+ * @return string
+ *   The value for the requested token.
+ */
+function link_management_process_token($token, $language = 'en') {
+  $token_parts = explode(':', $token);
+  // Default to empty string so we don't leave tokens floating around.
+  $token_value = '';
+  if (empty($token_parts[0])) {
+    return $token_value;
+  }
+
+  switch ($token_parts[0]) {
+    case 'href':
+      // [links:href:<lmid>].
+      if (!empty($token_parts[1]) && is_numeric($token_parts[1])) {
+        $token_value = link_management_href_value($token_parts[1]);
+        // Yes it's a duplicate query (ish) but it will be cached.
+        if ($token_value && link_management_is_internal($token_parts[1])) {
+          $token_value = '/' . drupal_get_path_alias(ltrim($token_value, '/'), $language);
+        }
+      }
+      break;
+  }
+
+  return $token_value;
+}
+
+/**
+ * Return the negated value for link's external column.
+ *
+ * @param int $lmid
+ *   The unique link ID.
+ *
+ * @return int|bool
+ *   Return FALSE on lookup fail, otherwise 'external' value (1 or 0)
+ */
+function link_management_is_internal($lmid) {
+  $result = link_management_lookup_link_by_lmid($lmid);
+
+  // If the lookup fails or there's no destination, return FALSE.
+  if ($result == FALSE || empty($result->destination)) {
+    return FALSE;
+  }
+
+  // If it's external, then we return 0, otherwise we know it's internal.
+  return (int) $result->external === 1 ? 0 : 1;
+}
+
+/**
+ * Get the href for a given link ID.
+ *
+ * @param int $lmid
+ *   The link ID to lookup.
+ *
+ * @return string|bool
+ *   The found href or FALSE if it couldn't be found.
+ */
+function link_management_href_value($lmid) {
+  $result = link_management_lookup_link_by_lmid($lmid);
+
+  return ($result == FALSE || empty($result->destination)) ? FALSE : $result->destination;
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function link_management_filter_info() {
+  $filters['link_management'] = [
+    'title' => t('Manage URLs in anchor tags.'),
+    'description' => t('This filter will convert the links in anchor tags to tokens which point to managed links.'),
+    'process callback' => 'link_management_filter',
+  ];
+
+  return $filters;
+}
+
+/**
+ * Implements callback_filter_process().
+ */
+function link_management_filter($text, $filter = NULL, $format = NULL, $langcode = NULL, $cache = NULL, $cache_id = NULL) {
+  $link_tokens = [];
+  if (!preg_match_all(LINK_MANAGEMENT_LINKS_TOKEN, $text, $link_tokens)) {
+    return $text;
+  }
+
+  $replaced = [];
+  foreach ($link_tokens[1] as $index => $link_token) {
+    // It's possible to have the same link a bunch of times.
+    if (isset($replaced[$link_token])) {
+      continue;
+    }
+    $replacement = link_management_process_token($link_token);
+    $text = str_replace($link_tokens[0][$index], $replacement, $text);
+    $replaced[$link_token] = TRUE;
+  }
+
+  return $text;
+}
+
+/**
+ * Implements hook_entity_presave().
+ *
+ * Replace href URLs with their corresponding token.
+ */
+function link_management_entity_presave($entity, $entity_type) {
+  // Replace links with tokens in text fields before saving.
+  link_management_iterate_text_fields($entity_type, $entity, 'link_management_convert_content');
+}
+
+/**
+ * Implements hook_entity_load().
+ *
+ * Replace link tokens with their corresponding URLs.
+ */
+function link_management_entity_load($entities, $entity_type) {
+  foreach ($entities as &$entity) {
+    link_management_iterate_text_fields($entity_type, $entity, 'link_management_filter');
+  }
+}
+
+/**
+ * Get a list of fields of a given type or module.
+ *
+ * @param string $entity_type
+ *   Entity type e.g. 'node'.
+ * @param object $entity
+ *   The entity object.
+ * @param array $field_module
+ *   Optional value for the module value of fields to include.
+ * @param array $field_type
+ *   Optional value for the types of fields to include.
+ *
+ * @return array
+ *   List of field names found.
+ */
+function link_management_get_fields($entity_type, $entity, array $field_module = [], array $field_type = []) {
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  $fields = field_info_instances($entity_type, $bundle);
+
+  // Get all of the fields on this entity that allow text filtering.
+  $fields_filtered = [];
+  foreach ($fields as $field_name => $field) {
+    if (!empty($field_module) && !in_array($field['widget']['module'], $field_module)) {
+      continue;
+    }
+    if (!empty($field_type) && !in_array($field['widget']['type'], $field_type)) {
+      continue;
+    }
+    $fields_filtered[] = [
+      'name' => $field_name,
+      'settings' => $field['settings'],
+    ];
+  }
+  return $fields_filtered;
+}
+
+/**
+ * Runs callback on every text field on an entity.
+ *
+ * @param string $entity_type
+ *   The type of entity e.g. 'node'.
+ * @param object $entity
+ *   The entity object.
+ * @param callable $callback
+ *   Callback function to run on each of the fields.
+ */
+function link_management_iterate_text_fields($entity_type, &$entity, callable $callback) {
+  $text_fields = link_management_get_fields($entity_type, $entity, ['text']);
+  foreach ($text_fields as $text_field) {
+    $field_name = $text_field['name'];
+    if (isset($entity->{$field_name}) && !empty($entity->{$field_name}) && is_array($entity->{$field_name})) {
+      $field = field_info_field($field_name);
+      $all_languages = field_available_languages($entity_type, $field);
+      $field_languages = array_intersect($all_languages, array_keys($entity->{$field_name}));
+      foreach ($field_languages as $language) {
+        if (!empty($entity->{$field_name}[$language])) {
+          foreach ($entity->{$field_name}[$language] as &$item) {
+            if (empty($item['value'])) {
+              continue;
+            }
+            $value = $item['value'];
+            $item['value'] = $callback($item['value']);
+            if ($item['value'] === $value) {
+              continue;
+            }
+            if (isset($item['safe_value'])) {
+              $item['safe_value'] = $text_field['settings']['text_processing'] ? check_markup($item['value'], $item['format'], $language) : check_plain($item['value']);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Create a token for replacing the href value in A tags.
+ *
+ * @param string $href
+ *   The href to convert to a token.
+ *
+ * @return bool|string
+ *   The token, or FALSE on error.
+ */
+function link_management_create_href_token($href) {
+  list($final_path, $external) = link_management_resolve_path($href);
+  if (empty($final_path)) {
+    return FALSE;
+  }
+  $path_hash = hash('sha256', $final_path);
+  $link = link_management_lookup_link_by_hash($path_hash);
+  if ($link === FALSE) {
+    $lmid = db_insert('link_management')
+      ->fields([
+        'destination' => $final_path,
+        'destination_hash' => $path_hash,
+        'external' => $external,
+      ])
+      ->execute();
+  }
+  else {
+    $lmid = $link->lmid;
+  }
+
+  return empty($lmid) ? FALSE : "[links:href:$lmid]";
+}
+
+/**
+ * Look up a link item for the given path.
+ *
+ * @param string $path
+ *   The hash to find.
+ *
+ * @return object|bool
+ *   The link object or FALSE if not foud.
+ */
+function link_management_lookup_link_by_path($path) {
+  $path_hash = hash('sha256', $path);
+  return link_management_lookup_link_by_hash($path_hash);
+}
+
+/**
+ * Look up a link item for the given hash.
+ *
+ * @param string $hash
+ *   The hash to find.
+ *
+ * @return object|bool
+ *   The link object or FALSE if not foud.
+ */
+function link_management_lookup_link_by_hash($hash) {
+  // This uses the drupal recommended 'pattern'.
+  // https://api.drupal.org/api/drupal/includes%21bootstrap.inc/function/drupal_static/7.x
+  static $fast_link_lookup;
+  if (!isset($fast_link_lookup)) {
+    $fast_link_lookup['links'] = &drupal_static('link_management_fast_lookup', ['hash' => [], 'lmid' => []]);
+  }
+  $links = &$fast_link_lookup['links'];
+
+  if (isset($links['hash'][$hash])) {
+    return $links['hash'][$hash];
+  }
+
+  // Look up link hash.
+  $result = db_select('link_management', 'l')
+    ->fields('l')
+    ->condition('destination_hash', $hash)
+    ->range(0, 1)
+    ->execute()
+    ->fetch();
+
+  $links['hash'][$hash] = $result;
+
+  if (!empty($result) && !empty($result->lmid)) {
+    $links['lmid'][$result->lmid] = $result;
+  }
+
+  return $result;
+}
+
+/**
+ * Return the link row for the given link ID.
+ *
+ * @param int $lmid
+ *   The unique link ID.
+ *
+ * @return object|bool
+ *   The returned link row object, FALSE on failure.
+ */
+function link_management_lookup_link_by_lmid($lmid) {
+  // This uses the drupal recommended 'pattern'.
+  // https://api.drupal.org/api/drupal/includes%21bootstrap.inc/function/drupal_static/7.x
+  static $fast_link_lookup;
+  if (!isset($fast_link_lookup)) {
+    $fast_link_lookup['links'] = &drupal_static('link_management_fast_lookup', []);
+  }
+  $links = &$fast_link_lookup['links'];
+
+  if (isset($links['lmid'][$lmid])) {
+    return $links['lmid'][$lmid];
+  }
+
+  // Look up link ID.
+  $result = db_select('link_management', 'l')
+    ->fields('l')
+    ->condition('lmid', $lmid)
+    ->range(0, 1)
+    ->execute()
+    ->fetch();
+
+  $links['lmid'][$lmid] = $result;
+
+  if (!empty($result) && !empty($result->hash)) {
+    $links['hash'][$result->hash] = $result;
+  }
+
+  return $result;
+}
+
+/**
+ * Attempt to turn a given href into it's node path if possible.
+ *
+ * @param string $href
+ *   The url to convert.
+ * @param string $language
+ *   The language to search for. Default: en.
+ * @param bool $skip_files
+ *   If TRUE, don't include paths that point to drupal's file directories.
+ *
+ * @return bool|array
+ *   Array with 0 => resolved path, 1 => external (1/0); FALSE on error.
+ */
+function link_management_resolve_path($href, $language = 'en', $skip_files = TRUE) {
+  global $base_url;
+
+  $components = parse_url($href);
+  $instance_components = parse_url($base_url);
+
+  $probably_email = empty($components['scheme']) && filter_var($href, FILTER_VALIDATE_EMAIL) || !empty($components['scheme']) && $components['scheme'] == 'mailto';
+  $managed_scheme = empty($components['scheme']) || in_array($components['scheme'], ['http', 'https']) ? TRUE : FALSE;
+
+  $href_domain_matches_base = (!empty($components['host']) && !empty($instance_components['host']) && $components['host'] == $instance_components['host']);
+
+  // If there's a path, and no domain, or a domain that matches the current
+  // drupal instance domain then we should look it up.
+  $path = empty($components['path']) ?: ltrim($components['path'], '/');
+  if (!empty($path) && $managed_scheme && !$probably_email && (empty($components['host']) || $href_domain_matches_base)) {
+    $public_files_dir = variable_get('file_public_path', conf_path() . '/files');
+    $private_files_dir = variable_get('file_private_path', FALSE);
+    // This function is slightly useful, but it doesn't follow redirects...
+    $internal_path = drupal_get_normal_path($path, $language);
+    // If it returns the same value, then it couldn't find a match, neat huh?
+    if ($internal_path === $path) {
+      // If the redirect module is in drupal, we should follow redirects.
+      $source_path = $path;
+      if (module_exists('redirect')) {
+        // Seen some loops, we went to prevent that, e.g. /a -> /b -> /c -> /a.
+        $max_redirects = 10;
+        $redirect_history = [];
+        while ($redirect = redirect_load_by_source($source_path, $language)) {
+          if (count($redirect_history) > $max_redirects) {
+            FieldProcessor::printMessage('Exceeded maximum number of redirects for path.');
+            foreach ($redirect_history as $history) {
+              FieldProcessor::printMessage("History: $source_path => $history");
+            }
+            break;
+          }
+          if (empty($redirect->redirect)) {
+            break;
+          }
+
+          $redirect_components = parse_url($redirect->redirect);
+          // If there's a scheme, we've come across an external url redirect.
+          if (!empty($redirect_components['scheme'])) {
+            return [$redirect->redirect, 1];
+          }
+
+          $redirect_history[] = $redirect->redirect;
+          $source_path = $redirect->redirect;
+          $internal_path = drupal_get_normal_path($source_path, $language);
+          // If the result of drupal_get_normal_path is different, we've found
+          // our final destination. Else, if the redirect is the same as the
+          // source, we can assume the same (else it's in an infinite loop).
+          if ($internal_path !== $source_path || $redirect->source == $redirect->redirect) {
+            break;
+          }
+        }
+      }
+    }
+
+    if ($skip_files && strpos($internal_path, $public_files_dir) === 0 || (!empty($private_files_dir) && strpos($internal_path, $private_files_dir) === 0)) {
+      return FALSE;
+    }
+    $internal_path = '/' . $internal_path;
+    // Append query and fragment so it gets stored as a unique link.
+    $internal_path = !empty($components['query']) ? "$internal_path?{$components['query']}" : $internal_path;
+    $internal_path = !empty($components['fragment']) ? "$internal_path#{$components['fragment']}" : $internal_path;
+    return [$internal_path, 0];
+  }
+
+  // If it's an external URL, we shouldn't alter it.
+  return [$href, 1];
+}
+
+/**
+ * Converts a string with A tags and replaces the href values with tokens.
+ *
+ * @param string $text
+ *   The text to convert.
+ *
+ * @return string
+ *   The converted text if there were A tags, otherwise the original.
+ */
+function link_management_convert_content($text) {
+  // Adapted from https://goo.gl/GMYMRK.
+  // Group 1 = preamble.
+  // Group 3 = href value including delimiter (" or ' or nothing).
+  // Group 4,5,6 = the value without the delimiter.
+  // Group 7 = leftover.
+  $a_tag_pattern = '#(<a([^>]+)href\s*=\s*)("([^"]*)"|\'([^\']*)\'|([^\'">\s]+))([^>]*>(.+?)</a>)#i';
+  $converted_text = preg_replace_callback($a_tag_pattern, function ($a_tag) {
+    $href_value = '';
+    // Find the first matching href value without delimiter.
+    for ($i = 4; $i <= 6; $i++) {
+      if (!empty($a_tag[$i])) {
+        $href_value = $a_tag[$i];
+        break;
+      }
+    }
+
+    // If the href value is already a token, return the original a tag.
+    if (preg_match(LINK_MANAGEMENT_LINKS_TOKEN, $href_value)) {
+      return $a_tag[0];
+    }
+
+    // Maybe we could leave the fragment inside here rather than saving it?
+    $token = link_management_create_href_token($href_value);
+    if (!empty($token)) {
+      // Return preamble, link token, then the remainder of the tag/contents.
+      return "{$a_tag[1]}\"$token\"{$a_tag[7]}";
+    }
+    // Return original string.
+    return $a_tag[0];
+  }, $text);
+
+  return empty($converted_text) ? $text : $converted_text;
+}
+
+/**
+ * Create token from link id.
+ *
+ * @param int $lmid
+ *   Link id.
+ * @param string $type
+ *   Type of token.
+ *
+ * @return string
+ *   The created token.
+ */
+function link_management_token_from_lmid($lmid, $type = 'href') {
+  return "[links:$type:$lmid]";
+}
+
+/**
+ * Convert all content in text type fields to use the tokens for href values.
+ */
+function link_management_bulk_convert_content() {
+  FieldProcessor::$verbose = TRUE;
+  FieldProcessor::process(function ($value) {
+    return link_management_convert_content($value);
+  }, [], ['href=']);
+}
+
+/**
+ * Follow references to the given entity, either in content or entityreferences.
+ *
+ * This function stops following as soon as it hits a 'node' entity. The reason
+ * for this is because we are trying to find any content that could potentially
+ * be displayed, but not create an entire map of the site.
+ *
+ * @param string $entity_type
+ *   Entity type.
+ * @param object $entity
+ *   The entity object.
+ * @param string $bundle
+ *   The entity bundle.
+ * @param array $reference_list
+ *   Array reference to populate with references.
+ */
+function link_management_find_references($entity_type, $entity, $bundle, array &$reference_list) {
+  if (empty($entity)) {
+    return;
+  }
+
+  if ($entity_type == 'node') {
+    if (!isset($reference_list[$entity->nid]) || !is_array($reference_list[$entity->nid])) {
+      $reference_list[$entity->nid] = [];
+    }
+
+    if (empty($reference_list[$entity->nid])) {
+      $reference_list[$entity->nid][$entity->vid] = $entity;
+    }
+  }
+  elseif ($entity_type == 'paragraphs_item') {
+    // @TODO find a way to optimize this.
+    $host = $entity->hostEntity();
+
+    $host_is_node = get_class($host) == 'stdClass';
+    $type = $host_is_node ? 'node' : $host->entityType();
+    $bundle = $host_is_node ? $host->type : $host->bundle();
+    // Find references.
+    try {
+      link_management_find_references($type, $host, $bundle, $reference_list);
+    }
+    catch (\Exception $e) {
+      watchdog('Link management', $e->getMessage);
+    }
+  }
+  else {
+    $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
+
+    $info = entity_get_property_info($entity_type);
+    $backreference_fields = [];
+
+    // Because there's no special key to know if it's a backref.
+    foreach ($info['properties'] as $property_name => $property_info) {
+      if (substr($property_name, -3) == '_eb' && isset($property_info['getter callback']) && $property_info['getter callback'] == 'entityreference_backreference_related_entities') {
+        $backreference_fields[] = $property_name;
+      }
+    }
+
+    foreach ($backreference_fields as $field) {
+      $referencing_entities = $entity_wrapper->$field->value();
+
+      if (empty($referencing_entities)) {
+        continue;
+      }
+
+      foreach ($referencing_entities as $referencing_entity) {
+        // If it's a node object it's stdClass, not Entity (or derivatives) :(.
+        $referencing_entity_is_node = get_class($referencing_entity) == 'stdClass';
+
+        if ($referencing_entity_is_node) {
+          list($entity_id, $revision_id) = entity_extract_ids('node', $referencing_entity);
+          $revision_id = empty($revision_id) ? $entity_id : $revision_id;
+        }
+        else {
+          // If the entity has revisioning, we'll use the revision ID as the
+          // key for the sub array, otherwise just use it's primary ID.
+          $entity_id = $referencing_entity->identifier();
+          $entity_revisioning_key = $referencing_entity->entityInfo()['entity keys']['revision'];
+          $revision_id = empty($entity_revisioning_key) || empty($referencing_entity->$entity_revisioning_key) ? $entity_id : $referencing_entity->$entity_revisioning_key;
+        }
+
+        // Make sure it's an array.
+        if (!isset($reference_list[$entity_id]) || !is_array($reference_list[$entity_id])) {
+          $reference_list[$entity_id] = [];
+        }
+
+        // If it's a node we can just add it now, we're not going to follow.
+        if ($referencing_entity_is_node) {
+          $reference_list[$entity_id][$revision_id] = $referencing_entity;
+        }
+
+        // No need to follow up on nodes or entities that have been added.
+        if (!empty($reference_list[$entity_id][$revision_id])) {
+          continue;
+        }
+
+        // Populate the item before we do the recursive callback so it won't
+        // get stuck in an infinite loop.
+        $reference_list[$entity_id][$revision_id] = $referencing_entity;
+
+        // @TODO: Maybe we don't need to limit this to inline entities?
+        if ($referencing_entity->entityType() == 'inline_entities') {
+          link_management_find_references($referencing_entity->entityType(), $referencing_entity, $referencing_entity->bundle(), $reference_list);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function link_management_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#id'] !== 'workbench-moderation-node-unpublish-form') {
+    return;
+  }
+
+  $revisions = link_management_generate_revision_entities($form['node']['#value']);
+
+  if (count($revisions)) {
+    $log_message = link_management_generate_log_message($revisions);
+    $form['message']['#markup'] = link_management_generate_email_content($revisions);
+  }
+
+  $form['log_message'] = [
+    '#title' => 'Log Message',
+    '#type' => 'textarea',
+    '#description' => t('The log message to save alongside the unpublished revision.'),
+    '#default_value' => isset($log_message) ? $log_message : '',
+  ];
+  $form['email_html'] = [
+    '#type' => 'hidden',
+    '#value' => $form['message']['#markup'],
+  ];
+
+  array_unshift($form['#submit'], 'link_management_unpublish_form_submit');
+}
+
+/**
+ * Generate a log message with all the links affected by the unpublished course.
+ */
+function link_management_generate_log_message(array $revisions = []) {
+  $log_message = 'Unpublished page - The following published content referenced this page at the time it was unpublished:' . PHP_EOL;
+  foreach ($revisions as $revision_entity) {
+    if ($revision_entity->type !== 'course_fees' && $revision_entity->type !== 'unit_fees') {
+      $log_message .= $revision_entity->title . ',';
+    }
+  }
+  return $log_message;
+}
+
+/**
+ * Generate an email with all the links affected by the unpublished course.
+ */
+function link_management_generate_email_content(array $revisions = []) {
+  $content = '<h3>The following <em>published</em> content references the page about to be unpublished:</h3><p>';
+  foreach ($revisions as $revision_entity) {
+    $entity_is_node = get_class($revision_entity) == 'stdClass';
+    $entity_type = $entity_is_node ? 'node' : $revision_entity->entityType();
+    $entity_bundle = $entity_is_node ? $revision_entity->type : $revision_entity->bundle();
+    // Excluding the nodes releated to fee calculator.
+    if ($entity_bundle !== 'course_fees' && $entity_bundle !== 'unit_fees') {
+      // Try and get a path to link to the entity/node.
+      $entity_uri = entity_uri($entity_type, $revision_entity);
+      $entity_path = empty($entity_uri['path']) ? 'N/A' : $entity_uri['path'];
+
+      $args = [
+        '!title' => $revision_entity->title,
+        '!type' => $entity_type,
+        '!bundle' => $entity_bundle,
+        '!link' => $entity_path,
+      ];
+      $content .= t('<a href="/!link" target="_blank">!title</a> - Content type: !type (!bundle)<br>', $args);
+    }
+  }
+  $content .= "</p>";
+  return $content;
+}
+
+/**
+ * Generate all revisions linked to provided node.
+ */
+function link_management_generate_revision_entities($node) {
+  $revision_entities = [];
+
+  $references = link_management_generate_references($node);
+
+  if (count($references)) {
+    foreach ($references as $revisions) {
+      foreach ($revisions as $revision_entity) {
+        $entity_is_node = get_class($revision_entity) == 'stdClass';
+        if ($entity_is_node && !$revision_entity->status) {
+          continue;
+        }
+
+        array_push($revision_entities, $revision_entity);
+      }
+    }
+  }
+
+  return $revision_entities;
+}
+
+/**
+ * Generate all references linked to provided node.
+ */
+function link_management_generate_references($node) {
+  $references = [];
+
+  $internal_path = entity_uri('node', $node);
+  if ($internal_path !== NULL) {
+
+    $internal_path = '/' . $internal_path['path'];
+    $link = link_management_lookup_link_by_path($internal_path);
+
+    if ($link) {
+      $token = link_management_token_from_lmid($link->lmid);
+      $content_references = FieldProcessor::find([], [$token], FALSE, FALSE);
+
+      foreach ($content_references as $revisions) {
+        foreach ($revisions as $entity_data) {
+          $entity = entity_revision_load($entity_data['entity_type'], $entity_data['revision_id']);
+          if ($entity == FALSE) {
+            $entity = entity_load_single($entity_data['entity_type'], $entity_data['entity_id']);
+          }
+          link_management_find_references($entity_data['entity_type'], $entity, $entity_data['bundle'], $references);
+        }
+      }
+    }
+
+    // Also find entity references.
+    $entity_references = FieldProcessor::find(['entityreference'], [$node->nid], FALSE, FALSE, TRUE);
+    foreach ($entity_references as $revisions) {
+      foreach ($revisions as $entity_data) {
+        $entity = entity_revision_load($entity_data['entity_type'], $entity_data['revision_id']);
+        if ($entity == FALSE) {
+          $entity = entity_load_single($entity_data['entity_type'], $entity_data['entity_id']);
+        }
+        link_management_find_references($entity_data['entity_type'], $entity, $entity_data['bundle'], $references);
+      }
+    }
+  }
+
+  return $references;
+}
+
+/**
+ * Node unpublish form submit handler.
+ *
+ * Ensure the custom unpublish log message is saved to the node by setting it
+ * before the workbench moderation submit handler fires.
+ *
+ * @param array $form
+ *   The form.
+ * @param array $form_state
+ *   The form state/values.
+ */
+function link_management_unpublish_form_submit(&$form, &$form_state) {
+  // Set the log message for the node being unpblished.
+  if (is_object($form['node']['#value']) && !empty($form_state['values']['log_message'])) {
+    $form['node']['#value']->log = $form_state['values']['log_message'];
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function link_management_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'unpublished_page':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      break;
+  }
+}
+
+/**
+ * Dispatch email containing links affected by unpublishing a course.
+ */
+function link_management_rules_action_email_linked_pages($node) {
+  $email_to = variable_get('alert_email', FALSE);
+  if ($email_to !== FALSE) {
+    $page_title = check_plain($node->title);
+
+    $revisions = link_management_generate_revision_entities($node);
+    $email_content = link_management_generate_email_content($revisions);
+
+    $email_params = [
+      'subject' => "Unpublished page: '$page_title'",
+      'body' => $email_content,
+    ];
+    drupal_mail('link_management', 'unpublished_page', $email_to, LANGUAGE_NONE, $email_params);
+  }
+}

@@ -1,0 +1,132 @@
+@charset "UTF-8";
+.title-block {
+  display: block;
+  height: 183px;
+  background: $dark_blue2;
+  padding-top: 10px;
+  @include breakpoint(tablet) {
+    padding-top: 28px;
+  }
+  h1, h2 {
+    font-size: 52px;
+    line-height: 50px;
+    height: 105px;
+    overflow: hidden;
+    font-weight: 500;
+    margin-top: 20px;
+    margin-bottom: 18px;
+    @include font-helvetica-futurapt;
+    @include breakpoint(tablet) {
+      width: 460px;
+    }
+    color: white;
+    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: auto;
+    a {
+      color: white;
+      &:hover {
+        color: white;
+      }
+    }
+    &.length-20 {
+      font-size: 10vw;
+      @include breakpoint(tablet) {
+        font-size: 50px;
+      }
+      line-height: 48px;
+      height: 105px;
+    }
+    &.length-30 {
+      font-size: 40px;
+      line-height: 42px;
+      height: 88px;
+    }
+    &.length-40 {
+      font-size: 36px;
+      line-height: 38px;
+      height: 80px;
+    }
+    &.length-50 {
+      font-size: 34px;
+      line-height: 36px;
+      height: 75px;
+    }
+    &.long-title {
+      font-size: 30px;
+      line-height: 32px;
+      height: 67px;
+    }
+  }
+  &.with-aboveblock {
+    h2 {
+      float: left;
+    }
+    .region-subsite-landing-above-tiles {
+      float: right;
+      width: 50%;
+    }
+  }
+  // Variant for Vic Poly course and search pages.
+  &--vicpoly {
+    background-color: $vpoly_black;
+    .page-title {
+      font-size: 9vw;
+      @include custom_breakpoint(min-width, 480px) {
+        font-size: 40px;
+      }
+      @include breakpoint(tablet) {
+        font-size: 52px;
+      }
+    }
+    &__logo {
+      position: absolute;
+      top: 35px;
+      right: 0;
+      margin-right: 20px;
+      width: 120px;
+      height: 55px;
+      background: url("../images/vp-logo-full-white.png") no-repeat;
+      background-size: contain;
+      @include custom_breakpoint(min-width, 480px) {
+        width: 140px;
+      }
+      @include breakpoint(tablet) {
+        top: 40px;
+        right: 25px;
+        margin-right: 0;
+        width: 205px;
+        height: 70px;
+      }
+      span {
+        visibility: hidden;
+      }
+    }
+    &__search-button {
+      background: transparent url("../images/vp-green-arrow-right.png") no-repeat right center;
+      color: $white;
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      height: 29px;
+      line-height: 29px;
+      padding-left: 10px;
+      padding-right: 20px;
+      position: absolute;
+      top: 110px;
+      @include breakpoint(minitablet_DEPRECATED) {
+        right: 25px;
+        top: 130px;
+      }
+      &:hover, &:visited, &:visited:hover {
+        color: $white;
+      }
+    }
+  }
+  &.course-search-form-header-wrapper {
+    z-index: 1;
+    h1, h2 {
+      margin-bottom: 12px;
+      height: 56px;
+    }
+  }
+}

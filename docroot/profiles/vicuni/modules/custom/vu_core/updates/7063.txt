@@ -1,0 +1,1 @@
+Updates published nodes incorrectly marked as drafts in workbench moderation.

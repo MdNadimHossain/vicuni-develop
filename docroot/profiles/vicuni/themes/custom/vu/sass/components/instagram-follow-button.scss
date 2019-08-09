@@ -1,0 +1,21 @@
+.instagram-follow-button {
+  background-color:$vuBlue;
+  color: white;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: smaller;
+  font-weight: 800;
+  &:visited, &:hover {
+    color: white !important;
+    text-decoration: none !important;
+  }
+  &:hover {
+    background-color: lighten($vuBlue, 10%);
+  }
+  &:before {
+    font-family: fontawesome;
+    content: '\f16d';
+    padding-right: 3px;
+  }
+}

@@ -1,0 +1,1 @@
+Removes old choose_vu pane and adds a new pane for success story on homepage.

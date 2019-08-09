@@ -1,0 +1,35 @@
+.page-homepage .main-container {
+  .panel-pane {
+    @include victory-section;
+
+    margin-bottom: $spacing-vertical-bottom-sm;
+
+    @include breakpoint($breakpoint-lg-up) {
+      margin-bottom: $spacing-vertical-bottom-lg;
+    }
+
+    &:not(.panel-pane__not-title):not(.pane-vu-core-vu-course-search) {
+      h3.pane-title {
+        @include victory-title__padding;
+
+        margin-top: 0;
+        padding-top: $spacing-vertical-bottom-sm;
+
+        @include breakpoint($breakpoint-md-up) {
+          padding-top: $spacing-vertical-bottom-lg;
+        }
+
+      }
+
+      .pane-content {
+        clear: left;
+
+        padding-bottom: $spacing-vertical-bottom-sm;
+
+        @include breakpoint($breakpoint-md-up) {
+          padding-bottom: $spacing-vertical-bottom-lg;
+        }
+      }
+    }
+  }
+}

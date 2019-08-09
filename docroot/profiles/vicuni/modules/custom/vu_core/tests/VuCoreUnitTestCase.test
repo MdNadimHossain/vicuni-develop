@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * @file
+ * Core unit test class.
+ *
+ * All unit tests in the website should inherit from this class.
+ * All shared functionality should be added to this class.
+ */
+
+/**
+ * Class VuCoreUnitTestCase.
+ */
+abstract class VuCoreUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * Process data provider and invoke callback.
+   *
+   * Implements functionality similar to phpunit's data provider.
+   *
+   * @code
+   * public function testAddition() {
+   *   $this->processProvider('providerAddition', function ($a, $b, $expected, $assertion_number) {
+   *     $this->assertEqual(myaddition($a, $b), $expected, format_string('Addition result is correct for assertion @number', [
+   *       '@number' => $assertion_number + 1,
+   *     ]));
+   *   });
+   * }
+   *
+   * public function providerAddition() {
+   *   return [
+   *     [0, 1, 1],
+   *     [1, 1, 2],
+   *   ];
+   * }
+   * @endcode
+   *
+   * @param string $provider_method
+   *   Data provider method that should return an array of arrays that are
+   *   callback arguments.
+   * @param string $callback
+   *   Callback to be called with each data row from provider.
+   */
+  protected function processProvider($provider_method, $callback) {
+    if (!method_exists($this, $provider_method)) {
+      throw new Exception(format_string('Unable to find provider method @method in class @class', [
+        '@method' => $provider_method,
+        '@class' => get_class($this),
+      ]));
+    }
+    $provider_data = call_user_func([$this, $provider_method]);
+    foreach ($provider_data as $index => $data) {
+      $args = array_merge($data, [$index]);
+      call_user_func_array($callback, $args);
+    }
+  }
+
+  /**
+   * @defgroup assertions Assertions
+   * @{
+   * Custom and existing overridden assertions.
+   */
+
+  /**
+   * {@inheritdoc}
+   *
+   * Adds both values asserted to the assert equal test messages for easier
+   * debugging.
+   */
+  protected function assertEqual($first, $second, $message = '', $group = 'Other') {
+    if (is_array($first) || is_array($second)) {
+      throw new Exception('Improper use of assertEqual() method with array arguments. Try using assertArray() instead.');
+    }
+    if (empty($message)) {
+      $message = format_string('@message (First value was "@first", second value was "@second")', [
+        '@message' => $message,
+        '@first' => $first,
+        '@second' => $second,
+      ]);
+    }
+
+    return parent::assertEqual($first, $second, $message, $group);
+  }
+
+  /**
+   * Assert equality of 2 arrays.
+   */
+  protected function assertArray($actual, $expected, $message = 'Array values are equal', $strict_keys = FALSE) {
+    $fail_count = 0;
+    // Make this assertion universal.
+    if (is_scalar($actual) && is_scalar($expected)) {
+      return $this->assertEqual($actual, $expected, $message);
+    }
+    $expected = (array) $expected;
+    $actual = (array) $actual;
+    if (count($actual) != count($expected)) {
+      $fail_count++;
+    }
+    else {
+      foreach ($expected as $expected_k => $expected_v) {
+        foreach ($actual as $actual_k => $actual_v) {
+          if ($expected_v == $actual_v) {
+            if ($strict_keys) {
+              if ($expected_k != $actual_k) {
+                $fail_count++;
+                // No need to proceed.
+                break(2);
+              }
+            }
+            continue(2);
+          }
+        }
+        $fail_count++;
+        // No need to proceed.
+        break;
+      }
+    }
+    $pass = $fail_count === 0;
+    if (!$pass) {
+      $message = empty($message) ? $message : rtrim($message, '.') . '. ';
+      if (drupal_is_cli()) {
+        $message .= 'Expected: ' . print_r($expected, TRUE) . ' Actual: ' . print_r($actual, TRUE);
+      }
+      else {
+        $message .= 'Expected: <pre>' . print_r($expected, TRUE) . '</pre> Actual: <pre>' . print_r($actual, TRUE) . '</pre>';
+      }
+    }
+
+    return $this->assertTrue($pass, $message);
+  }
+
+}

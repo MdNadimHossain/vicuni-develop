@@ -1,0 +1,170 @@
+<?php
+
+/**
+ * @file
+ * Code for the VU Researcher Profile API integration.
+ *
+ * Processing pipeline:
+ * 1. Implement providers in `vu_rp_api.client.inc`.
+ * 2. Implement provider endpoints + field map in `vu_rp_api.client.inc`.
+ * 3. Implement provider endpoints settings form in `vu_rp_api.client.inc`.
+ * 4. Within each field, rely on standard callback or implement custom callback:
+ *    4.1 Implement callback in `vu_rp_api.field_callback.inc`.
+ *    4.2 Complex callbacks may require data converters to manipulate what is
+ *        stored in DB. Implement them in `vu_rp_api.convert.inc`.
+ *    4.3 Complex callbacks may also require to render compound fields before
+ *        storing values in DB. Implement them in `vu_rp_api.render.inc`.
+ * 4. Use api:
+ *    4.1 Use api client and logger: vu_rp_api_get_client() and
+ *        vu_rp_api_get_logger().
+ *    4.2 Implement ad-hoc api provisioning in `vu_rp_api.client.inc`.
+ *    4.3 Implement cron-based processing callbacks in `vu_rp_api.cron.inc`.
+ *
+ * vu_rp_api.api.php contains available hooks that other modules may implement.
+ */
+
+use Drupal\vu_rp_api\Config\ConfigManager;
+use Drupal\vu_rp_api\Exception;
+
+require_once 'vu_rp_api.client.inc';
+require_once 'vu_rp_api.field_callback.inc';
+require_once 'vu_rp_api.convert.inc';
+require_once 'vu_rp_api.render.inc';
+require_once 'vu_rp_api.cron.inc';
+
+/**
+ * Defines variable name to allow account processing.
+ */
+define('VU_RP_API_VARIABLE_NAME_ALLOW_ACCOUNT_PROCESSING', 'vu_rp_api_allow_account_processing');
+
+/**
+ * Defines the name of the queue to process accounts.
+ */
+define('VU_RP_API_QUEUE_NAME_ACCOUNT', 'vu_rp_api_account');
+
+/**
+ * Defines the name of the queue to process nodes.
+ */
+define('VU_RP_API_QUEUE_NAME_NODE', 'vu_rp_api_node');
+
+/**
+ * Implements hook_menu().
+ */
+function vu_rp_api_menu() {
+  $items['admin/config/researcher-profile/api'] = [
+    'title' => 'API Provider',
+    'description' => 'Configuration page for API.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_api_admin_settings'],
+    'access arguments' => ['administer researcher profile api configuration'],
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'vu_rp_api.admin.inc',
+    'weight' => 1,
+  ];
+
+  $items['admin/config/researcher-profile/api-force-run'] = [
+    'title' => 'API Force Run',
+    'description' => 'Force Run API data fetching and processing.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_api_admin_force_run'],
+    'access arguments' => ['administer researcher profile api configuration'],
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'vu_rp_api.admin.inc',
+    'weight' => 2,
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function vu_rp_api_permission() {
+  return [
+    'administer researcher profile api configuration' => [
+      'title' => t('Administer API configuration'),
+      'description' => t('Perform administration tasks for API.'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_init().
+ */
+function vu_rp_api_init() {
+  if (user_access('administer researcher profile api configuration') && !vu_rp_api_is_allowed_account_fetching()) {
+    drupal_set_message(t('Research Profile API Processing is disabled. No data is coming from the API. Please urgently contact IT or Web Services team'), 'error');
+  }
+}
+
+/**
+ * Implements hook_status_report_handlers().
+ */
+function vu_rp_api_status_report_handlers() {
+  return [
+    'VuRpApiStatusList',
+    'VuRpApiStatusAccount',
+  ];
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function vu_rp_api_page_alter() {
+  // Add support for request/response debug output to the page.
+  $config_manager = new ConfigManager();
+  if ($config_manager->getDebugRequest() && !drupal_is_cli()) {
+    try {
+      $client = vu_rp_api_get_client();
+      $client->debugRequestOutput();
+    }
+    catch (Exception $exception) {
+      watchdog('vu_rp_api', '@message', [
+        '@message' => $exception->getMessage(),
+      ], [], WATCHDOG_ERROR);
+    }
+  }
+}
+
+/**
+ * Implements hook_features_banish_alter().
+ */
+function vu_rp_api_features_banish_alter(&$banished_items) {
+  $banished_items['variable'][] = 'vu_rp_api_provider';
+  $banished_items['variable'][] = 'vu_rp_api_provider_config';
+  $banished_items['variable'][] = 'vu_rp_api_logger_is_enabled';
+  $banished_items['variable'][] = 'vu_rp_api_debug_request';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function vu_rp_api_form_vu_rp_admin_settings_alter(&$form) {
+  $form[VU_RP_API_VARIABLE_NAME_ALLOW_ACCOUNT_PROCESSING] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable processing'),
+    '#description' => t('This flag is responsible for enabling processing of the items during batch operations.<br/>If it is disabled - no imports will run.<br/> It is used as a gate to prevent continuously failing imports from consuming server resources.'),
+    '#default_value' => variable_get(VU_RP_API_VARIABLE_NAME_ALLOW_ACCOUNT_PROCESSING, TRUE),
+    '#weight' => -100,
+  ];
+}
+
+/**
+ * Implements hook_vu_rp_api_logger_log().
+ */
+function vu_rp_api_vu_rp_api_logger_log($event, $message, $severity) {
+  $event = 'vu_rp_api:' . $event;
+  watchdog($event, (string) $message, [], $severity);
+}
+
+/**
+ * Helper to set field value.
+ */
+function vu_rp_api_set_field_value($value, $entity, $field_name, $key = 'value', $delta = NULL) {
+  if (!is_null($delta)) {
+    $entity->{$field_name}[LANGUAGE_NONE][$delta][$key] = $value;
+  }
+  else {
+    $entity->{$field_name}[LANGUAGE_NONE][][$key] = $value;
+  }
+}

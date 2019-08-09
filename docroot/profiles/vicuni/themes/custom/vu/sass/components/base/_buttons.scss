@@ -1,0 +1,288 @@
+// BUTTON STYLES
+// -------------
+// Button backgrounds
+// ------------------
+@mixin buttonBackground($startColor, $endColor) {
+  // gradientBar will set the background to a pleasing blend of these, to support IE<=9
+  @include background(linear-gradient($startColor, $endColor));
+  border-color: $endColor $endColor darken($endColor, 15%) !important;
+  border-color: rgba(0, 0, 0, .1) rgba(0, 0, 0, .1) opacify(rgba(0, 0, 0, .1), 0.25) !important;
+  // in these cases the gradient won't cover the background, so we override
+  &:hover, &:active, &.active, &.disabled, &[disabled] {
+    background-color: $endColor;
+  }
+}
+
+@mixin buttonAction($width: auto, $fontsize: 16px) {
+  background-color: $orange;
+  color: $grey3;
+  width: $width;
+  @include futura;
+  text-align: left;
+  $height: 28px;
+  height: $height;
+  background: transparent url(../images/btn-sm-arrow-orange.png) no-repeat top right;
+  font-size: $fontsize;
+  padding: 4px 18px 4px 10px;
+  text-decoration: none;
+  text-shadow: none;
+  vertical-align: middle;
+  filter: none;
+  border: none;
+  @include border-radius(0);
+  @include box-shadow(none);
+  &:hover, &:focus {
+    text-decoration: underline;
+    color: $grey4;
+    &:after {
+      text-decoration: none !important;
+    }
+  }
+  .fa, &.ext:after {
+    color: black;
+  }
+}
+
+// Taller arrow
+@mixin buttonActionLarge($width: auto, $fontsize:18px) {
+  @include buttonAction($width, $fontsize);
+  $height: 36px;
+  padding-right: 22px;
+  height: $height;
+  background-image: url(../images/btn-lg-arrow-orange.png);
+}
+
+// BUTTON STYLES
+// -------------
+// Base styles
+// --------------------------------------------------
+// Core
+.btn {
+  display: inline-block;
+  padding: 4px 10px 4px;
+  margin-bottom: 0; // For input.btn
+  font-size: $baseFontSize;
+  line-height: $baseLineHeight;
+  color: $grey3;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, .75);
+  vertical-align: middle;
+  @include buttonBackground(white, $btnBackgroundHighlight);
+  border: 1px solid $btnBorder;
+  border-bottom-color: darken($btnBorder, 10%);
+  @include border-radius(4px);
+  $shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 1px 2px rgba(0, 0, 0, .05);
+  @include box-shadow($shadow);
+  cursor: pointer; // Give IE7 some love
+}
+
+// Hover state
+.btn:hover {
+  color: $grey3;
+  text-decoration: none;
+  background: darken(white, 10%);
+}
+
+// Focus state for keyboard and accessibility
+.btn:focus {
+  @include tab-focus();
+}
+
+// Active state
+.btn.active, .btn:active {
+  background-image: none;
+  $shadow: inset 0 2px 4px rgba(0, 0, 0, .15), 0 1px 2px rgba(0, 0, 0, .05);
+  @include box-shadow($shadow);
+  background-color: darken(white, 10%);
+  background-color: darken(white, 15%) e("\9");
+  outline: 0;
+}
+
+// Disabled state
+.btn.disabled, .btn[disabled] {
+  cursor: default;
+  background-image: none;
+  background-color: darken(white, 10%);
+  @include opacity(65);
+  @include box-shadow(none);
+}
+
+// Button Sizes
+// --------------------------------------------------
+// Large
+.btn-large {
+  padding: 9px 14px;
+  font-size: $baseFontSize * 1.14;
+  line-height: normal;
+  @include border-radius(5px);
+}
+
+.btn-large [class^="icon-"] {
+  margin-top: 1px;
+}
+
+// Small
+.btn-small {
+  padding: 5px 9px;
+  //font-size: $baseFontSize * 0.86em;
+  //line-height: $baseLineHeight * 0.89em;
+}
+
+.btn-small [class^="icon-"] {
+  margin-top: -1px;
+}
+
+// Mini
+.btn-mini {
+  padding: 2px 6px;
+  //font-size: $baseFontSize * 0.86em;
+  //line-height: $baseLineHeight * 0.77em;
+}
+
+// Alternate buttons
+// --------------------------------------------------
+// Set text color
+// -------------------------
+.btn-primary, .btn-primary:hover, .btn-warning, .btn-warning:hover, .btn-danger, .btn-danger:hover, .btn-success, .btn-success:hover, .btn-info, .btn-info:hover, .btn-inverse, .btn-inverse:hover {
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+  color: white;
+}
+
+// Provide *some* extra contrast for those who can get it
+.btn-primary.active, .btn-warning.active, .btn-danger.active, .btn-success.active, .btn-info.active, .btn-inverse.active {
+  color: rgba(255, 255, 255, .75);
+}
+
+// Set the backgrounds
+// -------------------------
+.btn-primary {
+  @include buttonBackground($btnPrimaryBackground, $btnPrimaryBackgroundHighlight);
+}
+
+// Warning appears are orange
+.btn-warning {
+  @include buttonBackground($btnWarningBackground, $btnWarningBackgroundHighlight);
+}
+
+// Danger and error appear as red
+.btn-danger {
+  @include buttonBackground($btnDangerBackground, $btnDangerBackgroundHighlight);
+}
+
+// Success appears as green
+.btn-success {
+  @include buttonBackground($btnSuccessBackground, $btnSuccessBackgroundHighlight);
+}
+
+// Info appears as a neutral blue
+.btn-info {
+  @include buttonBackground($btnInfoBackground, $btnInfoBackgroundHighlight);
+}
+
+// Inverse appears as dark gray
+.btn-inverse {
+  @include buttonBackground($btnInverseBackground, $btnInverseBackgroundHighlight);
+}
+
+// Cross-browser Jank
+// --------------------------------------------------
+button.btn, input[type="submit"].btn {
+  // Firefox 3.6 only I believe
+  &::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+  }
+  // IE7 has some default padding on button controls
+  *padding-top: 2px;
+  *padding-bottom: 2px;
+  &.btn-large {
+    *padding-top: 7px;
+    *padding-bottom: 7px;
+  }
+  &.btn-small {
+    *padding-top: 3px;
+    *padding-bottom: 3px;
+  }
+  &.btn-mini {
+    *padding-top: 1px;
+    *padding-bottom: 1px;
+  }
+}
+
+// Alternate buttons
+// --------------------------------------------------
+// Call to action button: orange arrow
+input[type=submit].btn-action, button.btn-action, .btn-action {
+  @include buttonAction;
+}
+
+// Larger/taller arrow
+input[type=submit].btn-action-lg, button.btn-action-lg, .btn-action-lg {
+  @include buttonActionLarge;
+}
+
+// For link treatment
+a.btn-action {
+  display: inline-block;
+  cursor: pointer;
+  box-sizing: border-box;
+  margin-bottom: 9px;
+  &.btn-action-lg {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+.lt-ie8 a.btn-action {
+  height: 22px;
+}
+
+.lt-ie8 a.btn-action-lg {
+  height: 20px;
+}
+
+.node {
+  a.btn-action, a.btn-action:visited, a.btn-action:hover, a.btn-action:focus {
+    border-bottom: none;
+    color: inherit;
+  }
+}
+
+// Underline action and primary buttons on hover & focus
+a.btn-action:hover, a.btn-action:focus, .btn-primary:hover, .btn-primary:focus {
+  text-decoration: underline !important;
+}
+
+.btn-primary {
+  color: $grey3 !important;
+  text-shadow: none;
+  font-size: 18px;
+  @include buttonBackground($btnPrimaryBackground, $btnPrimaryBackgroundHighlight);
+  @include futura;
+  &:hover, &:focus {
+    text-shadow: none;
+    text-decoration: underline;
+    color: $grey4 !important;
+  }
+  .caret {
+    border-top-color: black;
+    border-bottom-color: black;
+    @include opacity(100);
+  }
+}
+
+a.btn-primary, a.btn-primary:hover, a.btn-primary:focus {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+
+/*** BUTTONS - Monkii ***/
+
+.button {
+  @include link;
+}
+
+%close {
+  font-size: 70px;
+  font-weight: normal;
+}

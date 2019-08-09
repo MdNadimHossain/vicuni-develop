@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * @file
+ * Setup for RightNow integration module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function vu_rightnow_forms_install() {
+  $fields = [
+    'webform' => 'rn_enabled',
+    'webform_submissions' => 'rn_processed_date',
+  ];
+  foreach ($fields as $table_name => $field_name) {
+    $table_schema = drupal_get_schema($table_name);
+    db_add_field($table_name, $field_name, $table_schema['fields'][$field_name]);
+  }
+}
+
+
+/**
+ * Implements hook_schema().
+ */
+function vu_rightnow_forms_schema() {
+  return [
+    'vu_rightnow_webform_map' => [
+      'fields' => [
+        'mid' => [
+          'description' => 'Autoincrement surrogate primary key.',
+          'type' => 'serial',
+          'not null' => TRUE,
+        ],
+        'rightnow_field_fid' => [
+          'description' => 'The RightNowfield it points to.',
+          'type' => 'varchar',
+          'length' => 50,
+          'not null' => TRUE,
+        ],
+        'nid' => [
+          'description' => 'Used to match webform / drupal node.',
+          'type' => 'int',
+          'not null' => TRUE,
+        ],
+        'webform_component_cid' => [
+          'description' => 'Used to identify a particular field.',
+          'type' => 'int',
+          'not null' => TRUE,
+        ],
+      ],
+      'primary key' => ['mid'],
+      'unique keys' => ['n_nid_wf_cid' => ['nid', 'webform_component_cid']],
+      'indexes' => ['rightnow_field_fid' => ['rightnow_field_fid']],
+    ],
+    'vu_rightnow_webform_submissions' => [
+      'fields' => [
+        'rnsid' => [
+          'description' => 'Autoincrement surrogate primary key.',
+          'type' => 'serial',
+          'not null' => TRUE,
+        ],
+        'sid' => [
+          'description' => 'Webform submission id.',
+          'type' => 'int',
+          'not null' => TRUE,
+        ],
+        'rightnow_processed' => [
+          'description' => 'NULL if unprocessed or the date read by RN.',
+          'mysql_type' => 'DATETIME',
+          'type' => 'varchar',
+          'not null' => FALSE,
+          'default' => NULL,
+        ],
+      ],
+      'primary key' => ['rnsid'],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function vu_rightnow_forms_schema_alter(&$schema) {
+  $schema['webform']['fields']['rn_enabled'] = [
+    'description' => 'Link this form to RightNow?',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+    'size' => 'tiny',
+  ];
+  $schema['webform_submissions']['fields']['rn_processed_date'] = [
+    'description' => 'Timestamp when it was sent to RightNow.',
+    'mysql_type' => 'DATETIME',
+    'type' => 'varchar',
+  ];
+}

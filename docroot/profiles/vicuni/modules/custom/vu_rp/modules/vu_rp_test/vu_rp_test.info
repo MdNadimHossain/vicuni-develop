@@ -1,0 +1,6 @@
+name = VU Researcher Profile Test
+description = Module to allow testing of Researcher Profile functionality
+core = 7.x
+package = VU
+dependencies[] = vu_rp
+dependencies[] = queue_ui

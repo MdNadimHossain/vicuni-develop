@@ -1,0 +1,12 @@
+name = VU Researcher Profile API
+description = VU Researcher Profile API integration
+core = 7.x
+package = VU
+version = 7.x-1.0
+
+dependencies[] = vu_rp
+dependencies[] = elysia_cron
+dependencies[] = status_report
+dependencies[] = xautoload
+
+files[] = vu_rp_api.status.inc

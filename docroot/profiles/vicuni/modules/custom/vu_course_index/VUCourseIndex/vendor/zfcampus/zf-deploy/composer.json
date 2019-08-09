@@ -1,0 +1,46 @@
+{
+  "name": "zfcampus/zf-deploy",
+  "description": "Deployment tool for ZF2 application",
+  "type": "library",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "zf2",
+    "zend",
+    "apigility"
+  ],
+  "homepage": "http://framework.zend.com/",
+  "support": {
+    "source": "https://github.com/zfcampus/zf-deploy",
+    "issues": "https://github.com/zfcampus/zf-deploy/issues"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.1-dev",
+      "dev-develop": "1.2-dev"
+    }
+  },
+  "require": {
+    "php": ">=5.5",
+    "herrera-io/phar-update": "~1.0",
+    "zendframework/zend-console": "~2.3",
+    "zendframework/zend-filter": "~2.3",
+    "zfcampus/zf-console": "~1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.7",
+    "squizlabs/php_codesniffer": "^2.3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "ZF\\Deploy\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ZFTest\\Deploy\\": "test/"
+    }
+  },
+  "bin": [
+    "bin/zfdeploy.php"
+  ]
+}

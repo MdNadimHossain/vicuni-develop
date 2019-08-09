@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Install code for Hubspot fields master mapping.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function vu_core_hubspot_map_schema() {
+  $schema = [];
+
+  $schema['vu_core_hubspot_map'] = [
+    'description' => 'The list of HubSpot webform fields.',
+    'fields' => [
+      'id' => [
+        'description' => 'Primary Key: Identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'webform_field_name' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ],
+      'crm_field_name' => [
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ],
+      'field_type' => [
+        'type' => 'varchar',
+        'length' => 8,
+        'not null' => TRUE,
+        'default' => 'HS',
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  return $schema;
+}

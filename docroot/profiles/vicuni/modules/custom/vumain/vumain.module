@@ -1,0 +1,2398 @@
+<?php
+/**
+ * @file
+ * Various functions for the Victoria University Website.
+ *
+ * This module makes up the majority of the custom code for the website.
+ */
+
+module_load_include('php', 'vumain', 'includes/vumain_featured_content/vumain.featured_content.blocks');
+module_load_include('php', 'vumain', 'includes/vumain_news/vumain.news.functions');
+module_load_include('php', 'vumain', 'includes/vumain_courses/vumain.courses.functions');
+module_load_include('php', 'vumain', 'includes/vumain_courses/vumain.courses.blocks');
+module_load_include('inc', 'vumain', 'includes/vumain.inline_entity_form');
+module_load_include('inc', 'vumain', 'includes/vumain.webform');
+module_load_include('php', 'vumain', 'includes/vumain_journey_planner/vumain.journey_planner.functions');
+module_load_include('php', 'vumain', 'includes/vumain_google_maps/vumain.googlemaps.functions');
+
+// Definitions.
+define('VUMAIN_VU_CAMPUS_CITY_QUEEN', 'city-queen');
+define('VUMAIN_CONTENT_TYPE_STUDY_TOPIC_AREA', 'study_topic_area');
+define('VUMAIN_CONTENT_TYPE_COURSES', 'courses');
+define('VUMAIN_AUDIENCE_PARAM_KEY', 'audience');
+define('VUMAIN_AUDIENCE_PARAM_INTERNATIONAL_VALUE', 'international');
+define('VUMAIN_URLS_INTERNATIONAL_STUDENTS', 'study-at-vu/international-students');
+
+// Course level definitions.
+define('VUMAIN_COURSELEVEL_SHORT', 'short');
+define('VUMAIN_COURSELEVEL_TAFE', 'tafe');
+define('VUMAIN_COURSELEVEL_HE_DIPLOMAS', 'he_diplomas');
+define('VUMAIN_COURSELEVEL_VET_SHORT', 'vet');
+define('VUMAIN_COURSELEVEL_VET_FULL', 'vocational or further education');
+define('VUMAIN_COURSELEVEL_UNDERGRADUATE', 'undergrad');
+define('VUMAIN_COURSELEVEL_UNDERGRADUATE_SHORT', 'UG');
+define('VUMAIN_COURSELEVEL_UNDERGRADUATE_FULL', 'undergraduate');
+define('VUMAIN_COURSELEVEL_POSTGRADUATE', 'postgrad');
+define('VUMAIN_COURSELEVEL_POSTGRADUATE_SHORT', 'PG');
+define('VUMAIN_COURSELEVEL_POSTGRADUATE_FULL', 'postgraduate');
+define('VUMAIN_COURSELEVEL_POSTGRADUATE_RESEARCH', 'postgrad_research');
+
+// Course AQF definitions.
+define('VUMAIN_COURSE_AQF_STATEMENT_OF_ATTAINMENT', 'Statement of Attainment');
+define('VUMAIN_COURSE_AQF_CERTIFICATE_I', 'Certificate I');
+define('VUMAIN_COURSE_AQF_CERTIFICATE_II', 'Certificate II');
+define('VUMAIN_COURSE_AQF_CERTIFICATE_III', 'Certificate III');
+define('VUMAIN_COURSE_AQF_CERTIFICATE_IV', 'Certificate IV');
+define('VUMAIN_COURSE_AQF_DIPLOMA', 'Diploma');
+define('VUMAIN_COURSE_AQF_ADVANCED_DIPLOMA', 'Advanced Diploma');
+define('VUMAIN_COURSE_AQF_ASSOCIATE_DEGREE', 'Associate Degree');
+define('VUMAIN_COURSE_AQF_BACHELOR_DEGREE', 'Bachelor Degree');
+define('VUMAIN_COURSE_AQF_BACHELOR_HONOUR_DEGREE_EMBEDDED', 'Bachelor Honours Degree (embedded)');
+define('VUMAIN_COURSE_AQF_BACHELOR_HONOUR_DEGREE_STANDALONE', 'Bachelor Honours Degree (stand alone)');
+define('VUMAIN_COURSE_AQF_GRADUATE_DIPLOMA', 'Graduate Diploma');
+define('VUMAIN_COURSE_AQF_MASTERS_COURSEWORK_DEGREE', 'Masters (Coursework) Degree');
+define('VUMAIN_COURSE_AQF_GRADUATE_CERTIFICATE', 'Graduate Certificate');
+define('VUMAIN_COURSE_AQF_DOCTORAL_DEGREE', 'Doctoral Degree');
+define('VUMAIN_COURSE_AQF_MASTERS_RESEARCH_DEGREE', 'Masters (Research) Degree');
+
+// Content lengths.
+define('VUMAIN_LEVEL1_TILES_TEASER', 105);
+
+// Course Disclaimer definition.
+define('VUMAIN_DEFAULT_INTERNATIONAL_DISCLAIMER', t('<p>Information and fees listed above are for non-resident students. Fees are accurate at the time of viewing and will be subject to annual increases. Some courses require students to purchase equipment or clothing that they will need in the course. These equipment or clothing costs are not included in the course fees listed above and we recommend that you confirm these costs with the relevant college.</p>
+    <p>VU takes care to ensure the accuracy of this course information, but reserves the right to change or withdraw courses offered at any time. Please check that course information is current with the <a href="@link">Student Contact Centre</a>.</p>', ['@link' => '/contact-us']));
+
+/**
+ * Implements hook_menu_alter().
+ */
+function vumain_menu_alter(&$items) {
+  // Change the page callback for google appliance search to customise it.
+  $items['search/vu']['page callback'] = 'vumain_funnelback_search_view';
+}
+
+function vumain_funnelback_search_view($query = '') {
+  $_GET['query'] = $query;
+
+  if (!isset($_POST['form_id']) && !empty($query)) {
+    return funnelback_search_view();
+  }
+  else {
+    return theme('vu_funnelback_empty_query_message');
+  }
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function vumain_entity_info_alter(&$entity_info) {
+  if (isset($entity_info['inline_entities']) && isset($entity_info['inline_entities']['inline entity form'])) {
+    $entity_info['inline_entities']['inline entity form']['controller'] = 'VUMainEckInlineEntityFormController';
+  }
+  if (isset($entity_info['accordion_item']) && isset($entity_info['accordion_item']['inline entity form'])) {
+    $entity_info['accordion_item']['inline entity form']['controller'] = 'VUMainEckInlineEntityFormController';
+  }
+  if (isset($entity_info['contact_information']) && isset($entity_info['contact_information']['inline entity form'])) {
+    $entity_info['contact_information']['inline entity form']['controller'] = 'VUMainEckInlineEntityFormController';
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function vumain_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'eck' && $plugin == 'property_behavior') {
+    return 'custom_eck_property_behavior';
+  }
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function vumain_element_info_alter(&$type) {
+  if (isset($type['text_format'])) {
+    // Add a post render callback to conditionally prevent access to
+    // migrated_content text format.
+    $type['text_format']['#pre_render'][] = '_vumain_text_options_post_render';
+  }
+}
+
+/**
+ * Post render callback for text_format element_info_alter.
+ *
+ * @param array $element
+ *         Field element array.
+ *
+ * @return array
+ *         Modified element.
+ */
+function _vumain_text_options_post_render(array $element) {
+  // Only proceed when element has a format option.
+  if (empty($element['format'])) {
+    return $element;
+  }
+
+  // Only allow migrated_content text format to stay in the options
+  // array if the format value was already set to it. This in effect
+  // prevents new content from using the migrated_content format but
+  // allows old migrated content through.
+  if ($element['format']['format']['#value'] !== 'migrated_content') {
+    if (isset($element['format']['format']['#options']['migrated_content'])) {
+      unset($element['format']['format']['#options']['migrated_content']);
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function vumain_block_info() {
+  $blocks = [];
+
+  // Jobs page header.
+  $blocks['leaders_in_sport_quick_facts'] = [
+    'info' => t('Quick facts - leaders in sport topic page.'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  // Social media feeds, FB, Twitter, IG.
+  $blocks['vumain_social_feeds'] = [
+    'info' => t('VU social media feeds'),
+  ];
+
+  // Campus image block.
+  $blocks['vumain_campus_image_thumb'] = [
+    'info' => t('VU campus image thumbnail'),
+  ];
+
+  // Campus video block.
+  $blocks['vumain_campus_video_thumb'] = [
+    'info' => t('VU campus video thumbnail'),
+  ];
+
+  // Campus directions block.
+  $blocks['vumain_journey_planner_block'] = [
+    'info' => t('VU campus journey planner block'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  // Campus maps block.
+  $blocks['vu_campus_location_maps_block'] = [
+    'info' => t('VU campus maps  block'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  $blocks['vumain_share_links'] = [
+    'info' => t('VU Share links'),
+  ];
+
+  // Connect with us icons as on landing page.
+  $blocks['vumain_social_links'] = [
+    'info' => t('VU: Social links (connect with us)'),
+  ];
+
+  // Latest Testimonial.
+  $blocks['vumain_latest_testimonial'] = [
+    'info' => t('VU: Latest Testimonial'),
+  ];
+
+  // My library login form.
+  $blocks['vumain_my_library_form'] = [
+    'info' => t('My Library Login Form'),
+  ];
+
+  // Copyright.
+  $blocks['vumain_copyright'] = [
+    'info' => t('Copyright'),
+  ];
+
+  // Acknowledgement of country.
+  $blocks['vumain_acknowledgement_country'] = [
+    'info' => t('Acknowledgment of country'),
+  ];
+
+  // Campus app.
+  $blocks['vumain_campus_app'] = [
+    'info' => t('On campus app'),
+  ];
+
+  // Campus app.
+  $blocks['vumain_social_media_links'] = [
+    'info' => t('Social Media Links'),
+  ];
+
+  $blocks = array_merge($blocks, vumain_featured_content_block_info());
+  $blocks = array_merge($blocks, vumain_courses_block_info());
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function vumain_block_configure($delta = '') {
+  switch ($delta) {
+    case 'courses_disclaimer':
+      return vumain_courses_disclaimer_block_configure();
+  }
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function vumain_block_save($delta = '', $edit = []) {
+  switch ($delta) {
+    case 'courses_disclaimer':
+      vumain_courses_disclaimer_block_save($edit);
+  }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function vumain_block_view($delta = '') {
+  $block = vumain_featured_content_block_view($delta);
+  if (!empty($block)) {
+    return $block;
+  }
+
+  $block = vumain_courses_block_view($delta);
+  if (!empty($block)) {
+    return $block;
+  }
+
+  $function = __FUNCTION__ . '_' . $delta;
+  if (function_exists($function)) {
+    $rendered = $function();
+    $block += is_string($rendered) ? ['content' => $rendered] : $rendered;
+  }
+
+  switch ($delta) {
+    case 'vumain_social_feeds':
+      $block['content'] = _vumain_social_media_get_feeds();
+      break;
+
+    case 'vumain_campus_image_thumb':
+      $block['content'] = _vumain_campus_get_image_thumb();
+      break;
+
+    case 'vumain_campus_video_thumb':
+      $block['content'] = _vumain_campus_get_video_thumb();
+      break;
+
+    case 'vumain_journey_planner_block':
+      // Attempt to load the node.
+      $node = menu_get_object();
+      // If there is no valid node.
+      if (empty($node->nid)) {
+        return '';
+      }
+      $node_alias = drupal_get_path_alias('node/' . $node->nid);
+      $values = [
+        'address' => vumain_journey_planner_get_address($node_alias, NULL, TRUE),
+        'journey_planner' => vumain_journey_planner_get_jp($node_alias),
+      ];
+      $block['content'] = theme('vu_campus_journey_planner_block', $values);
+      break;
+
+    case 'vumain_location_maps_block':
+      $block['content'] = theme('vu_campus_location_maps_block');
+      break;
+
+    case 'vumain_share_links':
+      // Get the node.
+      $node = menu_get_object();
+      // If there is a node ID.
+      if (!empty($node->nid)) {
+        $block['content'] = theme('vumain_share_links', ['node' => $node]);
+      }
+      break;
+
+    case 'vumain_social_links':
+      // Load static social media icons.
+      $block['content'] = theme('vumain_connect_with_us_icons');
+      break;
+
+    case 'vumain_latest_testimonial':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vumain_latest_testimonial');
+      break;
+
+    case 'vumain_my_library_form':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vumain_my_library_form');
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * View callback for Copyright block.
+ */
+function vumain_block_view_vumain_copyright() {
+  return t('Copyright &copy; @year. Victoria University CRICOS Provider No. 00124K (Melbourne) and CRICOS Provider No. 02475D (Sydney). RTO Code: 3113. ABN: 83 776 954 731', ['@year' => date('Y')]);
+}
+
+/**
+ * View callback for Acknowledgement of country block.
+ */
+function vumain_block_view_vumain_acknowledgement_country() {
+  // Set the standard acknowledgement text.
+  $variables['acknowledgement'] = t('Victoria University acknowledges, recognises and respects the Ancestors, Elders and families of the Boonwurrung, Waddawurrung and Wurundjeri of the Kulin who are the traditional owners of University land in Victoria, and the Gadigal and Guring-gai of the Eora Nation who are the traditional owners of University land in Sydney.');
+  // Set Logo and acknowledgement text fr VU Sydney.
+  if (vu_core_is_subsite('VU Sydney')) {
+    $variables['acknowledgement'] = t('Victoria University acknowledges, recognises and respects the Elders, families and forebears of the Gadigal and Guring-gai people of the Eora Nation who are the traditional owners of University land.');
+  }
+  return theme('vumain_acknowledgement_country', $variables);
+}
+
+/**
+ * View callback for On campus app block.
+ */
+function vumain_block_view_vumain_campus_app() {
+  return [
+    'subject' => t('On campus app'),
+    'content' => theme('vumain_campus_app'),
+  ];
+}
+
+/**
+ * View callback for On campus app block.
+ */
+function vumain_block_view_vumain_social_media_links() {
+  $variables['is_sydney'] = FALSE;
+  if (vu_core_is_subsite('VU Sydney')) {
+    $variables['is_sydney'] = TRUE;
+  }
+  return [
+    'subject' => t('Connect'),
+    'content' => theme('vumain_social_media_links', $variables),
+  ];
+}
+
+/**
+ * Implements template_preprocess_field().
+ */
+function vumain_preprocess_field(&$variables) {
+  $element = &$variables['element'];
+  if ($element['#field_name'] == 'field_on_this_page') {
+    foreach ($variables['items'] as &$link) {
+      $link['#element']['fragment'] = str_replace('#', '', $link['#element']['url']);
+      $link['#element']['external'] = TRUE;
+      $link['#element']['url'] = '';
+    }
+  }
+  elseif ($element['#field_name'] == 'field_campus_location' && $element['#object']->type == 'events') {
+    // Rebuilding items variable and load map,
+    // utilising same map as campus map page.
+    foreach ($element['#items'] as $key => $item) {
+      $campus_map = theme('vu_campus_location_maps_block', ['campus_nid' => $item['target_id']]);
+      if (!empty($campus_map)) {
+        // Get campus location.
+        $location_id = field_get_items('node', $item['entity'], 'field_location');
+        $address = '';
+        if (!empty($location_id[0]['target_id'])) {
+          $location_entity = entity_load('inline_entities', [$location_id[0]['target_id']]);
+          $address_renderable = field_view_field('inline_entities', $location_entity[key($location_entity)], 'field_address', ['label' => 'hidden']);
+          $address = render($address_renderable);
+        }
+
+        // Get campus detail.
+        $campus_detail = l($item['entity']->title, 'node/' . $item['entity']->nid) . $address;
+        $variables['items'][$key]['#markup'] = $campus_map . $campus_detail;
+      }
+    }
+  }
+  elseif ($element['#entity_type'] == 'contact_information' && $element['#label_display'] == 'inline') {
+    if (empty($variables['items'][0]['#markup'])) {
+      // Hide label if no value, somehow display suite keep
+      // showing the inline label when the value is empty.
+      $variables['label_hidden'] = TRUE;
+    }
+  }
+
+  if ($element['#field_name'] == 'field_location_desc') {
+    $variables['items'][0]['#markup'] = check_markup($element['#items'][0]['value'], 'full_html');
+  }
+  elseif ($element['#field_name'] == 'field_date' && $element['#bundle'] == 'events') {
+    // On events content type, hide past date if the event hasn't taken a place.
+    // Note: This was incorrectly altering a custom formatter and has been
+    // excluded from that case.
+    if (vu_helpers_is_today_or_future_dates($element['#items']) && $element['#formatter'] != 'custom_formatters_event_multiple_dates') {
+      foreach ($element['#items'] as $key => $item) {
+        $datetime = (!empty($item['value2'])) ? explode('T', $item['value2']) : explode('T', $item['value']);
+        $date = strtotime(date('r', $datetime[0]));
+        $now = strtotime(date('Y-m-d'));
+        if ($now > $date) {
+          unset($variables['items'][$key]);
+        }
+      }
+    }
+  }
+
+  // Process campus links for field_location to cater for special cases
+  // (e.g. VU Sydney).
+  $vu_course_bundles = ['unit', 'unit_set', 'courses'];
+  if ($element['#field_name'] == 'field_locations' && in_array($element['#bundle'], $vu_course_bundles) && is_array($element['#items'])) {
+    foreach ($element['#items'] as $delta => $location) {
+      $campus_name = $location['safe_value'];
+      $campus_link = _vumain_get_campus_link($campus_name);
+      if (!empty($campus_link)) {
+        $variables['items'][$delta]['#markup'] = $campus_link;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_ds_fields_info().
+ */
+function vumain_ds_fields_info($entity_type) {
+  $fields = [];
+
+  $fields['node']['vumain_unit_assesment'] = [
+    'title' => t('Unit assessment from xml'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'function' => 'vumain_unit_assesment',
+  ];
+
+  $fields['node']['vumain_stucture'] = [
+    'title' => t('Structure from xml'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'function' => 'vumain_structure',
+  ];
+
+  $fields['inline_entities']['vumain_link_redirect'] = [
+    'title' => t('Redirect to provided link when entity is rendered.'),
+    'field_type' => DS_FIELD_TYPE_FUNCTION,
+    'function' => 'vumain_link_redirect',
+  ];
+
+  if (isset($fields[$entity_type])) {
+    return [$entity_type => $fields[$entity_type]];
+  }
+}
+
+/**
+ * Custom display suite field callback for formatting unit assessment xml.
+ */
+function vumain_unit_assesment($field) {
+  $path = drupal_get_path('module', 'vumain');
+  $out = '';
+  if (!empty($field['entity']->nid)) {
+    $node = $field['entity'];
+    // Get the language.
+    $lang = $node->language;
+
+    if (!empty($node->field_assesment)) {
+      $xml = new DOMDocument();
+      $xml->loadXML($node->field_assesment[$lang][0]['value']);
+
+      $xsl = new DOMDocument();
+      $xsl->load($path . '/xsl/assessment.xslt');
+
+      // Configure the transformer.
+      $proc = new XSLTProcessor();
+
+      // Attach the xsl rules.
+      $proc->importStyleSheet($xsl);
+
+      $out = $proc->transformToXML($xml);
+    }
+  }
+
+  return $out;
+}
+
+/**
+ * Checks whether a field is one of those that might have XML data.
+ *
+ * @param string $field_name
+ *   The field name.
+ *
+ * @return bool
+ *   return true if the field is one of the fields that have XML data,
+ *   otherwise false.
+ */
+function vumain_field_has_xml_data($field_name) {
+  // List of unit content type fields that might have XML content.
+  $fields = _vumain_get_xml_fields();
+
+  return in_array($field_name, $fields);
+}
+
+/**
+ * Formats XML data in some fields in Units content type.
+ *
+ * @param string $field
+ *   The content type field content.
+ *
+ * @return string
+ *   the converted html markup.
+ */
+function vumain_unit_format_xml_field($field) {
+  $path = drupal_get_path('module', 'vumain');
+
+  $xml = @simplexml_load_string($field);
+
+  // If the string does not contain XML markup, return it as it is.
+  if (!$xml) {
+    // A self-closing tag shouldn't be treated as a string.
+    if (!preg_match('#<[^<]+/>#', $field)) {
+      return $field;
+    }
+  }
+
+  $xsl = new DOMDocument();
+  $xsl->load($path . '/xsl/units-style.xsl');
+
+  $xslt_processor = new XSLTProcessor();
+  $xslt_processor->importStyleSheet($xsl);
+
+  $out = $xslt_processor->transformToXML($xml);
+
+  return $out;
+}
+
+/**
+ * Custom display suite field callback for formatting structure xml.
+ */
+function vumain_structure($field) {
+  $markup = '';
+  if (!empty($field['entity']->nid)) {
+    $node = $field['entity'];
+    $markup = vumain_courses_transform_structure($node);
+  }
+
+  return $markup;
+}
+
+/**
+ * Custom display suite field callback for redirecting via inline entities.
+ */
+function vumain_link_redirect($field) {
+  // Redirect to the field_link uri if it is present.
+  if (!empty($field['entity']->field_link[$field['entity']->language])) {
+    $redirect = reset($field['entity']->field_link[$field['entity']->language]);
+    drupal_goto($redirect['url']);
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function vumain_entity_presave($entity, $type) {
+  _vumain_featured_content_entity_presave($entity, $type);
+}
+
+/**
+ * Implements hook_date_formats().
+ */
+function vumain_date_formats() {
+  return [
+    [
+      'type' => 'vumain_news_listing_date',
+      'format' => 'l j F Y',
+      'locales' => [],
+    ],
+    [
+      'type' => 'vumain_events_listing_date',
+      'format' => 'j F Y - g:ia',
+      'locales' => [],
+    ],
+    [
+      'type' => 'vumain_mr_date',
+      'format' => 'l j F Y',
+      'locales' => [],
+    ],
+    [
+      'type' => 'vumain_event_detail',
+      'format' => 'j F Y',
+      'locales' => [],
+    ],
+    [
+      'type' => 'vumain_event_detail_col2',
+      'format' => 'j F Y, g:ia',
+      'locales' => [],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_date_format_types().
+ */
+function vumain_date_format_types() {
+  return [
+    'vumain_news_listing_date' => t('News listing date'),
+    'vumain_events_listing_date' => t('Events listing date'),
+    'vumain_mr_date' => t('Media release date'),
+    'vumain_event_detail' => t('Event details date'),
+    'vumain_event_detail_col2' => t('Event details date col 2'),
+  ];
+}
+
+/**
+ * Implements hook_pathauto_pattern_alter().
+ */
+function vumain_pathauto_alias_alter(&$alias, &$context) {
+  if ($context['type'] === 'study_topic_area') {
+    // Since we combined study topic and study area content types
+    // we can't set their path alias patterns with tokens as usual
+    // because we need them to be conditional..
+    // Get the node.
+    $node = $context['data']['node'];
+
+    // Study topics:
+    // If this node does not reference another study_topic_area type node
+    // then it is a parent study topic and just needs it's title appended
+    // to the path alias.
+    // Study areas:
+    // If this node references a parent study_topic_area type node then
+    // this is node is a study area and needs to have it's parent's path
+    // alias argument inserted into the path alias.
+    if (!empty($node->field_study_topic[$node->language])) {
+      $nid = (!empty($node->field_study_topic)) ? reset($node->field_study_topic[$node->language])['target_id'] : NULL;
+      // If the nid is valid.
+      if (!empty($nid)) {
+        // Load the parent topic node.
+        $parent_topic_node = node_load($nid);
+
+        // If the parent topic node is valid.
+        if (!empty($parent_topic_node->title)) {
+          // Update the alias.
+          $alias = str_replace('by-topic/', 'by-topic/' . pathauto_cleanstring($parent_topic_node->title) . '/', $alias);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function vumain_preprocess_node(&$variables) {
+
+  switch ($variables['type']) {
+    case 'news':
+      vumain_news_preprocess_node($variables);
+      break;
+
+    case 'study_topic_area':
+      $query_parameters = drupal_get_query_parameters();
+
+      // If audience set to international use the international testimony.
+      if (!empty($query_parameters) && $query_parameters[VUMAIN_AUDIENCE_PARAM_KEY] == VUMAIN_AUDIENCE_PARAM_INTERNATIONAL_VALUE && !empty($variables['field_inter_success_story'][0]['entity'])) {
+        $success_story_entity = $variables['field_inter_success_story'][0]['entity'];
+      }
+      elseif (empty($query_parameters[VUMAIN_AUDIENCE_PARAM_KEY]) && !empty($variables['field_success_story'][0]['entity'])) {
+        $success_story_entity = $variables['field_success_story'][0]['entity'];
+      }
+      $variables['featured_success_story'] = !empty($success_story_entity) ? theme('vumain_featured_success_story', ['entity' => $success_story_entity]) : NULL;
+
+      // Load international block when ?audience=international is present.
+      $variables['course_study_level_block'] = '';
+      $view = views_get_view('courses_study_level');
+      $view->set_arguments([$variables['nid']]);
+      if (!empty($query_parameters[VUMAIN_AUDIENCE_PARAM_KEY]) && $query_parameters[VUMAIN_AUDIENCE_PARAM_KEY] == VUMAIN_AUDIENCE_PARAM_INTERNATIONAL_VALUE) {
+        $view->set_display('csl_int_b');
+        $result = $view->preview('csl_int_b');
+        if (count($view->result) > 0) {
+          $variables['course_study_level_block'] = $result;
+        }
+        $variables['is_international_audience'] = TRUE;
+      }
+      else {
+        $view->set_display('csl_dom_b');
+        $result = $view->preview('csl_dom_b');
+        if (count($view->result) > 0) {
+          $variables['course_study_level_block'] = $result;
+        }
+        $variables['is_international_audience'] = FALSE;
+      }
+
+      $variables['course_tabs'] = '';
+      if (!empty($variables['course_study_level_block'])) {
+        $variables['course_tabs'] = theme('vumain_study_topics_course_tabs', [
+          'node' => $variables['node'],
+          'node_url' => $variables['node_url'],
+          'is_international_audience' => $variables['is_international_audience'],
+        ]);
+      }
+
+      // Process sidebar static blocks.
+      $rhs_boxes = [];
+      $prepare_for_your_studies_bid = fe_block_get_bid('rhs_prepare_for_your_studies');
+      if (!empty($prepare_for_your_studies_bid)) {
+        $prepare_for_your_studies = module_invoke('block', 'block_view', $prepare_for_your_studies_bid);
+        if (!empty($prepare_for_your_studies['content'])) {
+          $rhs_boxes[] = $prepare_for_your_studies['content'];
+        }
+      }
+
+      $contact_box_bid = fe_block_get_bid('rhs_contactbox');
+      if (!empty($contact_box_bid)) {
+        $contact_box = module_invoke('block', 'block_view', $contact_box_bid);
+        if (!empty($contact_box['content'])) {
+          $rhs_boxes[] = $contact_box['content'];
+        }
+      }
+      $variables['rhs_boxes'] = $rhs_boxes;
+      break;
+
+    case 'page_builder':
+      // Get subpages for level 1.
+      $item_depth = vumain_current_menu_level();
+      $is_level_1 = $item_depth == 1;
+
+      if ($item_depth >= 1) {
+        // Get all menu children.
+        $menu_trail = menu_get_active_trail();
+        $menu_item = end($menu_trail);
+        $menu_tree = menu_build_tree($menu_item['menu_name'], [
+          'active_trail' => [$menu_item['plid']],
+          'only_active_trail' => FALSE,
+          'min_depth' => $menu_item['depth'] + 1,
+          'max_depth' => $menu_item['depth'] + 1,
+          'conditions' => [
+            'plid' => $menu_item['mlid'],
+            'hidden' => 0,
+          ],
+        ]);
+
+        // Process sidebar inline entities content in level 1 pages.
+        $page_sections = $variables['field_page_sections'];
+        $sidebar_content = [];
+        if (!empty($page_sections)) {
+          foreach ($page_sections as $section) {
+            if ($section['entity']->type === 'topic_page_sidebar_content') {
+              $sidebar_content[] = $section;
+            }
+          }
+          if (!empty($sidebar_content)) {
+            $variables['has_sidebar'] = TRUE;
+            $variables['sidebar_content_blocks'] = theme('topics_sidebar_content_blocks', ['entities' => $sidebar_content]);
+          }
+        }
+
+        // Get menu tree title, link, teaser, and image level 1.
+        $subpage_links = [];
+        foreach ($menu_tree as $mt) {
+          $subpage_link = [];
+          $link_path = $mt['link']['link_path'];
+
+          // Get the node id.
+          $nid = arg(1, $link_path);
+
+          if (empty($nid) || !is_numeric($nid)) {
+            if ($mt['link']['external'] == 1 || drupal_valid_path($link_path)) {
+              $subpage_link['title'] = $mt['link']['link_title'];
+              $subpage_link['link'] = url($link_path);
+              $subpage_link['teaser'] = $mt['link']['options']['attributes']['title'];
+              $subpage_link['image_thumb'] = '';
+            }
+          }
+          else {
+            // Load the node.
+            $node = node_load($nid);
+            // Skip if no valid node was returned.
+            if (!$node) {
+              continue;
+            }
+            // Get the language.
+            $lang = $node->language;
+
+            $subpage_link['title'] = $node->title;
+            $subpage_link['link'] = url('node/' . $node->nid);
+
+            $teaser = !empty($node->body[$lang][0]['summary']) ? truncate_utf8($node->body[$lang][0]['summary'], VUMAIN_LEVEL1_TILES_TEASER, FALSE, TRUE) : NULL;
+            $subpage_link['teaser'] = $teaser;
+
+            // Campuses are a special case.
+            $field_name = $node->type == 'campus' ? 'field_campus_image' : 'field_page_lvl_1_thumbnail_image';
+
+            $subpage_link['image_thumb'] = '';
+            if ($is_level_1 && !empty($node->{$field_name}[$lang][0]['uri'])) {
+              $subpage_link['image_thumb'] = theme('image_style', [
+                'style_name' => 'level_1_tiles_293x215',
+                'path' => $node->{$field_name}[$lang][0]['uri'],
+                'alt' => $node->title,
+                'width' => $node->{$field_name}[$lang][0]['width'],
+                'height' => $node->{$field_name}[$lang][0]['height'],
+              ]);
+            }
+          }
+          if (!empty($subpage_link)) {
+            $subpage_links[] = $subpage_link;
+          }
+        }
+      }
+
+      if (count($subpage_links)) {
+        $variables['subpages'] = $is_level_1 ? $subpage_links : theme('in-this-section', ['items' => $subpage_links]);
+        $variables['theme_hook_suggestions'][] = $is_level_1 ? 'node__page_builder_level1' : 'node__page_builder';
+      }
+
+      // International body tab.
+      $variables['international'] = (!empty($_REQUEST['iam']) && $_REQUEST['iam'] == 'non-resident');
+      if (!empty($variables['field_international_body'])) {
+        $variables['international_href_switch'] = $variables['domestic_href_switch'] = '#';
+        if ($variables['international']) {
+          $variables['domestic_href_switch'] = '/' . request_path();
+          $lang = $variables['node']->language;
+          $variables['content']['body'][0]['#markup'] = $variables['field_international_body'][$lang][0]['safe_value'];
+        }
+        else {
+          $variables['international_href_switch'] = "?iam=non-resident";
+        }
+      }
+
+      // Render on fly if field_on_this page is empty and body not empty.
+      if (empty($variables['field_on_this_page'])) {
+        $content = ['body' => '', 'inner_content' => ''];
+        $inner_content = block_get_blocks_by_region('inner_content');
+        if (!empty($inner_content)) {
+          foreach ($inner_content as $block) {
+            $content['inner_content'] .= $block['#markup'];
+          }
+        }
+        if (!empty($variables['content']['body'])) {
+          $content['body'] = $variables['content']['body'][0]['#markup'];
+        }
+
+        $links = [];
+        $variables['content']['body'][0]['#markup'] = vumain_prepare_on_this_page_links($links, $content['body']);
+        vumain_prepare_on_this_page_links($links, $content['inner_content']);
+        if (!empty($links)) {
+          $variables['node']->field_on_this_page[$variables['node']->language] = $links;
+          $variables['content']['field_on_this_page'] = field_view_field('node', $variables['node'], 'field_on_this_page');
+        }
+      }
+      break;
+
+    case 'campus_housing':
+      // Generate google maps embed iframe from location entity.
+      if (!empty($variables['content']['field_location'])) {
+        // Get the language.
+        $lang = $variables['language'];
+
+        $google_maps_markup = '';
+        foreach ($variables['field_location'] as $location_entity) {
+          $address = addressfield_staticmap_clean_address($location_entity['entity']->field_address[$lang][0]);
+          $google_maps_markup .= '<iframe width="100%" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=' . urlencode($address) . '&amp;output=embed"></iframe>';
+        }
+
+        if (!empty($google_maps_markup)) {
+          $weight = $variables['content']['field_location']['#weight'];
+          $variables['content']['field_location'] = [
+            '#type' => 'markup',
+            '#weight' => $weight,
+            '#markup' => $google_maps_markup,
+          ];
+        }
+
+        // Generate PTV journey planner.
+        $variables['journey_planner_link'] = FALSE;
+        if (!empty($variables['field_location'][0]['entity']->field_address[$lang][0])) {
+          $variables['field_location'][0]['entity']->field_address[$lang][0]['country'] = '';
+          $variables['field_location'][0]['entity']->field_address[$lang][0]['administrative_area'] = '';
+          $variables['field_location'][0]['entity']->field_address[$lang][0]['postal_code'] = '';
+          $address = addressfield_staticmap_clean_address($variables['field_location'][0]['entity']->field_address[$lang][0]);
+          $variables['journey_planner_link'] = 'http://jp.ptv.vic.gov.au/ptv/XSLT_TRIP_REQUEST2?language=en&type_origin=any&anyObjFilter_origin=2&name_origin=&type_destination=any&anyObjFilter_destination=2&sessionID=0&name_destination=' . urlencode($address);
+        }
+      }
+      break;
+
+    case 'topic_pages':
+      // Process main content blocks.
+      $variables['main_content_blocks'] = theme('topics_content_blocks', ['entities' => $variables['field_main_content']]);
+
+      // Process sidebar inline-entities contents.
+      $topic_pages_sidebar_content = [];
+
+      // Process Quick facts.
+      if (!empty($variables['field_quick_facts'])) {
+        $fact_styles = ['dark80', 'dark60', 'blue80', 'grey'];
+
+        // We only need to display max 6 facts.
+        $facts = array_slice($variables['field_quick_facts'], 0, VU_TOPIC_PAGES_MAX_FACTS);
+
+        foreach ($facts as $key => &$fact) {
+          $mod = $key % count($fact_styles);
+          $fact['entity']->fact_class = 'fact-box-' . $fact_styles[$mod];
+        }
+        $topic_pages_sidebar_content[] = theme('topics_sidebar_content_blocks', ['entities' => $facts]);
+      }
+      if (!empty($variables['field_sidebar_content'])) {
+        $topic_pages_sidebar_content[] = theme('topics_sidebar_content_blocks', ['entities' => $variables['field_sidebar_content']]);
+      }
+
+      // For international students page facts appear last in RHS content.
+      if (vu_core_is_international_students_page()) {
+        $topic_pages_sidebar_content = array_reverse($topic_pages_sidebar_content);
+      }
+
+      $variables['topic_pages_sidebar_content'] = $topic_pages_sidebar_content;
+
+      // Process anchor links.
+      $items = _vumain_get_topic_pages_anchor_list($variables['field_main_content']);
+      $variables['anchor_list_block'] = FALSE;
+      if (!empty($items) && empty($variables['body']) && empty($variables['field_header_course_search_inc'])) {
+        // Only display anchor list when items not empty and body field empty.
+        $variables['anchor_list_block'] = theme('vumain_topic_pages_anchor_list_block', ['items' => $items]);
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function vumain_field_attach_view_alter(&$output, $context) {
+  $xml_fields = _vumain_get_xml_fields();
+  foreach ($xml_fields as $field_name) {
+    if (!empty($output[$field_name])) {
+      $output[$field_name]['#pre_render'][] = '_vumain_xml_field_pre_render';
+    }
+  }
+}
+
+/**
+ * Get list of XML fields.
+ *
+ * @return array
+ *   List of XML fields.
+ */
+function _vumain_get_xml_fields() {
+  $xml_fields = [
+    'field_co_requisites',
+    'field_prerequisites',
+    'field_learning_outcomes',
+    'field_required_reading',
+    'field_assesment',
+    'field_structure',
+  ];
+  return $xml_fields;
+}
+
+/**
+ * List of unit fields to be themed with common theme.
+ *
+ * @return array
+ *   List of fields.
+ */
+function vumain_common_unit_fields() {
+  return [
+    'field_learning_outcomes',
+    'field_assesment',
+    'field_prerequisites',
+    'field_co_requisites',
+    'field_required_reading',
+  ];
+}
+
+/**
+ * Pre-render callback to process XML fields.
+ *
+ * @param array $element
+ *   Element to process.
+ *
+ * @return array
+ *   Rendered HTML.
+ */
+function _vumain_xml_field_pre_render(array $element) {
+  if (vumain_field_has_xml_data($element['#field_name'])
+    && ($element['#bundle'] == 'unit' || $element['#bundle'] == 'unit_set')
+  ) {
+    $value = $element['#items'][0]['value'];
+    $parsed_value = vumain_unit_format_xml_field($value);
+    if (count($parsed_value) == 0 || empty($value)) {
+      $element[0]['#markup'] = '';
+    }
+    else {
+      $element[0]['#markup'] = $parsed_value;
+    }
+  }
+  return $element;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function vumain_form_alter(&$form, &$form_state, $form_id) {
+  // Enforce the revision log message and place revision information tab first.
+  if (isset($form['revision_information'])) {
+    $form['revision_information']['log']['#required'] = TRUE;
+    $form['revision_information']['#weight'] = -100;
+  }
+
+  switch ($form_id) {
+    case 'google_appliance_block_form':
+      // Add placeholder.
+      $form['search_keys']['#attributes']['placeholder'] = t('Search');
+      break;
+
+    case 'google_appliance_search_form':
+      _vumain_process_google_search_form($form);
+      break;
+
+    case 'page_builder_node_form':
+      // Hide field_on_this_page field.
+      $form['field_on_this_page']['#access'] = FALSE;
+      break;
+
+    case 'events_node_form':
+      // Change - none - to off-campus.
+      $form['field_campus_location'][LANGUAGE_NONE]['#options']['_none'] = t('Off campus');
+      break;
+
+    case 'news_node_form':
+      // Hide featured on group if the node is tagged as a media release.
+      $form['field_feature_on']['#states'] = [
+        'invisible' => [
+          ':input[name="field_media_release[und]"]' => ['checked' => TRUE],
+        ],
+      ];
+      break;
+
+    case 'user_login':
+      if (isset($form['#validate']) && is_array($form['#validate'])) {
+        array_unshift($form['#validate'], 'vumain_user_login_validate');
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_form_node_form_alter().
+ *
+ * Adds JS related to admin interface.
+ */
+function vumain_form_node_form_alter(&$form) {
+  if (user_is_logged_in()) {
+    $path = drupal_get_path('module', 'vumain');
+    $form['#attached']['js'][] = $path . '/js/admin.js';
+    $form['#attached']['css'][] = $path . '/css/admin.css';
+  }
+}
+
+/**
+ * Validation callback for the 'user_login' form.
+ */
+function vumain_user_login_validate($form, &$form_state) {
+  $form_state['values']['name'] = trim($form_state['values']['name']);
+  $form_state['values']['pass'] = trim($form_state['values']['pass']);
+}
+
+/**
+ * Implements hook_user_presave().
+ */
+function vumain_user_presave(&$edit, $account, $category) {
+  $all_roles = user_roles(TRUE);
+  $auth_rid = array_search('authenticated user', $all_roles);
+  // Display a message to new users so they know what to do next.
+  if (isset($edit['roles']) && count($edit['roles']) === 1 && array_key_exists($auth_rid, $edit['roles'])){
+    drupal_set_message(t('You are now logged in to VU\'s web content management system. <br>Researchers, follow the steps provided to you. If you need assistance with setting up your researcher profile, email <a href="@email1">researcher.profiles@vu.edu.au</a>. <br>For all other content queries, email <a href="@email">webcontent@vu.edu.au</a>.',
+      ['@email' => 'mailto:webcontent@vu.edu.au', '@email1' => 'mailto:researcher.profiles@vu.edu.au']), 'status', FALSE);
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function vumain_node_presave($node) {
+  try {
+    // Create the entity metadata wrapper.
+    $wrapper_node = entity_metadata_wrapper('node', $node);
+  }
+  catch (Exception $e) {
+    watchdog('vumain', $e->getMessage(), []);
+  }
+
+  switch ($node->type) {
+    case 'page_builder':
+      // Detect the h2 tag, and add them to a on this page field.
+      $links = [];
+
+      // Read inline entities.
+      // All title need will be printed as <h2>.
+      // Any h2 tags on body field will be added to field_on_this_page.
+      // Get main body field.
+      $field_body = $wrapper_node->body->value();
+      if (!empty($field_body)) {
+        $field_body2 = vumain_prepare_on_this_page_links($links, $field_body['value']);
+        $field_body['value'] =  $field_body2;
+        unset($field_body['safe_value']);
+        $wrapper_node->body->set($field_body);
+      }
+
+      // Get the page sections value.
+      $field_page_sections = $wrapper_node->field_page_sections->value();
+      if (!empty($field_page_sections)) {
+        foreach ($field_page_sections as $ps) {
+          if ($ps->type == 'accordion_section') {
+            $entities = entity_load('inline_entities', [$ps->field_accordion_item[$ps->language][0]['target_id']]);
+          }
+          else {
+            $entities = entity_load('inline_entities', [$ps->id]);
+          }
+          if (!empty($entities)) {
+            foreach ($entities as $entity) {
+              $allowed_entities = [
+                'basic_body_text',
+                'topic_page_content',
+                'topic_page_sidebar_content',
+              ];
+              if (in_array($entity->type, $allowed_entities)) {
+                $links[] = [
+                  'title' => $entity->title,
+                  'url' => '#' . _vumain_onthispage_link_id($entity->title),
+                ];
+                // Get the entity language.
+                $entity_lang = $entity->language;
+                switch ($entity->type) {
+                  case 'basic_body_text':
+                    $entity->field_body[$entity_lang][0]['value'] = vumain_prepare_on_this_page_links($links, $entity->field_body[$entity_lang][0]['value']);
+                    unset($entity->field_body[$entity_lang][0]['safe_value']);
+                    break;
+
+                  case 'topic_page_content':
+                    if ($entity->field_exclude_from_anchor_list[$entity_lang][0]['value'] != 1) {
+                      $entity->field_topic_main_content[$entity_lang][0]['value'] = vumain_prepare_on_this_page_links($links, $entity->field_topic_main_content[$entity_lang][0]['value']);
+                      unset($entity->field_topic_main_content[$entity_lang][0]['safe_value']);
+                    }
+                    break;
+
+                  case 'topic_page_sidebar_content':
+                    $entity->field_topic_main_content[$entity_lang][0]['value'] = vumain_prepare_on_this_page_links($links, $entity->field_topic_main_content[$entity_lang][0]['value']);
+                    unset($entity->field_topic_main_content[$entity_lang][0]['safe_value']);
+                    break;
+                }
+                entity_save($entity->type, $entity);
+              }
+            }
+          }
+        }
+      }
+
+      // Add the links to field_on_this_page.
+      $wrapper_node->field_on_this_page = $links;
+      break;
+
+    case 'news':
+      // Get the node language.
+      $node_lang = $node->language;
+
+      // Delete featured on entity when news is media release.
+      if (!empty($node->field_media_release[$node_lang][0]['value'])) {
+        // Looping featured on.
+        if (!empty($node->field_feature_on[$node_lang])
+          && count($node->field_feature_on[$node_lang])
+        ) {
+          foreach ($node->field_feature_on[$node_lang] as $key => $value) {
+            entity_delete('inline_entities', $value['target_id']);
+            unset($node->field_feature_on[$node_lang][$key]);
+          }
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Implements template_preprocess_entity().
+ */
+function vumain_preprocess_entity(&$variables) {
+  if ($variables['elements']['#entity_type'] == 'inline_entities') {
+    $variables['title_attributes_array']['id'] = _vumain_onthispage_link_id($variables['title']);
+  }
+}
+
+/**
+ * Prepends the text with 'goto-'.
+ *
+ * @param string $h2_text
+ *   Text to process.
+ * @param bool $no_goto_prefix
+ *   Don't append 'goto-' to link id if TRUE.
+ *
+ * @return string
+ *   Modified string.
+ */
+function _vumain_onthispage_link_id($h2_text, $no_goto_prefix = FALSE) {
+  // Replaces all spaces with hyphens and '&' with amp.
+  $string = str_replace([' ', '&'], ['-', 'amp'], $h2_text);
+
+  // Removes special chars.
+  $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+  $string = preg_replace('/-+/', '-', $string);
+  $string = strtolower($string);
+
+  return $no_goto_prefix ? $string : 'goto-' . $string;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function vumain_theme() {
+  $template_path = drupal_get_path('module', 'vumain') . '/theme';
+  $file = 'vumain.theme.inc';
+
+  $theme = [
+    'homepage_social_media' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'content' => NULL,
+      ],
+      'template' => 'homepage-social-media',
+    ],
+    'vu_campus_journey_planner_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'address' => NULL,
+        'journey_planner' => [],
+        'google_directiosn' => [],
+      ],
+      'template' => 'campus-journey-planner-block',
+    ],
+    'vu_campus_location_maps_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'map_properties' => [],
+        'overlay_properties' => [],
+        'campus_nid' => [],
+      ],
+      'template' => 'campus-location-maps-block',
+    ],
+    'vumain_featured_success_story' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [],
+      'template' => 'featured-success-story',
+    ],
+    'vumain_share_links' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'node' => NULL,
+      ],
+      'template' => 'vumain-share-links',
+    ],
+    'vumain_connect_with_us_icons' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [],
+      'template' => 'vumain-connect-with-us-icons',
+    ],
+    'topics_content_blocks' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'entities' => [],
+        'top_content' => FALSE,
+      ],
+      'template' => 'topic-content-blocks',
+    ],
+    'topics_sidebar_content_blocks' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'entities' => [],
+      ],
+      'template' => 'topic-sidebar-content-blocks',
+    ],
+    'vumain_study_topics_course_tabs' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'node' => NULL,
+        'node_url' => NULL,
+        'is_international_audience' => NULL,
+      ],
+      'template' => 'vumain-study-topics-course-tabs',
+    ],
+    'vumain_latest_testimonial' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vumain-latest-testimonial',
+    ],
+    'vumain_topic_pages_anchor_list_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'items' => [],
+      ],
+      'template' => 'vumain-topic-pages-anchor-list-block',
+    ],
+    'vumain_my_library_form' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vumain-my-library-form',
+    ],
+    'vumain_acknowledgement_country' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vumain-acknowledgement-country',
+      'variables' => [
+        'acknowledgement' => [],
+      ],
+    ],
+    'vumain_campus_app' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vumain-campus-app',
+    ],
+    'vumain_social_media_links' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vumain-social-media-links',
+    ],
+  ];
+
+  $theme = array_merge($theme, vumain_featured_content_theme());
+  $theme = array_merge($theme, vumain_news_theme());
+  $theme = array_merge($theme, vumain_courses_theme());
+
+  return $theme;
+}
+
+/**
+ * Get the current page's menu depth/level.
+ */
+function vumain_current_menu_level() {
+  $menu = menu_get_active_trail();
+  $item = end($menu);
+  $level = 0;
+  if ($item && isset($item['depth'])) {
+    $level = $item['depth'];
+    // Exception for children of VU Home: they should appear as level 1.
+    $parent = prev($menu);
+    if ($parent && isset($parent['link_title']) && $parent['link_title'] == 'VU Home') {
+      $level = $parent['depth'];
+    }
+  }
+  return $level;
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function vumain_views_query_alter(&$view, &$query) {
+  if ($view->name == 'courses_study_level') {
+    // Get grouping labels.
+    $labels = vumain_courses_return_unit_level_labels();
+
+    // Extract the keys, and combine them into a string.
+    $keys = array_keys($labels);
+    $group_order = "'" . implode("', '", $keys) . "'";
+
+    $orderby = [
+      'field' => "FIELD(field_data_field_unit_lev.field_unit_lev_value, " . $group_order . ")",
+      'direction' => 'ASC',
+    ];
+    array_unshift($view->query->orderby, $orderby);
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_exposed_form().
+ */
+function vumain_preprocess_views_exposed_form(&$variables) {
+  // Remove btn-info class from submit button.
+  $variables['button'] = str_replace('btn-info', '', $variables['button']);
+}
+
+/**
+ * Implements hook_pathauto_pattern_alter().
+ */
+function vumain_pathauto_pattern_alter(&$pattern, &$context) {
+  // Assign the relevant object to the $node var.
+  if (empty($context['data']['node'])) {
+    if (!empty($context['data']['entity'])) {
+      $node = $context['data']['entity'];
+    }
+    else {
+      return;
+    }
+  }
+  else {
+    $node = $context['data']['node'];
+  }
+
+  if (!empty($context['type']) && $context['type'] == 'news') {
+    if (!empty($context['data']['node']->field_media_release[$node->language][0]['value'])) {
+      // For media release, the pattern should be
+      // news-events/media-releases/title.
+      $pattern = 'about-vu/news-events/media-releases/[node:title]';
+    }
+  }
+}
+
+/**
+ * Load social media feeds.
+ */
+function _vumain_social_media_get_feeds() {
+
+  // Only show Facebook iframe embed on local nad acquia
+  $fb_feed = variable_get('vu_fb_page_plugin', FALSE);
+
+  if ($fb_feed) {
+    $content['fb']['show'] = true;
+  }
+  else {
+    $content['fb']['show'] = false;
+  }
+
+  // Load the first twitter account.
+  $content['twitter'] = NULL;
+  if (module_exists('twitter_pull')) {
+    module_load_include('inc', 'twitter');
+    $accounts = twitter_load_accounts();
+    if (count($accounts)) {
+      $content['twitter'] = twitter_pull_render('@' . $accounts[0]->screen_name, FALSE, 2, NULL, FALSE, NULL, TRUE);
+    }
+  }
+
+  // Load ig.
+  $content['ig'] = NULL;
+  if (module_exists('drupagram')) {
+    $content['ig'] = views_embed_view('instagram_feed', 'block');
+  }
+
+  return theme('homepage_social_media', ['content' => $content]);
+}
+
+/**
+ * Automatically add links to URLs and Twitter usernames in a tweet.
+ */
+function _vu_twitter_pull_add_links($text) {
+  $pattern = '#(https?)://([^\s\(\)\,]+)#ims';
+  $repl = '<a class="noext" href="$1://$2" rel="nofollow" title="$1://$2">$2</a>';
+  $text = preg_replace($pattern, $repl, $text);
+
+  $pattern = '#@(\w+)#ims';
+  $repl = '<a class="noext" href="//twitter.com/$1" rel="nofollow" title="@$1">@$1</a>';
+  $text = preg_replace($pattern, $repl, $text);
+
+  $pattern = '/[#]+([A-Za-z0-9-_]+)/';
+  $repl = '<a class="noext" href="//twitter.com/#!/search?q=%23$1" title="#$1" rel="nofollow">#$1</a>';
+  $text = preg_replace($pattern, $repl, $text);
+
+  return filter_xss($text);
+}
+
+/**
+ * Implements hook_init().
+ */
+function vumain_init() {
+  _vumain_darksite_check();
+}
+
+/**
+ * Checks if darksite is configured and active.
+ *
+ * Checks if darksite is configured and active and alerts authenticated
+ * users or redirects anonymous users to the active darksite node.
+ */
+function _vumain_darksite_check() {
+  // Grab the system path args for condition testing.
+  $arg = arg();
+
+  if ($arg[0] == 'admin' && $arg[1] == 'darksite') {
+
+    // Bail out if user is on the darksite config page.
+    return;
+  }
+
+  $active = variable_get('vumain_darksite_active', FALSE);
+  if ($active === 1) {
+    global $user;
+    $darksite_node = variable_get('vumain_darksite_node', FALSE);
+
+    // Bail out if we don't have a nid for the darksite content.
+    if (!$darksite_node || !isset($darksite_node['entity_id'])) {
+      return;
+    }
+
+    // Don't redirect authenticated users (staff, publishers etc.), just notify
+    // them.
+    if ($user->uid > 0) {
+      $view = l(t('View the active darksite content'), 'node/' . $darksite_node['entity_id']);
+      $configure = l(t('configure or disable the darksite'), 'admin/darksite');
+      drupal_set_message(t('<strong>Warning:</strong> The darksite is currently active. All unauthenticated users will be immediately redirected to the darksite content. !view or !configure.', [
+        '!view' => $view,
+        '!configure' => $configure,
+      ]), 'error', FALSE);
+
+      return;
+    }
+
+    // Don't affect user log in operations.
+    if ($arg[0] == 'user') {
+      return;
+    }
+
+    // Prevent infinite redirect loop.
+    if ($arg[0] == 'node' && $arg[1] == $darksite_node['entity_id']) {
+      return;
+    }
+
+    // Execute redirect, if we made it to here.
+    $system_path = 'node/' . $darksite_node['entity_id'];
+    drupal_goto($system_path);
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function vumain_permission() {
+  return [
+    'administer darksite' => [
+      'title' => t('Administer Darksite'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vumain_menu() {
+  $items = [];
+
+  $items['admin/darksite'] = [
+    'title' => 'Darksite',
+    'description' => 'Configuration for VU darksite',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vumain_darksite_form'],
+    'access arguments' => ['administer darksite'],
+    'type' => MENU_NORMAL_ITEM,
+  ];
+
+  $items['courses/%'] = [
+    'description' => 'Page callback to load course node',
+    'page callback' => 'vumain_course_redirect_callback',
+    'page arguments' => [1],
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  ];
+
+  $items['courses/international/%'] = [
+    'description' => 'Page callback to load course node',
+    'page callback' => 'vumain_course_international_callback',
+    'page arguments' => [2],
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  ];
+
+  $items['campus/load/%node'] = [
+    'page callback' => 'vumain_campus_load',
+    'page arguments' => [2],
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  ];
+
+  return $items;
+}
+
+/**
+ * Callback to render an international course page given the URL.
+ *
+ * @param string $course_code
+ *   Course code string.
+ *
+ * @return string|void
+ *   Rendered HTML or redirect to all courses page if none found.
+ */
+function vumain_course_international_callback($course_code) {
+  $node = vumain_get_course_node_by_unit_code($course_code);
+  if (!empty($node) && vumain_course_is_international($node)) {
+    drupal_set_title($node->title);
+    return node_view($node);
+  }
+  if (vu_courses_offered_to_audience($node, 'domestic')) {
+    $path = 'courses/' . vu_core_extract_single_field_value($node, 'node', 'field_unit_code');
+    drupal_goto($path, [], 303);
+  }
+  // Still here?
+  drupal_not_found();
+  drupal_exit();
+}
+
+/**
+ * Checks if the course international flag is set.
+ *
+ * @param object $node
+ *   Drupal node object.
+ *
+ * @return bool
+ *   TRUE if the course marked as international or FALSE.
+ */
+function vumain_course_is_international($node) {
+  return !empty($node->field_international[$node->language][0]['value']);
+}
+
+/**
+ * Configuration form callback for darksite.
+ */
+function vumain_darksite_form($form, &$form_state) {
+  $form['vumain_darksite_active'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Activate the darksite'),
+    '#default_value' => variable_get('vumain_darksite_active', FALSE),
+    '#description' => t('When this box is checked, all page requests will redirect to the content selected below'),
+  ];
+
+  $form['vumain_darksite_node'] = [
+    '#type' => 'entityreference',
+    '#title' => t('Darksite content'),
+    '#era_entity_type' => 'node',
+    '#era_bundles' => ['page_builder'],
+    '#default_value' => variable_get('vumain_darksite_node', []),
+  ];
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function vumain_node_view($node, $view_mode, $langcode) {
+  try {
+    $wrapper = entity_metadata_wrapper('node', $node);
+  }
+  catch (Exception $e) {
+    watchdog('vumain', $e->getMessage(), [], WATCHDOG_ERROR);
+  }
+
+  if (($node->type == 'news' || $node->type == 'events') && $view_mode == 'full') {
+    // Get media release/news/events path.
+    $page_titles = variable_get('vumain_page_titles');
+    if ($node->type == 'news') {
+      $path = ($wrapper->field_media_release->value()) ? $page_titles['media_release'] : $page_titles['news'];
+    }
+    else {
+      $path = $page_titles['events'];
+    }
+
+    // Get menu item.
+    $media_release_path = drupal_get_normal_path($path['url']);
+    $menu_item = menu_link_get_preferred($media_release_path);
+
+    // Get menu item parents.
+    $parents = [];
+    _vumain_menu_link_find_parents($parents, $menu_item);
+    $parents = array_reverse($parents);
+
+    // Build trail based on parents above.
+    // Add home as first trail.
+    $trail[] = [
+      'title' => t('Home'),
+      'href' => '<front>',
+      'link_path' => '',
+      'localized_options' => [],
+      'type' => 0,
+    ];
+    // Add all parents to the trail.
+    foreach ($parents as $parent) {
+      $parent = menu_link_load($parent['mlid']);
+      $trail[] = [
+        'title' => $parent['title'],
+        'link_title' => $parent['link_title'],
+        'href' => $parent['href'],
+        'link_path' => $parent['link_path'],
+        'localized_options' => $parent['localized_options'],
+        'type' => $parent['type'],
+      ];
+    }
+    // Add the media release/news/events as the last parent.
+    $menu_item_load = menu_link_load($menu_item['mlid']);
+    $trail[] = [
+      'title' => $menu_item_load['title'],
+      'link_title' => $menu_item_load['link_title'],
+      'href' => $menu_item_load['href'],
+      'link_path' => $menu_item_load['link_path'],
+      'localized_options' => isset($menu_item_load['localized_options']) ? $menu_item_load['localized_options'] : [],
+      'type' => $menu_item_load['type'],
+    ];
+
+    // Set path and active trail.
+    menu_tree_set_path($menu_item['menu_name'], $media_release_path);
+    menu_set_active_trail($trail);
+  }
+}
+
+/**
+ * Recursive function to get all parents based on menu item.
+ */
+function _vumain_menu_link_find_parents(&$parents, $menu_item) {
+  $parent_menu_item = _menu_link_find_parent($menu_item);
+  if (!empty($parent_menu_item)) {
+    $parents[] = $parent_menu_item;
+    _vumain_menu_link_find_parents($parents, $parent_menu_item);
+  }
+}
+
+/**
+ * Adds VU twitter account handle to text.
+ */
+function vumain_media_add_twitter_handle($title) {
+  return str_replace(' ', '+', "$title /via @victoriauninews");
+}
+
+/**
+ * Get campus video thumbnail.
+ */
+function _vumain_campus_get_video_thumb() {
+  // Get current page object.
+  $obj = menu_get_object('node', 1);
+  // Render video.
+  $video = field_view_field('node', $obj, 'field_campus_video', [
+    'label' => 'hidden',
+    'type' => 'file_rendered',
+    'settings' => ['file_view_mode' => 'teaser'],
+  ]);
+
+  return $video;
+}
+
+/**
+ * Get campus image thumbnail.
+ */
+function _vumain_campus_get_image_thumb() {
+  // Get current page object.
+  $obj = menu_get_object('node', 1);
+  // Render image.
+  $image = field_view_field('node', $obj, 'field_campus_image', [
+    'label' => 'hidden',
+    'settings' => ['image_style' => 'campus_image_225w'],
+  ]);
+
+  return $image;
+}
+
+/**
+ * Handle HTML value manipulation.
+ */
+function vumain_prepare_on_this_page_links(&$links, $value) {
+  if (empty($value)) {
+    return $value;
+  }
+  // Init the dom.
+  $dom = new DOMDocument();
+  libxml_use_internal_errors(TRUE);
+  $dom->loadHTML('<?xml encoding="utf-8"?><html><body>' . $value . '</body></html>');
+  $dom->encoding = 'utf-8';
+  libxml_use_internal_errors(FALSE);
+
+  // Perform the manipulation.
+  $h2_tags = $dom->getElementsByTagName('h2');
+  foreach ($h2_tags as $h2) {
+    if ($h2->getAttribute('class') !== 'element-invisible') {
+      $id = _vumain_onthispage_link_id($h2->nodeValue);
+      $links[] = ['title' => $h2->nodeValue, 'url' => '#' . $id];
+      $h2->setAttribute('id', $id);
+    }
+  }
+
+  // Note : mb_substr isn't needed because we will never cut a MB char, output
+  // is always '<html><body>\n' ... '\n</body></html>'
+  return trim(substr($dom->saveHTML($dom->documentElement), 12, -14));
+}
+
+/**
+ * Implements hook_wysiwyg_editor_settings_alter().
+ */
+function vumain_wysiwyg_editor_settings_alter(&$settings, $context) {
+  // The $context variable contains information about the wysiwyg profile
+  // we're using. In this case we just need to check that the editor being
+  // used is ckeditor.
+  if ($context['profile']->editor == 'ckeditor') {
+    $settings['customConfig'] = base_path() . drupal_get_path('module', 'vumain') . '/js/ckeditor_config.js';
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function vumain_views_api($module = NULL, $api = NULL) {
+  return ['api' => '3.0'];
+}
+
+/**
+ * Page callback: Loads course node by unit code.
+ *
+ * @param string $unit_code
+ *   The course unit code.
+ */
+function vumain_course_redirect_callback($unit_code) {
+  $unit_code = check_plain($unit_code);
+
+  $node = vumain_get_course_node_by_unit_code($unit_code);
+  // If the node is not empty.
+  if (!empty($node->nid)) {
+    $options = [];
+    drupal_goto('node/' . $node->nid, $options);
+  }
+
+  // Still here?
+  drupal_not_found();
+  drupal_exit();
+}
+
+/**
+ * Gets custom date display for all_day custom date type.
+ *
+ * @param array $field
+ *   Field array.
+ *
+ * @return array
+ *   Updated field array.
+ */
+function vumain_get_date_field_all_day(array $field) {
+  if (empty($field)) {
+    return $field;
+  }
+
+  foreach ($field as $delta => $date) {
+    if (!is_numeric($delta)) {
+      continue;
+    }
+
+    if (preg_match('/12:00am/i', $date['#markup'])) {
+      $field[$delta]['#markup'] = preg_replace('/(, )?12:00am/i', "", $date['#markup']);
+    }
+  }
+
+  return $field;
+}
+
+/**
+ * Helper function: Return array of days of the week.
+ *
+ * @return array
+ *   An array of days of the week.
+ */
+function _vumain_get_week_days() {
+  return [
+    t('Monday'),
+    t('Tuesday'),
+    t('Wednesday'),
+    t('Thursday'),
+    t('Friday'),
+    t('Saturday'),
+    t('Sunday'),
+  ];
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function vumain_page_alter(&$page) {
+  $path = current_path();
+  $path_alias = drupal_lookup_path('alias', $path);
+  $current_path = explode('/', $path_alias);
+
+  // Hide header featured content region for these paths.
+  if ($current_path[0] == 'units' || $current_path[0] == 'unitsets') {
+    unset($page['featured_content']);
+  }
+}
+
+/**
+ * Implements template_preprocess_views_view_fields().
+ */
+function vumain_preprocess_views_view_fields(&$variables) {
+  if ($variables['view']->name == 'courses_study_level') {
+    if (!empty($variables['fields']['field_int_sem_int']) && !empty($variables['row']->field_field_int_sem_int[0]['raw']['value'])) {
+      $field_meta_data = [
+        'label' => 'Intakes',
+        'value_column' => 'semester',
+        'machine_name' => 'field_int_sem_int',
+      ];
+      _vumain_render_international_fields_from_xml($variables['row']->field_field_int_sem_int[0]['raw']['value'], $field_meta_data, $variables);
+    }
+
+    if (!empty($variables['fields']['field_international_fees']) && !empty($variables['row']->field_field_international_fees[0]['raw']['value'])) {
+      $field_meta_data = [
+        'label' => 'Fees',
+        'value_column' => 'fee',
+        'machine_name' => 'field_international_fees',
+      ];
+      _vumain_render_international_fields_from_xml($variables['row']->field_field_international_fees[0]['raw']['value'], $field_meta_data, $variables);
+    }
+  }
+}
+
+/**
+ * Helper function: Process the xml for internatonal semester intake and fees.
+ *
+ * @param string $xml_string
+ *   Xml string to be processed.
+ * @param array $field_meta_data
+ *   Contains field information.
+ * @param array &$variables
+ *   An array of hook pre-process function.
+ */
+function _vumain_render_international_fields_from_xml($xml_string, array $field_meta_data, array &$variables) {
+  if ($field_meta_data['machine_name'] === 'field_international_fees') {
+    $processed_value = vu_courses_international_fees_formatter($xml_string);
+  }
+  elseif ($field_meta_data['machine_name'] === 'field_int_sem_int') {
+    $xml['value'] = $xml_string;
+    $processed_value = vu_courses_international_intake_from_xml($xml, TRUE);
+  }
+  else {
+    return;
+  }
+
+  if (!empty($processed_value) && is_array($processed_value)) {
+    $content = '';
+    $field_label = $field_meta_data['label'];
+    foreach ($processed_value as $key => $value) {
+      if (!empty($year = $value['year'])) {
+        $label = t('!field_label (!year):', [
+          '!field_label' => $field_label,
+          '!year' => $year,
+        ]) . ' ';
+      }
+      else {
+        $label = t('!field_label:', ['!field_label' => $field_label]) . ' ';
+      }
+
+      $output = theme('html_tag', [
+        'element' => [
+          '#tag' => 'span',
+          '#attributes' => [
+            'class' => 'views-label',
+          ],
+          '#value' => $label,
+        ],
+      ]);
+      $column = $field_meta_data['value_column'];
+      if (!empty($value[$column])) {
+        if ($column == 'fee' && is_numeric($value[$column])) {
+          $field_value = 'A$' . number_format($value[$column]) . ' ' . t('per semester');
+        }
+        else {
+          $field_value = $value[$column];
+        }
+      }
+      elseif (!empty($value['formatted'])) {
+        $field_value = $value['formatted'];
+      }
+
+      $output .= theme('html_tag', [
+        'element' => [
+          '#tag' => 'span',
+          '#attributes' => [
+            'class' => 'field-content',
+          ],
+          '#value' => !empty($field_value) ? $field_value : '',
+        ],
+      ]);
+
+      $content .= theme('html_tag', [
+        'element' => [
+          '#tag' => 'span',
+          '#attributes' => [
+            'class' => 'inline-content-wrapper',
+          ],
+          '#value' => $output,
+        ],
+      ]);
+    }
+    $field_machine_name = $field_meta_data['machine_name'];
+    $variables['fields'][$field_machine_name]->label_html = '';
+    $variables['fields'][$field_machine_name]->content = $content;
+  }
+}
+
+/**
+ * Helper function: Return possible course category options.
+ *
+ * This cannot be dynamically retrieved as we only want select options.
+ *
+ * @return array
+ *   An array of course category options
+ *   Keyed by name in Drupal with the value for the wording output.
+ */
+function _vumain_get_course_category_options() {
+  return [
+    'Student' => t('Students & alumni'),
+    'Staff' => t('Staff'),
+    'Partners & Projects' => t('Partners & projects'),
+    'Employer Testimonials' => t('Employer testimonials'),
+  ];
+}
+
+/**
+ * Helper function: Return latest 'Success Story' node in a category.
+ *
+ * @param int $category_tid
+ *   The category tid that the node is associated with in the system.
+ *
+ * @return object|null
+ *   The relevant node if found, otherwise NULL.
+ */
+function _vumain_get_latest_success_story_by_category_tid($category_tid) {
+  $node = NULL;
+
+  // Build up the query.
+  $query = new EntityFieldQuery();
+  $entities = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'success_story')
+    ->fieldCondition('field_success_categories', 'tid', $category_tid)
+    ->propertyOrderBy('created', 'DESC')
+    ->range(0, 1)
+    ->execute();
+
+  if (!empty($entities['node'])) {
+    // Get the nid.
+    $nids = array_keys($entities['node']);
+    $nid = array_shift($nids);
+    $node = node_load($nid);
+  }
+
+  return $node;
+}
+
+/**
+ * Helper function: Load node by unit code.
+ *
+ * @param string $unit_code
+ *   The unit code.
+ * @param callable $query_alter
+ *   Optional function to modify the query e.g. by setting propertyCondition.
+ *
+ * @return object|null
+ *   The node or NULL if none found.
+ */
+function vumain_get_nid_by_unit_code($unit_code, callable $query_alter = NULL) {
+  $node = NULL;
+
+  // Build up the query.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->fieldCondition('field_unit_code', 'value', $unit_code, 'LIKE')
+    ->range(0, 1);
+
+  if (is_callable($query_alter)) {
+    $query = $query_alter($query);
+  }
+  $entities = $query->execute();
+  if (!empty($entities['node'])) {
+    // Get the nid.
+    $nids = array_keys($entities['node']);
+    return array_shift($nids);
+  }
+}
+
+/**
+ * Helper function: Load course node by unit code.
+ *
+ * @param string $unit_code
+ *   The unit code.
+ *
+ * @return object|null
+ *   The node or NULL if none found.
+ */
+function vumain_get_course_node_by_unit_code($unit_code) {
+  $nid = vumain_get_nid_by_unit_code($unit_code, function($query) {
+    return $query->propertyCondition('type', 'courses');
+  });
+  if ($nid) {
+    return node_load($nid);
+  }
+}
+
+/**
+ * Helper function: Unit or unitset nid by unit code.
+ *
+ * @param string $unit_code
+ *   The unit code.
+ * @param bool $include_unitsets
+ *   TRUE: (default) search units and unitsets,
+ *   FALSE: search units only.
+ *
+ * @return string|null
+ *   The nid or NULL if none found.
+ */
+function vumain_get_unit_nid_by_unit_code($unit_code, $include_unitsets = TRUE) {
+  $types = $include_unitsets ? ['unit', 'unitset'] : ['unit'];
+  return vumain_get_nid_by_unit_code($unit_code, function($query) use ($types) {
+    return $query->propertyCondition('type', $types, 'IN');
+  });
+}
+
+/**
+ * Helper function: Return array of college links.
+ *
+ * @return array
+ *   An array of college links keyed by college name.
+ */
+function _vumain_get_college_links() {
+  return [
+    'College of Arts' => 'about-vu/academic-colleges/arts',
+    'College of Arts and Education' => 'about-vu/academic-colleges/arts-education',
+    'College of Business' => 'about-vu/academic-colleges/business',
+    'College of Education' => 'about-vu/academic-colleges/education',
+    'Victoria University Business School' => 'about-vu/our-teaching-colleges-schools/victoria-university-business-school',
+    'College of Engineering and Science' => 'about-vu/academic-colleges/engineering-science',
+    'College of Health and Biomedicine' => 'about-vu/academic-colleges/health-biomedicine',
+    'College of Law and Justice' => 'about-vu/academic-colleges/law-justice',
+    'College of Sport and Exercise Science' => 'about-vu/academic-colleges/sport-exercise-science',
+    'VET College' => 'about-vu/academic-colleges/vet-college',
+    'VU College' => 'about-vu/academic-colleges/vu-college',
+    'Victoria University Institute of Technology' => 'vuit',
+    'VU Institute of Technology' => 'vuit',
+    'Victoria Polytechnic' => 'https://www.vupolytechnic.edu.au',
+    'VU Polytechnic' => 'https://www.vupolytechnic.edu.au',
+    'Graduate Research Centre' => 'researchers/contacts-support/graduate-research-centre',
+  ];
+}
+
+/**
+ * Processes google appliance search form and removes unneeded fields.
+ *
+ * @param array $form
+ *   Google appliance search form.
+ */
+function _vumain_process_google_search_form(array &$form) {
+  $query = !empty(arg(2)) ? check_plain(arg(2)) : '';
+  $form['basic']['search_keys']['#default_value'] = urldecode($query);
+  $form['basic']['search_keys']['#size'] = 40;
+  $form['basic']['search_keys']['#attributes']['placeholder'] = t('Search');
+  unset($form['basic']['prompt']);
+}
+
+/**
+ * Overrides google_appliance_search_view function.
+ *
+ * @arg $query
+ *    the search query from url [ arg(1) ]
+ * @arg $sort
+ *    optional sort parameter, either "rel" (default) or "date" [ arg(2) ]
+ *
+ * @return mixed
+ *    themed results: error messages or results listing
+ */
+function vumain_google_appliance_search_view($query = '', $sort = NULL) {
+  // If query is submitted, process the request as normal.
+  if (!isset($_POST['form_id']) && !empty($query)) {
+    return google_appliance_search_view($query, $sort);
+  }
+  else {
+    // Return empty query error message.
+    return theme('vu_google_appliance_empty_query_message');
+  }
+}
+
+/**
+ * Gets the course level label for unit and unit_set pages.
+ *
+ * @param string $level
+ *   Short course level.
+ *
+ * @return string
+ *   Expanded course level.
+ */
+function vumain_get_study_level($level) {
+  $level = trim($level);
+
+  $course_levels = [
+    'undergrad' => t('Undergraduate'),
+    'postgrad' => t('Postgraduate'),
+    'tafe' => t('Vocational and further education (TAFE)'),
+    'he_diplomas' => t('Undergraduate'),
+    'postgrad_research' => t('Postgraduate'),
+  ];
+
+  $level = !empty($course_levels[$level]) ? t('!level', ['!level' => $course_levels[$level]]) : t('!level', ['!level' => $level]);
+
+  return $level;
+}
+
+/**
+ * Get list of anchor list on topic pages.
+ *
+ * @param array $field_main_content
+ *   The Drupal field containing the main page content.
+ *
+ * @return array
+ *   Array of anchor list.
+ */
+function _vumain_get_topic_pages_anchor_list(array $field_main_content) {
+  if (empty($field_main_content) || !count($field_main_content)) {
+    return [];
+  }
+  $main_content_entities = $field_main_content;
+  $items = [];
+
+  foreach ($main_content_entities as $main_content_entity) {
+    if (empty($main_content_entity['entity'])) {
+      continue;
+    }
+
+    $entity = $main_content_entity['entity'];
+    $lang = $entity->language;
+    if (empty($entity->field_exclude_from_anchor_list[$lang][0]['value'])) {
+      // Get icons.
+      $icon_classes = '';
+      if (!empty($entity->field_main_content_icon[$lang][0]['value'])) {
+        $icon_classes = 'fa fa-' . $entity->field_main_content_icon[$lang][0]['value'];
+      }
+
+      // Get text and anchor id.
+      $title = '';
+      $anchor_id = '';
+      if (!empty($entity->title)) {
+        $title = $entity->title;
+        $anchor_id = _vumain_onthispage_link_id($entity->title);
+      }
+
+      // Build items array.
+      $items[] = [
+        'icon_classes' => $icon_classes,
+        'title' => $title,
+        'anchor_id' => $anchor_id,
+      ];
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hool_google_appliance_query_alter().
+ */
+function vumain_google_appliance_query_alter(&$query) {
+  // Disable result filtering.
+  $query['gsa_query_params']['filter'] = 0;
+  // Store the query in session to use it when we alter the results.
+  $static_query = &drupal_static(__FUNCTION__);
+  $static_query = $query;
+}
+
+/**
+ * Implements hook_google_appliance_results_alter().
+ *
+ * We are using this to correct the result count returned from GSA.
+ * GSA returns an estimate count by design, so we run another query to return
+ * the count at the last result page which is usually the actual count.
+ */
+function vumain_google_appliance_results_alter(&$results, &$payload) {
+  // Get the stored query from query alter hook.
+  $second_query = drupal_static('vumain_google_appliance_query_alter');
+
+  if (empty($second_query)) {
+    return;
+  }
+
+  $total_results = $results['total_results'];
+  // Return the last results page and we only need one result.
+  $second_query['gsa_query_params']['start'] = $total_results + 1;
+  $second_query['gsa_query_params']['num'] = 1;
+
+  $curl_options = [];
+  $settings = _google_appliance_get_settings();
+
+  // Query the GSA for search results.
+  $gsa_response = _curl_get(
+    $second_query['gsa_host'],
+    $second_query['gsa_query_params'],
+    $curl_options,
+    $settings['timeout']
+  );
+
+  if ($gsa_response['is_error'] == FALSE) {
+    $correct_result_count = _vumain_get_results_count($gsa_response['response']);
+  }
+
+  $results['total_results'] = !empty($correct_result_count) ? $correct_result_count : $results['total_results'];
+}
+
+/**
+ * Processes result xml and returns result count.
+ *
+ * @param string $result_xml
+ *   GSA response xml.
+ *
+ * @return bool|int
+ *   Return results count or FALSE.
+ */
+function _vumain_get_results_count($result_xml) {
+  $match = [];
+  if (preg_match('/<M>(\d+)<\/M>/', $result_xml, $match) && intval($match[1]) > 0) {
+    return intval($match[1]);
+  }
+  return FALSE;
+}
+
+/**
+ * Returns campus link.
+ *
+ * @param string $campus
+ *    Campus name.
+ *
+ * @return mixed
+ *   Campus link or FALSE.
+ */
+function _vumain_get_campus_link($campus) {
+  $campus_links = [
+    'City Flinders' => '/campuses-services/our-campuses/city-flinders',
+    'City Flinders Lane' => '/campuses-services/our-campuses/city-flinders-lane',
+    'City King' => '/campuses-services/our-campuses/city-king',
+    'City Queen' => '/campuses-services/our-campuses/city-queen',
+    'Footscray Nicholson' => '/campuses-services/our-campuses/footscray-nicholson',
+    'Footscray Park' => '/campuses-services/our-campuses/footscray-park',
+    'VU at MetroWest (Footscray)' => '/campuses-services/our-campuses/vu-at-metrowest-footscray',
+    'St Albans' => '/campuses-services/our-campuses/st-albans',
+    'Sunshine' => '/campuses-services/our-campuses/sunshine',
+    'Werribee' => '/campuses-services/our-campuses/werribee',
+    'VU Sydney' => '/vu-sydney',
+  ];
+  if (!empty($campus_links[$campus])) {
+    return t('<a href="!link">!campus</a>', [
+      '!link' => $campus_links[$campus],
+      '!campus' => $campus,
+    ]);
+  }
+  return FALSE;
+}
+
+/**
+ * Returns campus data.
+ *
+ * @param string $campus
+ *    Campus name.
+ *
+ */
+function vumain_campus_load($node) {
+
+  $campus = drupal_get_path_alias('node/' . $node->nid);
+  $variables['campus_name'] = $campus;
+  $variables['lat_long'][0] = vumain_campuses_get_lat_long($campus);
+  $variables['campus_title'] = $node->title;
+  $variables['campus_addr'] = vumain_campus_get_location($node);
+
+  $variables['zoom'] = vumain_campuses_zoom($campus);
+  $variables['map_properties'] = [];
+
+  $commands = [];
+  $commands = [
+    'campus' => [
+      'title' => $variables['campus_name'],
+      'lat_long' => $variables['lat_long'],
+      'zoom' => $variables['zoom'],
+      'campus_title' => $variables['campus_title'],
+      'campus_addr' => $variables['campus_addr']
+    ]
+  ];
+
+  drupal_json_output($commands);
+}

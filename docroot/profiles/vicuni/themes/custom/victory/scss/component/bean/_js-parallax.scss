@@ -1,0 +1,12 @@
+//
+// Parallax banner style.
+//
+.js-parallax-container {
+  img {
+
+    @include breakpoint($breakpoint-md-up) {
+      height: auto !important;
+      top: -50% !important;
+    }
+  }
+}

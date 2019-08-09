@@ -1,0 +1,105 @@
+// Library Opening Hours - info block.
+#block-vu-core-library-opening-hours{
+  .s-lc-whw { background-color: #E5F1FA !important; margin-top: 0px !important; }
+  .s-lc-whw thead { background-color: #FFF7EA; }
+  .s-lc-whw-head-date { color: #ffffff; font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; font-size: 12px;}
+  .s-lc-whw-today-h {  background-color: #20699E; border-bottom: 2px solid #B27C3D !important; }
+  .s-lc-whw-today { background-color: #FFE6BE; }
+  .s-lc-whw>tbody>tr:nth-of-type(odd)>.s-lc-whw-today { background-color: #FEEBCC !important;}
+  .s-lc-whw-sublocname{ padding-left: 10px!important; }
+  .s-lc-whw-footnote { color: #555; font-size: 80%; }
+  .s-lc-whw-footnote td:hover { background-color:#fff!important;}
+  /* Below styles can be removed if you are already using Bootstap v3 in host page */
+  .s-lc-whw-cont {font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; font-size: 12px;}
+  .s-lc-whw-pr { padding: 0px 0px; font-size: 30px; line-height: 1.5; border-radius: 3px; color: #20699E !important; background-color: transparent; border-color: transparent; display: inline-block; margin-bottom: 0; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; background-image: none; border: 1px solid transparent; white-space: nowrap; }
+  .s-lc-whw-ne { padding: 0px 0px 0px; font-size: 30px; line-height: 1.5; border-radius: 3px; color: #20699E !important; background-color: transparent; border-color: transparent; display: inline-block; margin-bottom: 0; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; background-image: none; border: 1px solid transparent; white-space: nowrap; }
+  .s-lc-whw-bh {
+    text-align: right; 
+    white-space: nowrap;
+    .btn {opacity: 1 !important; text-align: center; margin: auto; width:12px; }
+    .btn-default[disabled]:hover { background-color:  #20699E; border-color: #20699E; }
+    .btn-default:hover { background-color:  #20699E; border-color: #20699E !important; }
+    .btn-default { background-color: transparent !important; border-color: transparent !important; }
+    .btn-default:active { background-color:  #20699E !important; border-color: #20699E !important; }
+    .btn-default:focus { background-color:  #20699E !important; border-color: #20699E !important; }
+    .btn:focus { outline: 0px !important; }
+    .btn:active { box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0) !important; }
+    .cbutton { float:left; }
+  }
+  .s-lc-whw-pr::before {
+    color: #ffffff;
+    content: "\2039";
+    font-weight: 500;
+    font-size: 110%;
+  }
+  .s-lc-whw-pr:hover::before {
+    color: #94b5ca;
+    content: "\2039";
+    font-weight: 500;
+    font-size: 110%;
+    top: -7%;
+  }
+  .s-lc-whw-ne::before {
+    color: #ffffff;
+    content: "\203A";
+    font-weight: 500;
+    font-size: 110%;
+    top: -7%;
+  }
+  .s-lc-whw-ne:hover::before {
+    color: #94b5ca;
+    content: "\203A";
+    font-weight: 500;
+    font-size: 110%;
+    top: -7%;
+  }
+  .fal.fa-calendar{
+    padding-right: 7px;
+    padding-left: 10px;
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    font-size: 150%;
+    text-align: center;
+    vertical-align: middle;
+  }
+  .s-lc-whw-pr:disabled::before{ color:rgba(255,255,255,.65); }
+  .s-lc-whw-pr:disabled:hover { background-color: transparent; color: #20699E; }
+  .s-lc-whw-pr:hover { background-color: transparent; color: #20699E; }
+  .s-lc-whw-pr:active { background-color: transparent; color: #20699E; }
+  .s-lc-whw-ne:disabled { background-color: transparent; color: #20699E; }
+  .s-lc-whw-ne:hover { background-color: transparent; color: #20699E; }
+  .s-lc-whw-ne:active { background-color: transparent; color: #20699E; }
+  .s-lc-whw { width: 100%; margin-bottom: 20px; max-width: 200%; background-color: transparent; border-bottom: none; border-left: none; border-collapse: collapse; border-spacing: 0; }
+  .s-lc-whw>tbody>tr>td { padding: 15px; }
+  .s-lc-whw>thead>tr>th { vertical-align: middle; border-bottom: 2px solid #0D6CB2; padding: 2px 2px 2px 15px;}
+  .s-lc-whw th { border-top: none; border-bottom: none; border-right: none;}
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  @include breakpoint ($breakpoint-sm-down) {
+    .s-lc-whw { width: 320%; margin-bottom: 20px; max-width: 320%; background-color: transparent; border-bottom: none; border-left: none; border-collapse: collapse; border-spacing: 0; }
+    .s-lc-whw-cont .table-responsive { height:100%; width: 100%; margin-bottom: 15px; overflow-y: scroll; overflow-x: scroll; -ms-overflow-style: -ms-autohiding-scrollbar; border: 1px solid #ddd; -webkit-overflow-scrolling: touch;}
+    .s-lc-whw>tbody>tr>td { padding : 20px;}
+    .s-lc-whw td { white-space: normal; }
+    .s-lc-whw>thead>tr>th { padding: 5px 0px 5px 25px;}
+  }
+  @include breakpoint ($breakpoint-md) {
+    .s-lc-whw { width: 135%; margin-bottom: 20px; max-width: 135%; background-color: transparent; border-bottom: none; border-left: none; border-collapse: collapse; border-spacing: 0; }
+    .s-lc-whw-cont .table-responsive { height:100%; width: 100%; margin-bottom: 15px; overflow-y: scroll; overflow-x: scroll; -ms-overflow-style: -ms-autohiding-scrollbar; border: 1px solid #ddd; -webkit-overflow-scrolling: touch;}
+    .s-lc-whw>tbody>tr>td { padding : 20px;}
+    .s-lc-whw td { white-space: normal; }
+    .s-lc-whw>thead>tr>th { padding: 5px 0px 5px 18px;}
+  }
+  .hours-link{
+    a {
+      display: inline-block;
+      padding-bottom: 0;
+      margin-left: 25px;
+
+      @include text-link();
+        &:hover {
+        @include text-link-hover();
+      }
+    }
+  }
+}

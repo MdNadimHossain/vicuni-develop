@@ -1,0 +1,79 @@
+@charset "UTF-8";
+.pagination {
+  height: $baseLineHeight * 2;
+  margin: $baseLineHeight 0;
+}
+
+.pagination ul, ul.pagination {
+  display: inline-block;
+  margin-left: 0;
+  margin-bottom: 0;
+  @include border-radius(3px);
+  @include box-shadow(0 1px 2px rgba(0, 0, 0, .05));
+}
+
+.pagination li {
+  display: inline;
+  > a, &.active > a {
+    float: left;
+    margin: 0;
+    color: $blue;
+    padding: 0 14px;
+    line-height: ($baseLineHeight * 2) - 2;
+    text-decoration: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: $grey8;
+    border-left-width: 0;
+    &:visited, &:hover {
+      border-color: $grey8;
+    }
+    border-bottom-color: $grey9;
+    &:visited {
+      color: purple;
+      border-bottom: 1px solid purple;
+    }
+    &:hover {
+      color: $blue2;
+      background-color: #f5f5f5;
+      border-bottom: 1px solid $blue2;
+    }
+  }
+  &:first-child a {
+    border-left-width: 1px;
+    @include border-radius(3px 0 0 3px);
+  }
+  &:last-child a {
+    @include border-radius(0 3px 3px 0);
+  }
+}
+
+.pagination li.active > a {
+  &, &:visited, &:hover {
+    color: $grey9;
+    cursor: default;
+    border-bottom-color: $grey9;
+    color: $grey9;
+    background-color: $offwhite2;
+    outline: none;
+    &:hover {
+      border-bottom-color: $blue2;
+    }
+  }
+}
+
+.pagination .disabled, .pagination .disabled > span, .pagination .disabled > a, .pagination .disabled > a:hover {
+  color: $grey9;
+  background-color: transparent;
+  cursor: default;
+  border-bottom-color: $grey9;
+}
+
+// Centered
+.pagination-centered {
+  text-align: center;
+}
+
+.pagination-right {
+  text-align: right;
+}

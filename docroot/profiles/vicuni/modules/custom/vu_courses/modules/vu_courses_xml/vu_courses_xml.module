@@ -1,0 +1,400 @@
+<?php
+
+/**
+ * @file
+ * Test module to make sure that XML exports work correctly.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function vu_courses_xml_menu() {
+  $items = [];
+
+  $items['vu-courses-xml-compare'] = [
+    'type' => MENU_CALLBACK,
+    'title' => 'Compare courses XML feeds',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_courses_xml_compare_form'],
+    'access arguments' => ['administer site configuration'],
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function vu_courses_xml_theme($existing, $type, $theme, $path) {
+  return [
+    'xml_definition_list' => [
+      'variables' => [
+        'items' => [],
+        'title' => '',
+        'attributes' => [],
+      ],
+    ],
+  ];
+}
+
+/**
+ * Definition list themeing function.
+ */
+function theme_xml_definition_list($variables) {
+  $items = $variables['items'];
+  $title = $variables['title'];
+  $attributes = $variables['attributes'];
+
+  // Only output the list container and title, if there are any list items.
+  // Check to see whether the block title exists before adding a header.
+  // Empty headers are not semantic and present accessibility challenges.
+  $output = ['<div class="definition-list">'];
+  if (isset($title) && $title !== '') {
+    array_push($output, '<h3>' . $title . '</h3>');
+  }
+
+  // If there are items to be listed...
+  if (!empty($items)) {
+    array_push($output, "<dl" . drupal_attributes($attributes) . '>');
+    $num_items = count($items);
+    $i = 0;
+
+    // Add each of the items...
+    foreach ($items as $item) {
+
+      $attributes = [
+        'term' => [],
+        'desc' => [],
+      ];
+      $data = [
+        'term' => [],
+        'desc' => [],
+      ];
+      $i++;
+      foreach ($item as $key => $value) {
+        if (in_array($key, ['term', 'desc'])) {
+          if (is_array($value)) {
+            foreach ($value as $key2 => $value2) {
+              if ($key2 == 'data') {
+                $data[$key] = $value2;
+              }
+              else {
+                $attributes[$key][$key2] = $value2;
+              }
+            }
+          }
+          else {
+            $data[$key] = $value;
+          }
+        }
+        $attributes['wrap'] = array_key_exists('wrap', $item) ? $item['wrap'] : [];
+      }
+
+      // Wrapper class needs to be an array so first/last can be pushed.
+      if (!array_key_exists('class', $attributes['wrap'])) {
+        $attributes['wrap']['class'] = [];
+      }
+      if (!is_array($attributes['wrap']['class'])) {
+        $attributes['wrap']['class'] = [$attributes['wrap']['class']];
+      }
+
+      // Add first/last classes to wrapping div.
+      if ($i == 1) {
+        array_push($attributes['wrap']['class'], 'first');
+      }
+      if ($i == $num_items) {
+        array_push($attributes['wrap']['class'], 'last');
+      }
+
+      // Add wrapping div to term/definition pair.
+      array_push($output, '<div' . drupal_attributes($attributes['wrap']) . '>');
+
+      // Add term & definition.
+      array_push($output, '<dt' . drupal_attributes($attributes['term']) . '>' . (is_array($data['term']) ? render($data['term']) : $data['term']) . '</dt>');
+      array_push($output, '<dd' . drupal_attributes($attributes['desc']) . '>' . (is_array($data['desc']) ? render($data['desc']) : $data['desc']) . '</dd>');
+
+      // Close wrapping div.
+      array_push($output, "</div>\n");
+    }
+    array_push($output, "</dl>");
+  }
+  array_push($output, '</div>');
+
+  return implode("\n", $output);
+}
+
+/**
+ * Form to compare two XML sources.
+ */
+function vu_courses_xml_compare_form($form, &$form_state) {
+  if ($form_state['rebuild']) {
+    $form['submission']['#markup'] = vu_courses_xml_compare_form_process($form, $form_state);
+  }
+  else {
+    $form['source1_file'] = [
+      '#type' => 'file',
+      '#title' => t('D6 file'),
+    ];
+
+    $form['source2_file'] = [
+      '#type' => 'file',
+      '#title' => t('D7 file'),
+    ];
+
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => t('Compare courses'),
+    ];
+  }
+
+  return $form;
+}
+
+/**
+ * Submit handler for comparision form.
+ */
+function vu_courses_xml_compare_form_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Process data comparision.
+ */
+function vu_courses_xml_compare_form_process($form, &$form_state) {
+  $file1 = file_save_upload('source1_file', ['file_validate_extensions' => ['xml']], FALSE, FILE_EXISTS_REPLACE);
+  $file2 = file_save_upload('source2_file', ['file_validate_extensions' => ['xml']], FALSE, FILE_EXISTS_REPLACE);
+
+  if (!$file1 || !$file2) {
+    return '<h2 style="color: red;">' . t('FAILURE! Data sets do not have the same items') . '</h2>';
+  }
+  $data1 = _vu_courses_xml_extract_courses_data($file1->uri);
+  if (!$data1) {
+    return '<h2 style="color: red;">' . t('FAILURE! Unable to parse D6 XML') . '</h2>';
+  }
+  $data2 = _vu_courses_xml_extract_courses_data($file2->uri);
+  if (!$data2) {
+    return '<h2 style="color: red;">' . t('FAILURE! Unable to parse D7 XML') . '</h2>';
+  }
+
+  $results = _vu_courses_xml_compare_data($data1, $data2);
+
+  $report = _vu_courses_xml_compare_render_results($results);
+  $color = $report['error'] ? 'red' : 'green';
+  $output = "<div style='color: $color'>{$report['message']}</div>";
+  if (isset($report['table'])) {
+    $output .= render($report['table']);
+  }
+  return $output;
+}
+
+/**
+ * Extract course data from provided XML file.
+ */
+function _vu_courses_xml_extract_courses_data($uri) {
+  $data = [];
+  $xml = simplexml_load_file(drupal_realpath($uri));
+
+  if (!$xml) {
+    return FALSE;
+  }
+
+  foreach ($xml->course as $course) {
+    $code = (string) $course->code;
+    $data[$code] = [
+      'title' => (string) $course->title,
+      'code' => (string) $course->code,
+      'nid' => (string) $course->drupal_node,
+      'duplicated' => isset($data[$code]) && isset($data[$code]['duplicated']) ? $data[$code]['duplicated']++ : 0,
+    ];
+  }
+
+  ksort($data);
+
+  return $data;
+}
+
+/**
+ * Compare 2 data sets and return differences.
+ */
+function _vu_courses_xml_compare_data($data1, $data2) {
+  $results = [
+    'D6' => [
+      'items' => $data1,
+      'added' => [],
+      'missing' => [],
+      'different' => [],
+      'duplicated' => [],
+    ],
+    'D7' => [
+      'items' => $data2,
+      'added' => [],
+      'missing' => [],
+      'different' => [],
+      'load_fields' => [
+        'title',
+        'field_unit_code',
+        'nid',
+        'status',
+      ],
+    ],
+  ];
+
+  // Find all entries in D7 that do not exist in D6.
+  $results['D7']['added'] = array_diff_key($data2, $data1);
+  $results['D6']['missing'] = $results['D7']['added'];
+
+  // Find all entries in D6 that do not exist in D7.
+  $results['D6']['added'] = array_diff_key($data1, $data2);
+  $results['D7']['missing'] = $results['D6']['added'];
+
+  return $results;
+}
+
+/**
+ * Render comparision results.
+ */
+function _vu_courses_xml_compare_render_results($results) {
+  $rows = [];
+  $header = [];
+
+  $col_count = 0;
+  $total_diff = 0;
+  $total_items_count = [];
+  foreach ($results as $source_name => $data) {
+    if (!empty($data['load_fields'])) {
+      $nids = array_column($data['items'], 'nid');
+      $existing_nids = _vu_courses_xml_nids_exists($nids);
+      if (count($nids) != count($existing_nids)) {
+        return [
+          'error' => TRUE,
+          'message' => t('FAILURE! Some of the D7 nodes are missing in the provided XML files. Please make sure that you have the latest XML file and currently imported database'),
+        ];
+      }
+    }
+
+    // Track total results to use them for a success/fail message.
+    $total_diff += count($data['added']) + count($data['missing']);
+    $total_items_count[] = count($data['items']);
+
+    $header[] = ucfirst($source_name);
+
+    // Overview for each source.
+    $rows['general'][$source_name] = theme('xml_definition_list', [
+      'items' => [
+        ['term' => t('Total'), 'desc' => count($data['items'])],
+        ['term' => t('Added'), 'desc' => count($data['added'])],
+        ['term' => t('Missing'), 'desc' => count($data['missing'])],
+        ['term' => t('Duplicated'), 'desc' => count($data['duplicated'])],
+      ],
+    ]);
+
+    // Prepare default empty row column values.
+    $row = array_fill(0, count($results), '');
+    foreach (['added', 'missing'] as $type) {
+      $header_key = implode('_', [$source_name, $type]);
+      $rows[$header_key] = [
+        [
+          'data' => t('<h3>@type items for @name (@count)</h3>', [
+            '@type' => ucfirst($type),
+            '@name' => $source_name,
+            '@count' => count($data[$type]),
+          ]),
+          'colspan' => 2,
+        ],
+      ];
+
+      $missing_details_count = 0;
+      foreach ($data[$type] as $k => $items) {
+        $key = implode('_', [$source_name, $type, $k]);
+
+        $list_items = [];
+        foreach ($items as $name => $value) {
+          $list_items[] = [
+            'term' => $name,
+            'desc' => '<code>' . $value . '</code>',
+          ];
+        }
+        $row[$col_count] = theme('xml_definition_list', [
+          'items' => $list_items,
+        ]);
+
+        // Try to load additional information about this item, but only in
+        // 'added' context.
+        if (!empty($data['load_fields']) && $type == 'added') {
+          $node = node_load($items['nid']);
+          if ($node) {
+            $field_items = [
+              [
+                'term' => 'Link',
+                'desc' => l(t('Link'), 'node/' . $node->nid),
+              ],
+            ];
+            foreach ($data['load_fields'] as $field_name) {
+              $field_items[] = [
+                'term' => $field_name,
+                'desc' => '<code>' . (isset($node->{$field_name}[LANGUAGE_NONE][0]['value']) ? $node->{$field_name}[LANGUAGE_NONE][0]['value'] : $node->{$field_name}) . '</code>',
+              ];
+            }
+
+            $row[$col_count] .= '<hr/><h4>Found item details</h4>' . theme('xml_definition_list', ['items' => $field_items]);
+          }
+          else {
+            $row[$col_count] .= '<hr/><h4 style="color:red; text-transform: capitalize;">Item details were not found</h4>';
+            $missing_details_count++;
+          }
+        }
+
+        $rows[$key] = $row;
+      }
+
+      if ($missing_details_count > 0) {
+        $rows[$header_key][0]['data'] = $rows[$header_key][0]['data'] . '<span style="color:red;"> ' . t('Missing details: @count', ['@count' => $missing_details_count]) . '</span>';
+      }
+    }
+    $col_count++;
+  }
+
+  $error = FALSE;
+  if ($total_diff == 0 && min($total_items_count) == max($total_items_count)) {
+    $message = t('SUCCESS! Data sets have the same items');
+  }
+  else {
+    $error = TRUE;
+    $message = t('FAILURE! Data sets do not have the same items');
+  }
+
+  $table = [
+    '#theme' => 'table',
+    '#rows' => $rows,
+    '#header' => $header,
+    '#sticky' => FALSE,
+  ];
+
+  return [
+    'error' => $error,
+    'message' => $message,
+    'table' => $table,
+  ];
+}
+
+/**
+ * Check that provided nids exist.
+ *
+ * @param array $nids
+ *   Array of nids.
+ *
+ * @return array
+ *   Array of existing nids.
+ */
+function _vu_courses_xml_nids_exists($nids) {
+  if (empty($nids)) {
+    return [];
+  }
+
+  return db_select('node', 'n')
+    ->fields('n', ['nid'])
+    ->condition('nid', $nids)
+    ->execute()
+    ->fetchCol();
+}

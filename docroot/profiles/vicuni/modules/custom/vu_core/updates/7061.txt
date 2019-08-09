@@ -1,0 +1,1 @@
+Removes blocks from Victory theme.

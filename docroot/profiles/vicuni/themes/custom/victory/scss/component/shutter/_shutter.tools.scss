@@ -1,0 +1,80 @@
+//
+// Tools block in shutter region.
+//
+
+.js-shutter {
+  #block-menu-block-main-menu-tools {
+    $local-dark-blue: rgba(#f1f1f1, 0.04);
+    $local-box-spacing-vertical-md: 15px;
+    $local-box-spacing-vertical-lg: 25px;
+    $local-box-spacing-horizontal-md: 15px;
+    $local-box-spacing-horizontal-lg: 25px;
+
+    .menu-block-main-menu-tools {
+      ul {
+        @include reset-box-model;
+        @include make-row;
+
+        @include breakpoint($breakpoint-md-up) {
+          // Make all boxes appear with equal heights.
+          display: flex;
+        }
+
+        li {
+          @extend %ext-arrow;
+          margin-bottom: $spacing-vertical-bottom-sm;
+          @include breakpoint($breakpoint-md-up) {
+            margin-bottom: 0;
+          }
+
+          a {
+            color: $color-white;
+            display: block;
+            position: relative;
+            background-color: $local-dark-blue;
+            height: 100%;
+            padding: $local-box-spacing-vertical-md $local-box-spacing-horizontal-md;
+            @include transition(background-color 400ms, border 400ms, color 400ms);
+
+            &:hover,
+            &:focus {
+              background-color: $color-yellow-grandis;
+              text-decoration: none;
+              color: $color-grey-tundora;
+            }
+            &:hover:focus,
+            &:focus {
+              text-decoration: none;
+            }
+
+            @include breakpoint($breakpoint-lg-up) {
+              padding: $local-box-spacing-vertical-lg $local-box-spacing-horizontal-lg;
+            }
+
+            &.fa-prefix {
+              &:before {
+                font-size: 120%;
+              }
+            }
+
+            .text {
+              display: inline-block;
+              @include font(18px, 'futura', 500);
+              margin-bottom: $spacing-vertical-bottom-xs;
+            }
+
+            .external-link-wrapper {
+              position: absolute;
+              top: $local-box-spacing-vertical-md + 2px;
+              right: $local-box-spacing-horizontal-md;
+              @include breakpoint($breakpoint-lg-up) {
+                top: $local-box-spacing-vertical-lg + 2px;
+                right: $local-box-spacing-horizontal-lg;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

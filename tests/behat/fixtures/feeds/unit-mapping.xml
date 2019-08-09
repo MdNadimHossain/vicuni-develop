@@ -1,0 +1,119 @@
+<units>
+    <unit>
+        <unitid>1337000</unitid>
+        <unitversion>3.00</unitversion>
+        <unitcode>UNITIMPORTTEST</unitcode>
+        <unitlevel>UG</unitlevel>
+        <unittitle>Clinical Diagnosis &amp; Management 2</unittitle>
+        <collegeid>67</collegeid>
+        <college>College of Health and Biomedicine</college>
+        <finalversiondate>7/11/2014 10:45:57 AM</finalversiondate>
+        <status>Final Version</status>
+        <firstoffered>1/01/2006</firstoffered>
+        <unitoffered>Y</unitoffered>
+        <singleunit />
+        <locations>
+            <location>City Flinders</location>
+        </locations>
+        <locationother />
+        <locationoffshores />
+        <locationoffshoreother />
+        <pre-requisites>
+            <headertext />
+            <unit>Prerequisite 1 &amp; a thing</unit>
+            <unit>Prerequisite 2 - another thing</unit>
+            <footertext />
+        </pre-requisites>
+        <co-requisites>
+            <headertext />
+            <unit>HHY2172 - Pathology 2</unit>
+            <footertext />
+        </co-requisites>
+        <introduction>The aim of this unit is to build students' knowledge and skills from Clinical Diagnosis and Management 1 by exploring the clinical presentations and associated laboratory tests of common and life-threatening diseases affecting the haematological, cardiovascular, renal and urogenital systems. Students were introduced to regional examination in HHD1271 and this unit provides the opportunity to integrate the practical skills with simulated case scenarios reflecting what may present in osteopathic practice.&lt;br /&gt;</introduction>
+        <creditpoints>6</creditpoints>
+        <learningoutcomes>On successful completion of this unit, students will be able to:
+            &lt;table width='100%' border='0' cellspacing='0' cellpadding='0'&gt;
+
+            &lt;tr&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;1.&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='94%'&gt;Explain the likely presentations of common and life threatening haematological, cardiovascular, renal and urogenital systems;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;2.&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='94%'&gt;Role play cardiovascular, renal and urogenital systems examinations;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;3.&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='94%'&gt;Interpret symptoms or signs warranting referral to another practitioner;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;4.&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='94%'&gt;Apply patient centred communication skills involved in the consultative process; and&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;5.&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='94%'&gt;Recognise the appropriate applications of widely employed laboratory, radiological and other special investigations of the haematological, cardiovascular, renal and urogenital systems and interpret typical pathological findings.&lt;/td&gt;
+            &lt;td class='displaynormal' valign='top' width='2%'&gt;&amp;nbsp;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;/table&gt;
+        </learningoutcomes>
+        <classcontact>
+            <resource>
+                <activity>Lab</activity>
+                <duration>1.0 hr</duration>
+            </resource>
+            <resource>
+                <activity>Lecture</activity>
+                <duration>2.0 hrs</duration>
+            </resource>
+            <resource>
+                <activity>Tutorial</activity>
+                <duration>1.0 hr</duration>
+            </resource>
+            <additionalinformation>Forty-eight (48) hours comprising of weekly lectures (2 hours), practical workshops (1 hour) and tutorials (1 hour).</additionalinformation>
+        </classcontact>
+        <requiredreading>
+            <headertext />
+            <text>
+                <author-year>Bickley, L. S. (2012).</author-year>
+                <title>Bates' guide to physical examination and history taking.</title>
+                <edition>(11th ed.).</edition>
+                <place-publisher>Philadelphia: Lippincott Williams &amp; Wilkins.</place-publisher>
+            </text>
+            <text>
+                <author-year>Fitzgerald, K., &amp; Kiatos, J. (2014).</author-year>
+                <title>HHD2172 CD&amp;M 2 and HHD2273 CD&amp;M 3 unit manual.</title>
+                <edition />
+                <place-publisher>Melbourne, Australia: Victoria University, College of Health and Biomedicine Osteopathy Unit.</place-publisher>
+            </text>
+            <footertext />
+        </requiredreading>
+        <assessment>
+            <headertext>Participation in practical session requires at least 90% attendance (hurdle requirement). All formative and summative assessment tasks are hurdle requirements.</headertext>
+            <items>
+                <item>
+                    <type>Examination</type>
+                    <description>15 minute practical examination (equivalent  of 1500 words)</description>
+                    <grade>35%</grade>
+                </item>
+                <item>
+                    <type>Examination</type>
+                    <description>2 hour written exam (equivalent of 1000 words)</description>
+                    <grade>65%</grade>
+                </item>
+            </items>
+            <footertext>Total combined word equivalence is approximately 2500 words for this six-credit point unit.
+
+                The practical examination is equivalent to 1500 words of assessment. This represents the requirement of the student to draw on a range of skills sets including communication, psychomotor skills, interpersonal skills and knowledge of theory and anatomy. It should be noted that the 2 hour exam is in reality equivalent to a 1-1.5 hour exam; the students are given more time to complete the assessment in order to reduce their stress levels.</footertext>
+        </assessment>
+    </unit>
+</units>

@@ -1,0 +1,5 @@
+name = VU Feature Switches
+description = Dev utilities relating to feature switching.
+php = 5.4
+package = VU
+core = 7.x

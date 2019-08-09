@@ -1,0 +1,4841 @@
+<?php
+
+/**
+ * @file
+ * Code for the VU Core feature.
+ */
+
+include_once 'vu_core.features.inc';
+include_once 'vu_core.helpers.inc';
+
+define('VU_EXPERT_GUIDE_INDEX', 'expert_guide');
+define('VU_COURSE_SEARCH_INTL_COOKIE_NAME', 'vuinternational');
+define('VU_COURSE_SEARCH_SERVER', 'acquia_search_server');
+define('VU_COURSE_SEARCH_INDEX', 'course_index');
+define('VU_COURSE_SEARCH_RESIDENT', 'resident');
+define('VU_COURSE_SEARCH_NON_RESIDENT', 'non-resident');
+define('VU_COURSE_SEARCH_COURSE_TYPE', 'course');
+define('VU_COURSE_SEARCH_UNIT_TYPE', 'unit');
+define('VU_COURSE_STUDY_LEVEL_LABEL_FIELD', 'ss_study_level_label');
+define('VU_TOPIC_PAGES_MAX_FACTS', 6);
+define('VU_MAP_ZOOM_DEFAULT', 18);
+define('VU_VIEWS_CONTENT_REVISIONS', 'content_revisions');
+define('VU_COURSE_INDEX_MAJORS_FIELD', 'tm_course_majors');
+define('VU_COURSE_INDEX_MAJORS_TYPE_FIELD', 'ss_course_majors_type');
+
+// VU Sydney.
+define('VU_SYDNEY_SUBSITE_NAME', 'Victoria University | Sydney Australia');
+define('VU_SYDNEY_SUBSITE_TITLE', 'VU Sydney');
+// VU online.
+define('VU_ONLINE_LOC', 'Victoria University Online');
+
+// VU Roles.
+define('VU_ROLE_APPROVER', 'Approver');
+define('VU_ROLE_AUTHOR', 'Author');
+define('VU_ROLE_PUBLISHER', 'Emergency Publisher');
+define('VU_ROLE_ADVANCED_AUTHOR', 'Advanced Author');
+define('VU_ROLE_INTERNATIONAL_AUTHOR', 'International Author');
+define('VU_ROLE_TAFE_AUTHOR', 'TAFE Author');
+define('VU_ROLE_ADMIN', 'Admin');
+define('VU_ROLE_ADMINISTRATOR', 'administrator');
+
+/**
+ * Include additional early bootstrap files.
+ *
+ * This allows to organise contrib module-related hook implementations into
+ * standalone files.
+ *
+ * Note that most of the modules are not available at this stage and
+ * another inclusion is required in hook_init() for performance reasons.
+ */
+$early_bootstrap_modules = module_list();
+// Add more modules, inclusions for which are absolutely required at early
+// stage.
+$early_bootstrap_modules[] = 'system';
+foreach ($early_bootstrap_modules as $module_name) {
+  $module_include_file = dirname(__FILE__) . '/includes/' . $module_name . '.inc';
+  if (file_exists($module_include_file)) {
+    require_once $module_include_file;
+  }
+}
+
+/**
+ * Implements hook_search_api_solr_query_alter().
+ */
+function vu_core_search_api_solr_query_alter(&$call_args, $query) {
+  $search_index = $query->getIndex();
+  if ($search_index->machine_name == VU_EXPERT_GUIDE_INDEX) {
+    $req = drupal_get_query_parameters(NULL, ['q']);
+    // Query can be anything... or nothing.
+    if (!empty($req['query'])) {
+      $q = str_replace('+', ' ', urldecode($req['query']));
+      $call_args['query'] = check_plain($q);
+      $call_args['params']['sort'] = implode(',', [
+        $call_args['params']['sort'],
+        'ss_alphasort_title asc',
+      ]);
+    }
+    else {
+      $call_args['params']['sort'] = 'ss_alphasort_title asc';
+    }
+  }
+  elseif ($search_index->machine_name == VU_COURSE_SEARCH_INDEX) {
+    _vu_core_course_index_query_alter($call_args);
+
+    // Add commencement date to query.
+    $q = drupal_get_query_parameters();
+    if (!empty($q['date'])) {
+      $call_args['params']['fq'][] = "ss_commencement_date:" . filter_var($q['date'], FILTER_SANITIZE_STRING);
+    }
+  }
+}
+
+/**
+ * Alters solr query for course search.
+ *
+ * @param array $call_args
+ *   Query arguments.
+ */
+function _vu_core_course_index_query_alter(&$call_args) {
+  $args = vu_core_course_search_get_query_args();
+  $call_args['params'] = array_merge($call_args['params'], vu_core_query_modifiers($args));
+
+  // Retrieve normalised study level label.
+  $retrieved_fields = explode(',', $call_args['params']['fl']);
+  $retrieved_fields[] = VU_COURSE_STUDY_LEVEL_LABEL_FIELD;
+
+  // Retrieve unit code label.
+  $retrieved_fields[] = "ss_field_unit_code";
+
+  // Retrieve course majors.
+  $terms = explode(' ', $call_args['query']);
+  $call_args['params']['qf'][] = VU_COURSE_INDEX_MAJORS_FIELD . '^4';
+  if (count($terms)) {
+    $call_args['params']['pf'][] = 'tm_title^15';
+    $call_args['params']['pf'][] = VU_COURSE_INDEX_MAJORS_FIELD . '^10';
+  }
+
+  $retrieved_fields[] = VU_COURSE_INDEX_MAJORS_FIELD;
+  $retrieved_fields[] = VU_COURSE_INDEX_MAJORS_TYPE_FIELD;
+  $call_args['params']['fl'] = implode(',', $retrieved_fields);
+
+  // Set Solr Highlighting Parameters.
+  $call_args['params']['hl'] = 'true';
+  $call_args['params']['hl.fl'] = 'content, ' . VU_COURSE_INDEX_MAJORS_FIELD;
+  $call_args['params']['hl.simple.pre'] = '[HIGHLIGHT]';
+  $call_args['params']['hl.simple.post'] = '[/HIGHLIGHT]';
+  $call_args['params']['hl.snippets'] = 20;
+  $call_args['params']['hl.fragsize'] = 170;
+  $call_args['params']['hl.mergeContiguous'] = 'true';
+
+  // If no query is submitted, add custom sorting.
+  if (empty($args['query'])) {
+    if (strtolower($args['type']) === 'unit') {
+      // Unit results are sorted by the unit title.
+      $call_args['params']['sort'] = 'ss_title asc';
+    }
+    elseif (strtolower($args['iam']) === 'non-resident') {
+      // Custom sort for for non resident.
+      $call_args['params']['sort'] = 'is_course_duration_hours desc';
+    }
+    else {
+      // Course results are sorted by title without level/degree,
+      // e.g. Bachelor of Accounting => Accounting.
+      $call_args['params']['sort'] = 'ss_alphasort_title asc';
+    }
+  }
+}
+
+/**
+ * Returns array of study levels from D6 to the corresponding D7 facets.
+ *
+ * @return array
+ *   D6 study level facet labels mapped to new format.
+ */
+function _vu_core_study_level_map() {
+  $map = [
+    'Short course' => 'short',
+    'Postgraduate' => 'postgrad',
+    'Undergraduate' => 'undergrad',
+    'Vocational or Further Education' => 'tafe',
+  ];
+
+  return $map;
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function vu_core_views_pre_render(&$view) {
+  // Get query vars.
+  $url_query = drupal_get_query_parameters();
+
+  if ($view->name == 'course_search') {
+    // Hide the body field for course search page.
+    if (!isset($url_query['type']) || drupal_strtolower($url_query['type']) != 'unit') {
+      $view->field['body']->options['exclude'] = TRUE;
+    }
+    // Hide description field for unit search.
+    elseif (isset($url_query['type']) && drupal_strtolower($url_query['type']) == 'unit') {
+      $view->field['field_description_editable_value']->options['exclude'] = TRUE;
+    }
+
+    // Add the title link for the field template based on URL query values.
+    foreach ($view->result as $row) {
+      // Add the international link on course search only,
+      // and only for non-residents.
+      if ((!isset($url_query['type']) || drupal_strtolower($url_query['type']) != 'unit') && (isset($url_query['iam']) && $url_query['iam'] == 'non-resident')) {
+        $row->_entity_properties['link_path'] = 'courses/international/' . $row->_entity_properties['field_unit_code'];
+      }
+      else {
+        $row->_entity_properties['link_path'] = drupal_get_path_alias('node/' . $row->_entity_properties['search_api_id']);
+      }
+
+      if (isset($url_query['iam']) && $url_query['iam'] == 'non-resident') {
+        $row->_entity_properties['international'] = TRUE;
+      }
+    }
+
+    // Redirect if the old "level" filter is set.
+    // Retrieve the highest value for f[].
+    $last_f = empty($url_query['f']) ? NULL : key(array_slice($url_query['f'], -1, 1, TRUE));
+    $next_f = $last_f !== NULL ? $last_f + 1 : 0;
+    $redirect = FALSE;
+    // If the old Study Level is set, add the new solr parameter.
+    foreach ($url_query as $key => $query_value) {
+      // Find if an array key exists that starts with 'level' (ignore the
+      // inconsistent encoding of [ and ]).
+      if (strpos($key, 'level') === 0) {
+        // Iterate through the map of possible study level values.
+        unset($url_query[$key]);
+        // Unset 'page' as well.
+        unset($url_query['page']);
+
+        foreach (_vu_core_study_level_map() as $old => $new) {
+          // Check if an old study level value exists in the URL query.
+          if ($query_value == $old || in_array($old, $query_value)) {
+            // Add the formatted level to the query.
+            $url_query['f'][$next_f] = 'field_unit_lev:' . $new;
+            $next_f++;
+            $redirect = TRUE;
+          }
+        }
+      }
+      // Find if an array key exists that starts with 'college'.
+      if (strpos($key, 'college') === 0) {
+        unset($url_query[$key]);
+        $query_value = is_array($query_value) ? $query_value[0] : $query_value;
+        $url_query['f'][$next_f] = urldecode('field_college%253Atitle:') . $query_value;
+        $url_query['iam'] = !isset($url_query['iam']) ? 'resident' : $url_query['iam'];
+        $next_f++;
+        $redirect = TRUE;
+      }
+      if ($redirect) {
+        // Redirect to new unit search URL.
+        drupal_goto('courses/search', ['query' => [$url_query]]);
+      }
+    }
+  }
+
+  if ($view->name == VU_VIEWS_CONTENT_REVISIONS) {
+    foreach ($view->result as $r => $result) {
+      // Adds pending revision count to a placeholder field we've added through
+      // Views UI.
+      // Maybe not the best solution out there.
+      $view->result[$r]->node_revision_nid = $view->result[$r]->pending_rev_count;
+    }
+  }
+}
+
+/**
+ * Moves the last word in a string to the front.
+ *
+ * E.g. "John Smith" will become "smith john"
+ *
+ * @param string $name
+ *   The expert's name.
+ *
+ * @return string
+ *   The expert's name in reverse order (last-name first-name).
+ */
+function _vu_core_title_order($name) {
+  $parts = explode(' ', trim($name));
+  array_unshift($parts, array_pop($parts));
+
+  return strtolower(implode(' ', $parts));
+}
+
+/**
+ * Implements hook_search_api_solr_documents_alter().
+ *
+ * Adds a field for sorting by the expert's last name.
+ */
+function vu_core_search_api_solr_documents_alter(&$documents, $index) {
+  if ($index->machine_name == VU_EXPERT_GUIDE_INDEX) {
+    foreach ($documents as &$document) {
+      $title = $document->getField('tm_title');
+
+      // Solr rejects invalid and non-printable UTF8 characters so remove them.
+      $body_value = $document->getField('tm_body$value');
+      $content = $document->getField('content');
+      $pattern = '/[\x00-\x1F\x80-\xFF]/';
+
+      if (!empty($body_value['value'])) {
+        $document->setField('tm_body$value', preg_replace($pattern, ' ', $body_value['value']));
+      }
+      if (!empty($content['value'])) {
+        $document->setField('content', preg_replace($pattern, ' ', $content['value']));
+      }
+
+      // Set a new field to enable sorting by last name.
+      if (!empty($title['value'])) {
+        $document->setField('ss_alphasort_title', _vu_core_title_order($title['value']));
+      }
+    }
+  }
+  if ($index->machine_name == VU_COURSE_SEARCH_INDEX) {
+    require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'vu_course_index') . '/vu_course_index.functions.php';
+    // Add normalised study level label to solr fields.
+    $study_level_labels = _vu_core_get_study_levels_labels();
+    foreach ($documents as &$document) {
+      $type = $document->getField('ss_type');
+
+      if ($type['value'] == 'courses') {
+        _vu_core_solr_index_process_courses($document);
+      }
+
+      // Move VU online to Online.
+      $locations = $document->getField('sm_field_locations');
+      if (!empty($locations['value']) && is_array($locations['value']) && in_array(VU_ONLINE_LOC, $locations['value'])) {
+        foreach ($locations['value'] as $key => $location) {
+          if (strtolower($location) === strtolower(VU_ONLINE_LOC)) {
+            // Replace vu online with online.
+            $locations['value'][$key] = 'Online';
+          }
+        }
+        $document->setField('sm_field_locations', $locations['value']);
+      }
+
+      $title = $document->getField('tm_title');
+      $study_level_key = $document->getField('ss_field_unit_lev');
+      $label = !empty($study_level_labels[$study_level_key['value']]) ? $study_level_labels[$study_level_key['value']]['label'] : '';
+      if ($study_level_key['value'] == 'tafe') {
+        $label = $label . ' (Vocational)';
+      }
+      if (!empty($label)) {
+        $document->setField(VU_COURSE_STUDY_LEVEL_LABEL_FIELD, $label);
+      }
+      // Set a new field to enable sorting by last name.
+      if (!empty($title['value'])) {
+        $document->setField('ss_alphasort_title', _vumain_courses_title_order($title['value']));
+
+        // We may need to sort by title but solr can't sort by multivalued field
+        // so add title as a string field.
+        $document->setField('ss_title', $title['value']);
+      }
+    }
+  }
+}
+
+/**
+ * Processes courses before they're indexed in Solr.
+ *
+ * @param object $document
+ *   Solr document.
+ */
+function _vu_core_solr_index_process_courses(&$document) {
+  $item_id = $document->getField('item_id');
+  $node_id = $item_id['value'];
+  $node = node_load($node_id);
+
+  // Get the CRICOS field and retrieve the location.
+  $cricos_codes = $document->getField('sm_field_cricos_code');
+  if (!empty($cricos_codes['value']) && is_array($cricos_codes['value'])) {
+    $cricos_locations = [];
+    foreach ($cricos_codes['value'] as $cricos_code) {
+      $cricos_locations[] = _vu_core_get_location_from_cricos_code($cricos_code);;
+    }
+    // Set the CRICOS solr field with the sanitised locations.
+    $document->setField('sm_field_cricos_code', $cricos_locations);
+  }
+
+  // If the course itself doesn't contain a CRICOS code, see if it has
+  // specialisations which may contain a CRICOS code.
+  else {
+    $course_units = field_get_items('node', $node, 'field_course_units');
+    if (!empty($course_units) && is_array($course_units)) {
+      $unit_nids = [];
+      foreach ($course_units as $unit) {
+        $unit_nids[] = $unit['target_id'];
+      }
+      $units_entities = node_load_multiple($unit_nids, ['type' => 'unit_set']);
+      if (!empty($units_entities) && is_array($units_entities)) {
+        $cricos_locations = [];
+        foreach ($units_entities as $unit_set) {
+          if (!empty($unit_set->field_cricos_code) && is_array($unit_set->field_cricos_code)) {
+            foreach ($unit_set->field_cricos_code[$unit_set->language] as $cricos_code) {
+              $cricos_locations[] = _vu_core_get_location_from_cricos_code($cricos_code['safe_value']);
+            }
+          }
+        }
+      }
+    }
+    if (!empty($cricos_locations)) {
+      $document->setField('sm_field_cricos_code', $cricos_locations);
+    }
+  }
+
+  // Index Majors/Specialisation Separately.
+  if (!empty($node->field_imp_structure)) {
+    $types = ['major', 'specialisation'];
+    $structure = $node->field_imp_structure[$node->language][0]['value'];
+    if (preg_match('/<(line|section)>/', $structure)) {
+      $xml = simplexml_load_string($structure);
+      foreach ($xml->section as $section) {
+        foreach ($section->line as $line) {
+          if (!empty($line->type) && in_array(strtolower($line->type), $types)) {
+            $unit_title = _vumain_courses_humanize_title($line->unittitle);
+            $document->addField(VU_COURSE_INDEX_MAJORS_FIELD, $unit_title);
+            // A course can have 'Majors' or 'Specialisations'.
+            $document->setField(VU_COURSE_INDEX_MAJORS_TYPE_FIELD, $line->type);
+          }
+        }
+      }
+    }
+  }
+
+  // Index study mode changes for tafe courses.
+  $courseObj = new VuCoreCourseBlockBase($node);
+  if ($courseObj->isTafeOnly()) {
+    $studyModes = $courseObj->veStudyMode();
+    if (!empty($studyModes)) {
+      $studyModes = array_map('ucwords', $studyModes);
+      $document->setField('sm_field_study_mode', $studyModes);
+    }
+  }
+
+}
+
+/**
+ * Extracts the location from cricos code.
+ *
+ * @param string $cricos_code
+ *   Cricos code e.g. 075689G (City Flinders).
+ *
+ * @return string|void
+ *   Location e.g. City Flinders or empty string.
+ */
+function _vu_core_get_location_from_cricos_code($cricos_code) {
+  if (empty($cricos_code)) {
+    return '';
+  }
+  $start = strpos($cricos_code, '(');
+  $end = strpos($cricos_code, ')', $start + 1);
+  $length = $end - $start;
+
+  return substr($cricos_code, $start + 1, $length - 1);
+}
+
+/**
+ * Split CRICOS code into code and location.
+ *
+ * @param string $cricos_code
+ *   Cricos code e.g. 075689G (City Flinders).
+ *
+ * @return string|void
+ *   Code e.g. 075689 or empty string.
+ */
+function _vu_core_split_cricos_code($cricos_code) {
+  if (preg_match('/^(.*)\s+\((.*)\)/', $cricos_code, $matches)) {
+    return [$matches[1], $matches[2]];
+  }
+}
+
+/**
+ * Return the course node object for the current path.
+ *
+ * @param bool $domestic
+ *   Include for domestic courses.
+ * @param bool $international
+ *   Include for international courses.
+ * @param bool $type_check
+ *   Check that node object is of type courses.
+ *
+ * @return object|bool
+ *   Node object or FALSE if error.
+ */
+function _vu_core_block_menu_get_course_object($domestic = TRUE, $international = TRUE, $type_check = TRUE) {
+  $node = NULL;
+  // If it's not international URL then it has to be domestic or non-course.
+  if (!$domestic && !vu_courses_is_international_course_url()) {
+    return FALSE;
+  }
+  // Menu_get_object will return null if it does happen to be international url.
+  elseif ($domestic) {
+    $node = menu_get_object();
+  }
+
+  if ($node === NULL && $international && vu_courses_is_international_course_url()) {
+    $node = vumain_get_course_node_by_unit_code(arg(2));
+  }
+
+  // It's possible it was null and not international, or still null after.
+  if ($node === NULL || !isset($node->type)) {
+    return FALSE;
+  }
+
+  return (!$type_check || $node->type == 'courses') ? $node : FALSE;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function vu_core_block_info() {
+  $blocks = [];
+
+  $blocks['vu_core_expert_guide_search_form'] = [
+    'info' => t('VU Expert Guide search form'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  // From vu_core feature.
+  $blocks['vu_course_search_tabs'] = [
+    'info' => t('VU Course Search: Tabs'),
+  ];
+
+  $blocks['vu_library_ask_a_librarian'] = [
+    'info' => t('VU Library: Ask a Librarian'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  $blocks['vu_convention_centre_contact'] = [
+    'info' => t('VU Convention Centre: Contact information'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  $blocks['vu_course_search'] = [
+    'info' => t('VU Course search'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  ];
+
+  $blocks['vu_on_page_nav'] = [
+    'info' => t('VU On this page navigation'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  ];
+
+  // Abstract hook_block_info() to "blocks/{$delta}.inc" files.
+  $dirname = dirname(__FILE__);
+  $includes = file_scan_directory("{$dirname}/blocks", '/.inc$/');
+  foreach ($includes as $file) {
+    module_load_include('inc', 'vu_core', "blocks/{$file->name}");
+
+    $function = "vu_core_block_{$file->name}_info";
+    if (function_exists($function)) {
+      $return = $function();
+      if (isset($return['multiple'])) {
+        unset($return['multiple']);
+        $blocks += $return;
+      }
+      else {
+        $blocks[$file->name] = $function();
+      }
+    }
+  }
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_form().
+ */
+function vu_core_expert_guide_search_form($form) {
+  $params = drupal_get_query_parameters();
+  $form['#method'] = 'get';
+  $form['query'] = [
+    '#type' => 'textfield',
+    '#attributes' => [
+      'class' => [
+        'query',
+        'form-control',
+      ],
+      'placeholder' => t('Search by name or area of expertise'),
+      'maxlength' => 60,
+    ],
+    '#theme_wrappers' => [],
+    // Bootstrap pre_render messes up form classes.
+    '#bootstrap_ignore_pre_render' => TRUE,
+  ];
+  if (!empty($params['query'])) {
+    $form['query']['#default_value'] = check_plain($params['query']);
+  }
+  $form['submit'] = [
+    '#type' => 'button',
+    '#attributes' => [
+      'title' => t('Find a media expert'),
+      'class' => [
+        'submit',
+        'btn-action-lg',
+      ],
+    ],
+    '#value' => t('Search'),
+  ];
+  $form['#pre_render'] = ['vu_core_form_remove_state'];
+  $form['#action'] = '/about-vu/news-events/find-a-media-expert/';
+
+  return $form;
+}
+
+/**
+ * Remove drupal form state information.
+ *
+ * @param array $form
+ *   The form.
+ *
+ * @return mixed
+ *   The processed form.
+ */
+function vu_core_form_remove_state($form) {
+  unset($form['form_token']);
+  unset($form['form_build_id']);
+  unset($form['form_id']);
+
+  return $form;
+}
+
+/*
+ * Imported from vu_menus feature
+ */
+
+/**
+ * Implements hook_node_insert().
+ */
+function vu_core_node_insert($node) {
+  create_node_menu($node, 'insert');
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function vu_core_node_update($node) {
+  create_node_menu($node, 'update');
+
+  // Emmit a custom node update cache clear that custom modules can use
+  // by adding 'vu_core_node_update:' to $cid.
+  cache_clear_all('vu_core_node_update:', 'cache', TRUE);
+}
+
+/**
+ * Creates menu link based on node's category.
+ *
+ * @param object $node
+ *   Node object.
+ * @param string $action_type
+ *   Either insert (default) or update.
+ */
+function create_node_menu($node, $action_type = 'insert') {
+  if ($node->type == 'success_story') {
+    $tag_ids = [];
+    $terms = [];
+    $success_stories_sections = [
+      'Employer Testimonials' => 'success-stories/employer-testimonials',
+      'International Students' => 'success-stories/students-alumni',
+      'Partners & Projects' => 'success-stories/partners-projects',
+      'Staff' => 'success-stories/staff',
+      'Student' => 'success-stories/students-alumni',
+      'VU English' => 'vu-english/about-vu-english/our-students',
+    ];
+    $success_categories = $node->field_success_categories[$node->language];
+    if (!empty($success_categories)) {
+      foreach ($success_categories as $tag) {
+        $tag_ids[] = $tag['tid'];
+      }
+      $terms = taxonomy_term_load_multiple($tag_ids);
+    }
+    if (!empty($terms)) {
+      foreach ($terms as $term) {
+        $term_name = $term->name;
+        if (array_key_exists($term_name, $success_stories_sections)) {
+          $menu_name = $term_name == 'VU English' ? 'menu-subsites' : 'secondary-links';
+          $plid = vu_core_get_mlid_by_alias($success_stories_sections[$term_name]);
+          if (!empty($plid)) {
+            $item = [
+              'menu_name' => $menu_name,
+              'link_title' => $node->title,
+              'link_path' => 'node/' . $node->nid,
+              'plid' => $plid,
+              'hidden' => 1,
+            ];
+            if ($action_type == 'update') {
+              $query = db_query('SELECT ml.mlid FROM {menu_links} ml WHERE ml.link_path = :link_path', [':link_path' => 'node/' . $node->nid]);
+              $existing_mlid = $query->fetchField();
+              $item['mlid'] = !empty($existing_mlid) ? $existing_mlid : NULL;
+            }
+            menu_link_save($item);
+            menu_cache_clear_all();
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Finds menu id based on url alias.
+ *
+ * @param string $url_alias
+ *   Url alias.
+ *
+ * @return mixed
+ *   Menu id or NULL.
+ */
+function vu_core_get_mlid_by_alias($url_alias) {
+  $query = db_query('SELECT ml.mlid FROM {url_alias} url LEFT JOIN {menu_links} ml ON url.source = ml.link_path WHERE url.alias = :alias', [':alias' => $url_alias]);
+
+  return $query->fetchField();
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function vu_core_node_access($node, $op, $account) {
+  if ($op == 'delete' &&
+    $node->status == 0 &&
+    isset($node->workbench_moderation['current']->state) &&
+    in_array($node->workbench_moderation['current']->state, ['draft', 'needs_review']) &&
+    user_access("delete {$node->type} unpublished", $account)) {
+    $published = db_query("SELECT COUNT(wmnh.hid) FROM {workbench_moderation_node_history} wmnh WHERE wmnh.nid = :nid AND wmnh.state = 'published'", [':nid' => $node->nid])->fetchField();
+    if ($published == 0) {
+      return NODE_ACCESS_ALLOW;
+    }
+  }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function vu_core_block_view($delta = '') {
+  $block = [];
+
+  // Abstract hook_block_view() to "blocks/{$delta}.inc" files.
+  module_load_include('inc', 'vu_core', "blocks/{$delta}");
+  $function = "vu_core_block_{$delta}_view";
+  if (function_exists($function)) {
+    return $function();
+  }
+
+  switch ($delta) {
+    case 'vu_course_search_tabs':
+      $block['content'] = theme('vu_course_search_tabs');
+      break;
+
+    // From vu_expert_guide feature.
+    case 'vu_core_expert_guide_search_form':
+      $expert_guide_search_form = drupal_get_form('vu_core_expert_guide_search_form');
+      $block['subject'] = NULL;
+      $block['content'] = drupal_render($expert_guide_search_form);
+      break;
+
+    case 'vu_core_library_search_form':
+      $block['subject'] = NULL;
+      $block['content'] = [
+        'form' => drupal_get_form('vu_core_library_search_form'),
+        '#attached' => [
+          'js' => [
+            drupal_get_path('module', 'vu_core') . '/js/vu_core_library_search_form.js',
+          ],
+        ],
+      ];
+      break;
+
+    case 'vu_library_ask_a_librarian':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vu_library_ask_a_librarian');
+      drupal_add_js('//v2.libanswers.com/load_chat.php?hash=9dbb4ec62b5a32149f5bb91e30b89ae5', 'external');
+      break;
+
+    case 'vu_convention_centre_contact':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vu_convention_centre_contact_block');
+      break;
+
+    case 'vu_course_search':
+      $block['subject'] = t('Search for a course');
+      $block['content'] = drupal_get_form('vu_core_course_search_form');
+      break;
+
+    case 'vu_on_page_nav':
+      $node = menu_get_object();
+      // International course pages currently don't use menu router,
+      // this should be addressed, but until then we can still get
+      // the node object.
+      if ($node === NULL && vu_courses_is_international_course_url()) {
+        $node = vumain_get_course_node_by_unit_code(arg(2));
+      }
+      if (!is_null($node)) {
+        $items = [];
+        switch ($node->type) {
+          // Use the "Paragraphs: Section navigation" view with the current Node
+          // ID argument to build the "On this page" navigation items.
+          case 'page_builder':
+          case 'campus':
+            // If there's a title area feature, replace 'on this page' with it.
+            $title_area_feature = isset($node->field_title_area_feature[LANGUAGE_NONE][0]) ? $node->field_title_area_feature[LANGUAGE_NONE][0] : FALSE;
+            if (!empty($title_area_feature)) {
+              $entity = entity_revision_load('paragraphs_item', $title_area_feature['revision_id']);
+              if (is_object($entity)) {
+                $find_on_page = vu_core_extract_single_field_value($entity, 'paragraphs_item', 'field_on_this_page_enabled');
+                if (!$find_on_page) {
+                  $block = [
+                    'subject' => '',
+                    'content' => entity_view('paragraphs_item', [$entity], 'full'),
+                  ];
+                  break 2;
+                }
+              }
+            }
+            $results = views_get_view_result('paragraphs_section_navigation', NULL, $node->nid);
+            foreach ($results as $item) {
+              if (isset($item->field_field_section_title_1[0]['rendered']['#markup'])) {
+                $items[$item->field_field_section_title_1[0]['rendered']['#markup']] = $item->field_field_section_title[0]['rendered']['#markup'];
+              }
+              if (isset($item->field_field_component_section_title_1[0]['rendered']['#markup'])) {
+                $items[$item->field_field_component_section_title_1[0]['rendered']['#markup']] = $item->field_field_component_section_title[0]['rendered']['#markup'];
+              }
+            }
+
+            $items = array_filter($items);
+            break;
+
+          case 'courses':
+            $items = [
+              // Placeholder, this will be dynamically replaced.
+              '#goto-enquire-now' => 'Enquire now',
+            ];
+            break;
+
+          case 'unit':
+            $items = [];
+
+            // Does parsed XML for `learning_outcomes` field contain data? If so
+            // add an item to the on page nav.
+            if (!is_null(vumain_unit_format_xml_field($node->field_learning_outcomes[LANGUAGE_NONE][0]['value']))) {
+              $items['#goto-learning-outcomes'] = t('Learning Outcomes');
+            }
+
+            $items['#goto-assessment'] = t('Assessment');
+
+            // Does parsed XML for `required_reading` field contain data? If so,
+            // add an item to the on page nav.
+            if (!is_null(vumain_unit_format_xml_field($node->field_required_reading[LANGUAGE_NONE][0]['value']))) {
+              $items['#goto-required-reading'] = t('Required reading');
+            }
+
+            $items['#goto-where-to-next'] = t('Where to next?');
+            break;
+
+          case 'unit_set':
+            $items = [
+              '#goto-unitset-structure' => t('Unitset Structure'),
+              '#goto-where-to-next' => t('Where to next?'),
+            ];
+            break;
+        }
+
+        if (!empty($items)) {
+          $block['subject'] = t('Find on this page');
+          $block['content']['#markup'] = theme('vu_on_page_nav', ['items' => $items]);
+        }
+      }
+      break;
+
+  }
+
+  // How to Apply block system.
+  if (strpos($delta, 'vu_cbs_') === 0) {
+    module_load_include('inc', 'vu_core', 'blocks/course_blocks');
+    $block = vu_core_block_course_blocks_view(substr($delta, strlen('vu_cbs_')));
+  }
+
+  return $block;
+}
+
+/**
+ * VU course search form. Used with drupal_get_form().
+ *
+ * @param array $form
+ *   Form structure array.
+ * @param array $form_state
+ *   Form state array.
+ *
+ * @return array
+ *   The form structure array.
+ */
+function vu_core_course_search_form($form, &$form_state) {
+  $options = [
+    VU_COURSE_SEARCH_RESIDENT => t('Australian residents'),
+    VU_COURSE_SEARCH_NON_RESIDENT => t('International students'),
+  ];
+
+  $form['query'] = [
+    '#title' => t('Search for a course'),
+    '#type' => 'textfield',
+    '#attributes' => [
+      'maxlength' => 60,
+    ],
+  ];
+
+  // Audience radio buttons.
+  $form['iam'] = [];
+  $form['iam']['#type'] = 'radios';
+  $form['iam']['#default_value'] = VU_COURSE_SEARCH_RESIDENT;
+  $form['iam']['#options'] = $options;
+
+  // Set default search type as Course.
+  $form['type']['#type'] = 'hidden';
+  $form['type']['#default_value'] = 'Course';
+
+  $form['submit'] = [
+    '#type' => 'button',
+    '#value' => t('Search'),
+  ];
+
+  $form['#pre_render'] = ['vu_core_form_remove_state'];
+
+  return $form;
+}
+
+/**
+ * Returns the arguments in the request, or the defaults provided.
+ *
+ * N.B. Since this can only be called once, make sure any overrides
+ * are specified in the first call to this function.
+ *
+ * @param array $defaults_override
+ *   The default arguments can be overridden by other functions.
+ *
+ * @return array
+ *   Arguments array.
+ */
+function vu_core_course_search_get_query_args($defaults_override = []) {
+  $cache_key = implode('-', $defaults_override);
+  $args = &drupal_static(__FUNCTION__, $cache_key, []);
+
+  // Use caching as this gets called a lot.
+  if (empty($args)) {
+    $args = _vu_core_course_search_get_query_args($defaults_override);
+  }
+
+  return $args;
+}
+
+/**
+ * Returns the arguments in the request, or the defaults as provided.
+ *
+ * @param array $default_overrides
+ *   The default arguments can be overridden by other functions.
+ *
+ * @return array
+ *   Arguments array.
+ */
+function _vu_core_course_search_get_query_args($default_overrides = []) {
+  // Default search args.
+  $args = [
+    'iam' => !empty($_COOKIE[VU_COURSE_SEARCH_INTL_COOKIE_NAME]) && (int) $_COOKIE[VU_COURSE_SEARCH_INTL_COOKIE_NAME] === 1 ? VU_COURSE_SEARCH_NON_RESIDENT : VU_COURSE_SEARCH_RESIDENT,
+    'type' => VU_COURSE_SEARCH_COURSE_TYPE,
+    'query' => '',
+  ];
+
+  // Add function specified overrides.
+  $args = array_merge($args, $default_overrides);
+
+  // Alias the request array to r and match on keys better.
+  $req = array_change_key_case($_REQUEST, CASE_LOWER);
+
+  // Search audience can be 'non-resident' or default to 'resident'.
+  $search_audience = vu_core_get_iam($req);
+
+  if ($search_audience == VU_COURSE_SEARCH_NON_RESIDENT) {
+    $args['iam'] = VU_COURSE_SEARCH_NON_RESIDENT;
+  }
+  elseif ($search_audience) {
+    setcookie(VU_COURSE_SEARCH_INTL_COOKIE_NAME, NULL, time() - 3600, '/');
+    unset($_COOKIE[VU_COURSE_SEARCH_INTL_COOKIE_NAME]);
+    $args['iam'] = VU_COURSE_SEARCH_RESIDENT;
+  }
+
+  // Check if we are on the unit search page and default to unit search.
+  if (vu_core_is_unit_search_page($req)) {
+    $req['type'] = VU_COURSE_SEARCH_UNIT_TYPE;
+  }
+
+  $args['type'] = vu_core_get_type($req);
+
+  // Query can be anything... or nothing.
+  if (!empty($req['query'])) {
+    $query = str_replace('+', ' ', urldecode($req['query']));
+    // Remove some dashes from query.
+    $query = preg_replace('/\s+-\s+/', ' ', $query);
+    // Solr is case-sensitive.
+    $args['query'] = strtolower($query);
+  }
+
+  if ($args['type'] == VU_COURSE_SEARCH_UNIT_TYPE) {
+    // I am isn't supported on unit searches.
+    unset($args['iam']);
+  }
+
+  // Process active facets if any.
+  $active_facets = [];
+  if (!empty($req['f']) && count($req['f'])) {
+    foreach ($req['f'] as $value) {
+      list($facet, $facet_value) = explode(':', $value);
+      // URL parameter may contain encoded semicolon ':'.
+      $facet = urldecode($facet);
+      if (!isset($active_facets[$facet])) {
+        $active_facets[$facet] = [];
+      }
+      $active_facets[$facet][] = check_plain($facet_value);
+    }
+  }
+
+  $args['active_facets'] = $active_facets;
+
+  return $args;
+}
+
+/**
+ * Returns true if this is a unit search request.
+ *
+ * @return bool
+ *   True if type = Unit.
+ */
+function vu_core_is_unit_search() {
+  $args = vu_core_course_search_get_query_args();
+
+  return $args['type'] == VU_COURSE_SEARCH_UNIT_TYPE;
+}
+
+/**
+ * Adjust the course Solr query before sending to Solr.
+ *
+ * @param array $args
+ *   Array of processed request arguments.
+ *
+ * @return array
+ *   Array of Solr query filters.
+ */
+function vu_core_query_modifiers($args) {
+  $mod = [];
+
+  // Set international flag if this is not a unit search and this
+  // is a non-resident request.
+  if (!vu_core_is_unit_search()) {
+    if ($args['iam'] === VU_COURSE_SEARCH_NON_RESIDENT) {
+      $mod['fq'][] = 'bs_field_international:true';
+    }
+    elseif ($args['iam'] === VU_COURSE_SEARCH_RESIDENT) {
+      $mod['fq'][] = 'bs_field_domestic:true';
+    }
+  }
+
+  // Set the course type.
+  if (vu_core_is_unit_search()) {
+    // Unit searches need unitsets included.
+    $mod['fq'][] = 'ss_type:unit OR ss_type:unit_set';
+  }
+  else {
+    // Default to course search.
+    $mod['fq'][] = 'ss_type:courses';
+  }
+
+  // Set the facets, remembering to escape them.
+  $multi_facets = vu_core_get_multi_value_facet_map();
+  foreach ($multi_facets as $key => $facet) {
+    if (!empty($args['active_facets'][$key])) {
+      $placeholders = [
+        '!key' => $key,
+        '!facet' => $facet,
+        '!values' => '"' . implode('" OR "', $args['active_facets'][$key]) . '"',
+      ];
+      $multi_facets[$key] = format_string('{!ex=facet:!key}!facet', $placeholders);
+      $mod['fq'][] = format_string('{!tag=facet:!key}!facet:(!values)', $placeholders);
+    }
+  }
+  // Enable Solr facets.
+  $mod['facet'] = 'true';
+  $mod['facet.field'] = array_merge(
+    array_values($multi_facets),
+    array_values(vu_core_get_facet_single_value_map())
+  );
+
+  return $mod;
+}
+
+/**
+ * Checks whether the search request is for International courses.
+ *
+ * @param array $req
+ *   Search request parameters.
+ *
+ * @return mixed
+ *   Return $req['iam'] value if not empty otherwise False.
+ */
+function vu_core_get_iam($req) {
+  return !empty($req['iam']) ? $req['iam'] : FALSE;
+}
+
+/**
+ * Checks if the course search is set for the international audience.
+ *
+ * @return bool
+ *   Return TRUE if iam = non-resident.
+ */
+function vu_core_is_non_resident_search() {
+  $req = drupal_get_query_parameters();
+
+  return !empty($req['iam']) && VU_COURSE_SEARCH_NON_RESIDENT == $req['iam'] ? TRUE : FALSE;
+}
+
+/**
+ * Checks whether the current search page is Unit search.
+ *
+ * @param array $req
+ *   Search request parameters.
+ *
+ * @return bool
+ *   Return true if $req['type'] is 'Units' and current page is course search.
+ */
+function vu_core_is_unit_search_page($req) {
+  $uri = request_uri();
+  if (isset($req['type']) && drupal_strtolower($req['type']) == 'unit' && strstr($uri, 'courses/search')) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Return search type i.e. Unit or Course.
+ *
+ * @param array $req
+ *   Search request parameters.
+ *
+ * @return string
+ *   Request - type if it is an allowed type otherwise 'Course'.
+ */
+function vu_core_get_type($req) {
+  // Type must be Course or Unit.
+  // Additional types (e.g. Mid-year) can be added here if needed.
+  $allowed_types = [
+    VU_COURSE_SEARCH_COURSE_TYPE,
+    VU_COURSE_SEARCH_UNIT_TYPE,
+  ];
+  $type = !empty($req['type']) ? strtolower($req['type']) : '';
+
+  return in_array($type, $allowed_types) ? $type : VU_COURSE_SEARCH_COURSE_TYPE;
+}
+
+/**
+ * Implements hook_search_api_solr_search_results_alter().
+ */
+function vu_core_search_api_solr_search_results_alter(&$results) {
+  $solr_response = $results['search_api_solr_response'];
+  // Store result_count temporarily so we can use it in hook_facet_items_alter.
+  $results_count = &drupal_static(__FUNCTION__);
+  if (!isset($results_count)) {
+    if (isset($solr_response->facet_counts->facet_fields)) {
+      foreach ($solr_response->facet_counts->facet_fields as $key => $value) {
+        $results_count[$key] = _vu_core_facetless_search($key, $solr_response);
+      }
+    }
+  }
+
+  if (!empty($results['results']) && !empty($solr_response->highlighting)) {
+    $highlight_data = $solr_response->highlighting;
+    $index_id = VU_COURSE_SEARCH_INDEX;
+    $site_hash = search_api_solr_site_hash();
+    $solr_response_docs = array_values($solr_response->response->docs);
+
+    foreach ($solr_response_docs as $doc) {
+      $doc_id = $doc->item_id;
+      $highlight_id = sprintf('%s-%s-%s', $site_hash, $index_id, $doc_id);
+
+      if (!empty($highlight_data->{$highlight_id})) {
+        $course_majors = _vu_core_process_course_majors($highlight_data->{$highlight_id});
+      }
+
+      $singular_type = '';
+      $plural_type = '';
+      if (isset($doc->ss_course_majors_type) && 'specialisation' == strtolower($doc->ss_course_majors_type)) {
+        $singular_type = 'specialisation';
+        $plural_type = 'specialisations';
+      }
+      else {
+        $singular_type = 'Major';
+        $plural_type = 'Majors';
+      }
+
+      $results['results'][$doc_id]['fields']['course_majors'] = [
+        '#value' => !empty($course_majors) ? t('Focus your studies with a @singular_type in !course_majors, or choose from a range of related @plural_type offered as part of this course...', [
+          '@singular_type' => $singular_type,
+          '@plural_type' => $plural_type,
+          '!course_majors' => $course_majors,
+        ]) : '',
+        '#sanitize_callback' => FALSE,
+      ];
+    }
+  }
+}
+
+/**
+ * Retrieves course majors from Solr search highlights.
+ *
+ * @param object $highlight
+ *   The highlighted data returned from Solr.
+ *
+ * @return string
+ *   Course majors if any or NULL.
+ */
+function _vu_core_process_course_majors($highlight) {
+  if (empty($highlight->tm_course_majors)) {
+    return NULL;
+  }
+  $majors_list = $highlight->tm_course_majors;
+  foreach ($majors_list as &$major) {
+    $major = preg_replace('#\[(/?)HIGHLIGHT\]#', '<$1strong>', check_plain($major));
+  }
+
+  if (count($majors_list) > 1) {
+    $last_item = array_pop($majors_list);
+
+    return implode(', ', $majors_list) . ' or ' . $last_item;
+  }
+
+  return implode(', ', $majors_list);
+}
+
+/**
+ * Implements hook_search_api_solr_field_mapping_alter().
+ */
+function vu_core_search_api_solr_field_mapping_alter(SearchApiIndex $index, array &$fields) {
+  if ($index->machine_name == VU_COURSE_SEARCH_INDEX) {
+    // Adds the custom index field study level label.
+    $fields['study_level_label'] = VU_COURSE_STUDY_LEVEL_LABEL_FIELD;
+  }
+}
+
+/**
+ * Implements hook_search_api_data_type_info().
+ */
+function vu_core_search_api_data_type_info() {
+  return [
+    'edge_n2_kw_text' => [
+      // Stock hook_search_api_data_type_info() info:
+      'name' => t('Fulltext (w/ partial matching)'),
+      'fallback' => 'text',
+      // Dynamic field with name="te_*".
+      'prefix' => 'tem',
+      // Fulltext types should always be multi-valued.
+      'always multiValued' => TRUE,
+    ],
+  ];
+}
+
+/**
+ * Performs a search excluding any active facet.
+ *
+ * This is needed to get result count if this facet was not selected and
+ * this count is used for 'All [facet name]' item in facets (e.g. All campuses).
+ *
+ * @param string $facet
+ *   Facet's machine name.
+ * @param object $search_object
+ *   Current search response object.
+ *
+ * @return int
+ *   Returns solr result count.
+ */
+function _vu_core_facetless_search($facet, $search_object) {
+  $args = vu_core_course_search_get_query_args();
+  $facet_map = vu_core_get_facet_map();
+  $facet_label = array_search($facet, $facet_map);
+  // Only perform another search if the facet was used,
+  // otherwise check the original search object.
+  if (isset($args['active_facets'][$facet_label])) {
+    unset($args['active_facets'][$facet_label]);
+    $search_modifiers = vu_core_query_modifiers($args);
+    // We don't need to return actual documents.
+    $search_modifiers['rows'] = 0;
+    $search_object = search_api_server_load(VU_COURSE_SEARCH_SERVER)
+      ->getSolrConnection()
+      ->search($args['query'], $search_modifiers);
+  }
+
+  return $search_object->response->numFound;
+}
+
+/**
+ * Implements hook_facet_items_alter().
+ */
+function vu_core_facet_items_alter(&$build, &$settings) {
+  if ($settings->searcher != 'search_api@course_index') {
+    return;
+  }
+  $facet_field_label_mapping = [
+    'field_study_mode' => t('study modes'),
+    'field_unit_lev' => t('study levels'),
+    'field_locations' => t('campuses'),
+    'field_cricos_code' => t('campuses'),
+    'field_college:title' => t('colleges'),
+  ];
+
+  $study_levels_facets = _vu_core_get_study_levels_labels();
+
+  // Get some default values from the first item in the facet group.
+  $first_item = reset($build);
+  $query = ['query' => '', 'f' => [], 'iam' => []];
+  $path = check_url($first_item['#path']);
+  $query['query'] = !empty($first_item['#query']['query']) ? check_plain($first_item['#query']['query']) : '';
+  $query['iam'] = !empty($first_item['#query']['iam']) ? check_plain($first_item['#query']['iam']) : 'resident';
+  $facet_map = vu_core_get_facet_map();
+  $facetless_result_count = drupal_static('vu_core_search_api_solr_search_results_alter');
+  $facet_field_name = $settings->facet;
+  $active_facet_items = 0;
+  $result_count = 0;
+  $child_items = [];
+
+  // Make sure type is included in the query.
+  if (isset($first_item['#query']['type'])) {
+    $query['type'] = $first_item['#query']['type'];
+  }
+
+  // Remove First Year College from facets - it should never be displayed.
+  unset($build['First Year College']);
+
+  foreach ($build as $key => $facet) {
+    switch ($facet_field_name) {
+      case 'field_unit_lev':
+        $label = !empty($study_levels_facets[$key]) ? $study_levels_facets[$key]['label'] : $facet['#markup'];
+        if (!empty($study_levels_facets[$key])) {
+          $build[$key]['#weight'] = $study_levels_facets[$key]['weight'];
+        }
+        break;
+
+      case 'field_college:title':
+        // Remove 'College of' from College names.
+        $label = str_replace('College of', '', $facet['#markup']);
+        // See PW-4939.
+        $label = (strpos($label, 'Business') !== FALSE && trim($label) !== 'Business') ? 'VU Business School' : $label;
+        break;
+
+      default:
+        $label = $facet['#markup'];
+        break;
+    }
+
+    // Modify the facet label and count.
+    $build[$key]['#markup'] = t('!label', [
+      '!label' => $label,
+    ]);
+
+    $build[$key]['#html'] = TRUE;
+
+    // Increment total active facet items if this facet is active.
+    $active_facet_items += $facet['#active'];
+    // Add count to active item.
+    if ($facet['#active']) {
+      $build[$key]['#markup'] .= theme('facetapi_count', ['count' => $facet['#count']]);
+    }
+    $facet_machine_name = $facet_map[$facet_field_name];
+    $result_count = $facetless_result_count[$facet_machine_name];
+
+    // URLENCODE because ':' is converted to html entity in $facet_field_name.
+    // While in the value returned from Solr it is not converted.
+    $facet_default_value = urlencode($facet_field_name) . ':' . $facet['#indexed_value'];
+
+    // Loop through active facets and maintain any selected facet from other
+    // facets so when 'all' of this group is clicked we don't lose other
+    // active facets and if already in $query['f'] no need to add it again.
+    foreach ($facet['#query']['f'] as $value) {
+      if ($facet_default_value != $value && !in_array($value, $query['f'])) {
+        $query['f'][] = filter_xss($value);
+      }
+    }
+
+    // Add this facet to child_items array so we can
+    // nest facets under 'All [facet-type]' link.
+    $child_items[$key] = $build[$key];
+
+    // Remove the facet from the original build array.
+    unset($build[$key]);
+  }
+
+  // If no results, don't create 'All' link.
+  if (!empty($result_count)) {
+    // Unsetting the value for All Study Level
+    // so that "All Study Level" Link can work
+    // as a reset button only for that part.
+    if ($facet_field_name == 'field_unit_lev') {
+      foreach ($query['f'] as $key => $val) {
+        if (strpos($val, 'field_unit_lev') !== FALSE) {
+          unset($query['f'][$key]);
+        }
+      }
+    }
+
+    $active = $active_facet_items != 0 ? 0 : 1;
+    $build['all'] = [
+      '#markup' => t('All !label <small>(!count)</small>', [
+        '!label' => $facet_field_label_mapping[$facet_field_name],
+        '!count' => !empty($result_count) ? $result_count : 0,
+      ]),
+      '#path' => $path,
+      '#query' => $query,
+      '#html' => TRUE,
+      '#indexed_value' => '0',
+      '#active' => $active,
+      '#item_parents' => [],
+      '#item_children' => $child_items,
+    ];
+    // Always show child items.
+    $settings->settings['show_expanded'] = 1;
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function vu_core_preprocess_html(&$variables) {
+  $course_obj = _vu_core_block_menu_get_course_object();
+  $path = drupal_get_path_alias();
+  $is_403 = drupal_get_http_header("status") === '403 Forbidden';
+  $domestic_has_int = $international_has_dom = '';
+
+  if (!empty($course_obj) && $course_obj->type == 'courses') {
+    $is_international_url = vu_courses_is_international_course_url();
+    $dom_course_path = $course_obj->path['alias'];
+    $course_code = vu_core_extract_single_field_value($course_obj, 'node', 'field_unit_code');
+    $domestic_has_int = !$is_international_url && vu_courses_offered_to_audience($course_obj, 'international');
+    $international_has_dom = $is_international_url && vu_courses_offered_to_audience($course_obj, 'domestic');
+  }
+
+  // Search substring.
+  $search_vu_str = 'search/vu';
+  $search_researcher_str = 'research/find-researcher';
+  $courses_search_str = 'courses/search';
+  $content = $meta_name = $name = $theme = $id = $weight = '';
+
+  // Adding custom metatag.
+  switch (TRUE) {
+    case strpos($path, $courses_search_str) !== FALSE:
+      $meta_name = 'meta_courses_search';
+      $content = 'Search all Higher Education and TAFE courses offered at Victoria University and Victoria University Polytechnic.';
+      $name = 'description';
+      break;
+
+    case strpos($path, $search_vu_str) !== FALSE:
+      $meta_name = 'meta_search_vu';
+      $content = 'Search Victoria University and Victoria University Polytechnic for information such as courses, researchers, news and events, facilities.';
+      $name = 'description';
+      break;
+
+    case strpos($path, $search_researcher_str) !== FALSE:
+      $meta_name = 'meta_search_researcher';
+      $content = 'Search for Victoria University researchers and research student supervisors by name or provide keywords e.g. areas of expertise, publications, projects.';
+      $name = 'description';
+      break;
+
+    case $is_403:
+      $meta_name = 'meta_no_index';
+      $content = 'noindex';
+      $name = 'robots';
+      break;
+
+    case !empty($domestic_has_int) && !(strpos($path, $courses_search_str) !== FALSE):
+      $meta_name = 'dom-geo-tagging';
+      $id = 'dom-link';
+      $content = $path;
+      $name = [
+        'en-au',
+        'en-nz',
+        'en-us',
+        'en',
+      ];
+      break;
+
+    case !empty($international_has_dom) && !(strpos($path, $courses_search_str) !== FALSE):
+      $meta_name = 'int-geo-tagging';
+      $id = 'int-link';
+      $content = $dom_course_path;
+      $name = [
+        'en-au',
+        'en-nz',
+        'en-us',
+        'en',
+      ];
+      break;
+  }
+
+  // Add metatag.
+  if (!empty($meta_name) && !empty($content) && !empty($name)) {
+    if (is_array($name)) {
+      foreach ($name as $lang_code) {
+        $content = ($lang_code == 'en') ? '/courses/international/' . $course_code : $content;
+        drupal_add_html_head(vu_core_set_metatag($content, $lang_code, $theme, $id, $weight), $lang_code);
+      }
+    }
+    else {
+      drupal_add_html_head(vu_core_set_metatag($content, $name, $theme, $id, $weight), $meta_name);
+    }
+  }
+
+  // Add og:image & twitter:image metatag.
+  $node = menu_get_object();
+  if (isset($node->type)) {
+    switch ($node->type) {
+      case 'page_builder':
+      case 'campus':
+        $title_area_feature = vu_core_extract_single_field_value($node, 'node', 'field_title_area_feature', 'value');
+        if ($title_area_feature) {
+          $title_area_para = paragraphs_item_load($title_area_feature);
+          if ($title_area_para) {
+            $field_image = vu_core_extract_single_field_value($title_area_para, 'paragraphs_item', 'field_image', 'uri');
+            if ($field_image && !isset($variables['page']['content']['metatags']['node:page_builder']['og:image'])) {
+              $content = file_create_url($field_image);
+              $name = 'og:image';
+              $id = 'metatag_og:image_0';
+              $theme = 'metatag_property';
+              $meta_name = 'metatag_og:image_0';
+              $weight = 35;
+              drupal_add_html_head(vu_core_set_metatag($content, $name, $theme, $id, $weight), $meta_name);
+            }
+            if ($field_image && !isset($variables['page']['content']['metatags']['node:page_builder']['twitter:image'])) {
+              $content = file_create_url($field_image);
+              $name = 'twitter:image';
+              $id = 'metatag_twitter:image_0';
+              $theme = 'metatag_twitter_cards';
+              $meta_name = 'metatag_twitter:image_0';
+              $weight = 50.1;
+              drupal_add_html_head(vu_core_set_metatag($content, $name, $theme, $id, $weight), $meta_name);
+            }
+          }
+        }
+        break;
+
+    }
+  }
+
+  // Add vu_core.admin.css to override admin style if needed.
+  if (path_is_admin(current_path())) {
+    drupal_add_css(drupal_get_path('module', 'vu_core') . '/css/vu_core.admin.css', ['weight' => CSS_THEME]);
+  }
+  else {
+    // Add HelloBar.
+    drupal_add_js('//my.hellobar.com/0bec2f6fe2dc126f1f77c60a6713017fb241f54c.js',
+      [
+        'type' => 'external',
+        'scope' => 'footer',
+        'every_page' => TRUE,
+      ]
+    );
+  }
+
+  // Add Google Tag Manager if id was provided.
+  if (!path_is_admin(current_path())) {
+    $gtm_id = variable_get('gtm_id', FALSE);
+    if ($gtm_id) {
+      drupal_add_js('(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({\'gtm.start\':new Date().getTime(),event:\'gtm.js\'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!=\'dataLayer\'?\'&l=\'+l:\'\';j.async=true;j.src=\'https://www.googletagmanager.com/gtm.js?id=\'+i+dl;f.parentNode.insertBefore(j,f);})(window,document,\'script\',\'dataLayer\',\'' . $gtm_id . '\');', [
+        'type' => 'inline',
+        'scope' => 'header',
+        'group' => JS_LIBRARY,
+        'every_page' => TRUE,
+        'weight' => -50,
+        'requires_jquery' => FALSE,
+      ]);
+      $variables['page_prefix'] = !empty($variables['page_prefix']) ? $variables['page_prefix'] : '';
+      $variables['page_prefix'] .= '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=' . $gtm_id . '" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>';
+    }
+  }
+
+  // Add Marketo tracking script.
+  // To disable, run the following command: drush vset vu_marketo 0.
+  if (variable_get('vu_marketo', FALSE) && user_is_anonymous()) {
+    drupal_add_js(drupal_get_path('module', 'vu_core') . '/js/vu_core.marketo.js');
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function vu_core_preprocess_page(&$vars) {
+  $page_url = drupal_get_path_alias(current_path());
+  // Redirect user from /units/search to /courses/search & preserve query.
+  if ($page_url == 'units/search') {
+    // Get query vars.
+    $url_query = drupal_get_query_parameters();
+    // Append 'type=Unit' to the query array.
+    $url_query['type'] = 'Unit';
+    // Redirect to new unit search URL.
+    drupal_goto('courses/search', ['query' => [$url_query]]);
+  }
+
+  // Add theme hook suggestions for page manager pages.
+  $menu_item = menu_get_item();
+  if ('page_manager_page_execute' == $menu_item['page_callback']) {
+    $vars['theme_hook_suggestions'][] = 'page__page_manager_page';
+    $vars['theme_hook_suggestions'][] = "page__page_manager_page__{$menu_item['map'][0]}";
+  }
+  // Event page updates.
+  $node = isset($vars['node']) && is_object($vars['node']) ? $vars['node'] : FALSE;
+  if ($node && $node->type == 'events') {
+    $photo = FALSE;
+    $photo_url = vu_core_extract_single_field_value($node, 'node', 'field_image', 'uri');
+    if ($photo_url) {
+      $photo = theme('image_style', [
+        'style_name' => 'rp_title_photo',
+        'path' => $photo_url,
+        'attributes' => [
+          'class' => 'js-staff-photo',
+        ],
+      ]);
+    }
+
+    if ($photo) {
+      $vars['researcher_photo'] = $photo;
+      $vars['title_box_feature_classes'][] = 'title-box__feature__with_photo';
+      drupal_add_js(drupal_get_path('module', 'vu_core') . '/js/vu_core.staff_profile.js');
+    }
+  }
+  // Staff profiles updates.
+  if ($node && $node->type == 'staff_profile') {
+
+    $job_title = vu_core_extract_single_field_value($node, 'node', 'field_job_title');
+    $qualifications = vu_core_extract_single_field_value($node, 'node', 'field_credentials');
+
+    if (!empty($job_title)) {
+      $vars['title_sub1'] = t('<div class="staff-profile-title">@title</div>', [
+        '@title' => $job_title,
+      ]);
+    }
+
+    if (!empty($qualifications)) {
+      $vars['title_sub1'] .= t('<div class="staff-profile-credentials">@qualification</div>', [
+        '@qualification' => $qualifications,
+      ]);
+    }
+
+    $photo = FALSE;
+    $photo_url = vu_core_extract_single_field_value($node, 'node', 'field_header_image', 'uri');
+    if ($photo_url) {
+      $photo = theme('image_style', [
+        'style_name' => 'rp_title_photo',
+        'path' => $photo_url,
+        'attributes' => [
+          'class' => 'js-staff-photo',
+        ],
+      ]);
+    }
+
+    if ($photo) {
+      $vars['researcher_photo'] = $photo;
+      $vars['title_box_feature_classes'][] = 'title-box__feature__with_photo';
+      drupal_add_js(drupal_get_path('module', 'vu_core') . '/js/vu_core.staff_profile.js');
+    }
+
+    $title = drupal_get_title();
+    if ($node->title == $title) {
+      $updatedTitle = $title;
+      $honour = vu_core_extract_single_field_value($node, 'node', 'field_staff_name_title');
+      if (!empty($honour)) {
+        $updatedTitle = $honour . ' ' . $updatedTitle;
+      }
+
+      $post_nominal = vu_core_extract_single_field_value($node, 'node', 'field_post_nominals');
+      if (!empty($post_nominal)) {
+        $updatedTitle = $updatedTitle . ' ' . $post_nominal;
+      }
+      // Set title.
+      drupal_set_title($updatedTitle);
+    }
+  }
+
+  if ($page_url == 'homepage' || ($node && in_array($node->type, ['page_builder', 'campus']))) {
+    if (vu_feature_switches_switch_state('rebrand-homepage')) {
+      drupal_add_js(drupal_get_path('module', 'vu_core') . '/js/vu_core_add_switch_class.js');
+    }
+  }
+
+  // Set page tile for video's.
+  if (arg(0) == 'file') {
+    $file = file_load(arg(1));
+    if ($file->type == 'video') {
+      $vars['title'] = _vu_core_file_entity_video_transcript_title($file->filename);
+    }
+  }
+}
+
+/**
+ * Formats video title text.
+ */
+function _vu_core_file_entity_video_transcript_title($title) {
+  // If title does not already contain the - transcript suffix,
+  // add it for consistency.
+  if (stripos($title, 'transcript') == FALSE) {
+    $title .= ' - transcript';
+  }
+
+  return $title;
+}
+
+/**
+ * Returns normalised study level label.
+ *
+ * @return array
+ *   Study level labels.
+ */
+function _vu_core_get_study_levels_labels() {
+  return [
+    'tafe' => ['label' => t('TAFE'), 'weight' => 1],
+    'he_diplomas' => ['label' => t('Higher Education Diplomas'), 'weight' => 2],
+    'undergrad' => ['label' => t('Bachelor'), 'weight' => 3],
+    'postgrad' => ['label' => t('Postgraduate'), 'weight' => 4],
+    'postgrad_research' => [
+      'label' => t('Postgraduate research'),
+      'weight' => 5,
+    ],
+    'short' => ['label' => t('Short course'), 'weight' => 6],
+  ];
+}
+
+/**
+ * Returns an array of available facets.
+ *
+ * @return array
+ *   Available facets.
+ */
+function vu_core_get_facet_map() {
+  return array_merge(vu_core_get_multi_value_facet_map(), vu_core_get_facet_single_value_map());
+}
+
+/**
+ * Maps multivalued facets' labels to solr field names.
+ *
+ * @return array
+ *   List of facet fields and corresponding solr field names.
+ */
+function vu_core_get_multi_value_facet_map() {
+  return [
+    'field_locations' => 'sm_field_locations',
+    'field_college:title' => 'ss_field_college$title',
+    'field_study_mode' => 'sm_field_study_mode',
+    'field_unit_lev' => 'ss_field_unit_lev',
+    'field_cricos_code' => 'sm_field_cricos_code',
+  ];
+}
+
+/**
+ * Maps single value facet labels to solr field names.
+ *
+ * @return array
+ *   List of facet fields and corresponding solr field names.
+ */
+function vu_core_get_facet_single_value_map() {
+  return [
+    'field_domestic' => 'ss_cck_field_domestic',
+    'field_international' => 'ss_cck_field_international',
+  ];
+}
+
+/**
+ * Implements hook_facetapi_sort_info().
+ */
+function vu_core_facetapi_sort_info() {
+  $sorts['VU_study_levels'] = [
+    'label' => t('Sort study levels'),
+    'callback' => '_facetapi_sort_study_levels',
+    'description' => t('Custom sort for VU study level facets.'),
+  ];
+
+  return $sorts;
+}
+
+/**
+ * Sorts Study levels in a custom order.
+ */
+function _facetapi_sort_study_levels(array $a, array $b) {
+  if (!empty($a['#weight']) && !empty($b['#weight'])) {
+    return $a['#weight'] - $b['#weight'];
+  }
+}
+
+/*
+ * Imported from vu_pathway feature.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function vu_core_theme($existing, $type, $theme, $path) {
+  $template_path = drupal_get_path('module', 'vu_core') . '/theme';
+  $file = 'vu_core.theme.inc';
+
+  return [
+    'pathways_from_this_course' => [
+      'template' => 'pathways-from-this-course',
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => ['course_code' => '', 'course_name' => ''],
+    ],
+    'pathways_to_this_course' => [
+      'template' => 'pathways-to-this-course',
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'pathways' => [],
+        'type' => '',
+        'introText' => TRUE,
+      ],
+    ],
+    'pathways_credit' => [
+      'template' => 'pathways-credit',
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => [
+        'pathways' => '',
+        'course_code' => '',
+        'course_name' => '',
+        'college' => '',
+        'is_ve' => FALSE,
+        'international' => FALSE,
+      ],
+    ],
+    'pathway' => [
+      'template' => 'pathway',
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => ['pathway' => []],
+    ],
+    // From vu course search feature.
+    'vu_course_search_tabs' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-search-tabs',
+    ],
+    'vu_core_study_level_info_box' => [
+      'path' => $template_path,
+      'file' => $file,
+      'variables' => ['level' => ''],
+    ],
+    'vu_core_he_diploma_info_box' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'he-diploma-info-box',
+    ],
+    'vu_core_postgrad_research_info_box' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'postgrad-research-info-box',
+    ],
+    'vu_core_tafe_resources_info_box' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-tafe-resources',
+    ],
+    'vu_library_ask_a_librarian' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-ask-a-librarian-block',
+    ],
+    'vu_library_shortcut_links' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-library-shortcut-links-block',
+    ],
+    'vu_library_i_want_links' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-library-i-want-links-block',
+    ],
+    'vu_convention_centre_contact_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-convention-centre-contact-block',
+    ],
+    'vu_on_page_nav' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-on-page-nav',
+      'variables' => ['items' => []],
+    ],
+    'vu_international_switcher' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-international-switcher',
+      'variables' => [
+        'is_international_url' => FALSE,
+        'has_domestic' => FALSE,
+        'has_international' => FALSE,
+        'code' => NULL,
+        'is_vu_sydney' => FALSE,
+      ],
+    ],
+    'vu_course_switcher_domestic_info' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'partials/vu-course-switcher-domestic-info',
+    ],
+    'vu_course_switcher_international_info' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'partials/vu-course-switcher-international-info',
+    ],
+    'vu_course_first_year_model_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-first-year-model-block',
+    ],
+    'vu_course_fees_he' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-fees-he',
+    ],
+    'vu_course_fees_tafe' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-fees-tafe',
+    ],
+    'vu_accordion' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-accordion',
+      'variables' => [
+        'name' => NULL,
+        'title' => NULL,
+        'content' => NULL,
+      ],
+    ],
+    'vu_course_admission_transparency' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-admission-transparency',
+    ],
+    'vu_course_how_to_apply_legacy' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-how-to-apply-legacy',
+    ],
+    'vu_course_request_callback' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-request-callback',
+      'variables' => [
+        'advice_center' => '',
+        'callback_link' => '',
+        'title' => '',
+      ],
+    ],
+    'vu_course_international_brochure' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-international-brochure',
+      'variables' => [
+        'link' => NULL,
+      ],
+    ],
+    'vu_course_already_student' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-already-student',
+      'variables' => [
+        'link' => NULL,
+      ],
+    ],
+    'vu_course_whats_a_unit' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-whats-a-unit',
+    ],
+    'vu_course_credit' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-credit',
+    ],
+    'vu_course_hta_apply_cta' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-apply-cta',
+      'variables' => [
+        'text' => '',
+        'button' => '',
+        'course_title' => '',
+        'vtac' => [],
+        'direct' => [],
+        'vu_online' => [],
+        'direct_closed' => FALSE,
+        'application_method_text' => '',
+        'overview_right' => '',
+      ],
+    ],
+    'vu_course_apply_cta_international' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'partials/vu-course-apply-cta-international',
+    ],
+    'vu_course_hta_international_summary' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-international-summary',
+      'variables' => [
+        'modal' => '',
+      ],
+    ],
+    'vu_course_hta_international_contacts' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-international-contacts',
+    ],
+    'vu_course_hta_short_course_summary' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-short-course-summary',
+      'variables' => [
+        'hta_content' => NULL,
+      ],
+    ],
+    'vu_course_hta_research_course_summary' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-research-course-summary',
+    ],
+    'vu_course_postgrad_more_text' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-postgrad-more-text',
+    ],
+    'vu_course_hta_international_ebrochure' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-international-ebrochure',
+      'variables' => [
+        'ebrochure_url' => NULL,
+      ],
+    ],
+    'vu_course_hta_admissions_centre' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-admissions-centre',
+    ],
+    'vu_course_hta_after_you_apply' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-after-you-apply',
+    ],
+    'vu_course_hta_supplementary_forms' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-supplementary-forms',
+      'variables' => [
+        'supplementary_forms' => [],
+      ],
+    ],
+    'vu_course_hta_vtac_open' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-vtac-open',
+      'variables' => [
+        'application_start_date' => '',
+        'application_end_date' => '',
+        'vtac_class' => '',
+        'modal' => FALSE,
+      ],
+    ],
+    'vu_course_hta_already_vu_student' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-already-vu-student',
+    ],
+    'vu_course_hta_enquire_button' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-enquire-button',
+    ],
+    'vu_course_hta_anchor_link_button' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-anchor-link-button',
+    ],
+    'vu_course_hta_open_apprenticeship' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-open-apprenticeship',
+    ],
+    'vu_course_hta_special_admission_credit' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-special-admission-credit',
+    ],
+    'vu_course_hta_closed' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-closed',
+    ],
+    'vu_course_hta_open_heading' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-open-heading',
+      'variables' => [
+        'title' => '',
+        'is_vu_online' => FALSE,
+      ],
+    ],
+    'vu_course_hta_direct_open' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-direct-open',
+      'variables' => [
+        'application_start_date' => '',
+        'application_end_date' => '',
+        'intake_date' => '',
+        'direct_link' => '',
+        'vtac_open' => FALSE,
+        'button_text' => '',
+        'is_vu_online' => FALSE,
+        'direct_class' => '',
+        'direct_title' => '',
+        'modal' => FALSE,
+        'supplementary_date_info' => '',
+      ],
+    ],
+    'vu_course_hta_direct_closed' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-direct-closed',
+      'variables' => [
+        'after_apply' => '',
+        'direct_class' => '',
+      ],
+    ],
+    'vu_course_vuo_promo' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-vuo-promo',
+      'variables' => [
+        'course_title' => '',
+      ],
+    ],
+    'vu_course_hta_vu_online' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-vu-online',
+      'variables' => [
+        'online_link' => '',
+        'vu_online_class' => '',
+        'modal' => FALSE,
+      ],
+    ],
+    'vu_course_hta_how_to_apply_title' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-hta-how-to-apply-title',
+      'variables' => [
+        'short_title' => '',
+        'how_to_apply_title' => '',
+      ],
+    ],
+    'vu_course_admin_req_summary' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-admin-req-summary',
+      'variables' => [
+        'non_award' => FALSE,
+      ],
+    ],
+    'vu_course_admission_info' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-admission-info',
+      'variables' => [
+        'title' => '',
+        'admission_information' => '',
+        'international_lang_requirements' => '',
+      ],
+    ],
+    'vu_course_atar_he_intro' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-he-intro',
+    ],
+    'vu_course_atar_vet_intro' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-vet-intro',
+    ],
+    'vu_course_atar_work_life_intro' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-work-life-intro',
+    ],
+    'vu_course_atar_se_intro' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-se-intro',
+    ],
+    'vu_course_atar_info' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-information',
+      'variables' => [
+        'admin_req_link' => '',
+      ],
+    ],
+    'vu_course_atar_requirements' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-requirements',
+      'variables' => [
+        'additional_requirements' => FALSE,
+        'enquiry_link' => '',
+      ],
+    ],
+    'vu_course_student_profile_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-student-profile-block',
+      'variables' => [
+        'title' => '',
+        'table_title' => '',
+        'table' => '',
+      ],
+    ],
+    'vu_course_atar_min_entry' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-min-entry',
+      'variables' => [
+        'atar_value' => '',
+        'atar_heading' => '',
+        'atar_more_link_text' => '',
+      ],
+    ],
+    'vu_course_ce_multiple_audience' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-ce-multiple-audience',
+      'variables' => [
+        'off_campus_text' => '',
+      ],
+    ],
+    'vu_course_he_other_locations' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-he-other-locations',
+      'variables' => [
+        'other_locations_text' => '',
+      ],
+    ],
+    'vu_course_ve_duration' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-ve-duration',
+      'variables' => [
+        've_duration_text' => '',
+      ],
+    ],
+    'vu_course_ve_delivery_mode' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-ve-delivery-mode',
+      'variables' => [
+        've_delivery_mode_text' => '',
+      ],
+    ],
+    'vu_course_delivery_mode_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-delivery-mode-block',
+      'variables' => [
+        'data' => '',
+      ],
+    ],
+    'vu_course_audience_indicator' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-audience-indicator',
+    ],
+    'vu_course_atar_profile_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-profile-block',
+      'variables' => [
+        'data' => '',
+      ],
+    ],
+    'vu_course_atar_indicator' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-indicator',
+      'variables' => [
+        'atar' => FALSE,
+      ],
+    ],
+    'vu_course_special_admission_pro' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-special-admission-pro',
+    ],
+    'vu_course_admission_req_other' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-admission-req-other',
+    ],
+    'vu_course_pathways_credits_intro' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-pathways-credits-intro',
+    ],
+    'vu_course_atar_req_he' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-requirements-he',
+      'variables' => [
+        'he_requirements' => '',
+      ],
+    ],
+    'vu_course_atar_req_se' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-requirements-se',
+      'variables' => [
+        'se_requirements' => '',
+      ],
+    ],
+    'vu_course_atar_req_wl' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-requirements-wl',
+      'variables' => [
+        'wl_requirements' => '',
+      ],
+    ],
+    'vu_course_atar_req_vet' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-requirements-vet',
+      'variables' => [
+        'vet_requirements' => '',
+      ],
+    ],
+    'vu_course_entry_req_international' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-entry-req-international',
+      'variables' => [
+        'entry_requirements' => '',
+        'international_lang_requirements' => '',
+        'essential_requirements' => '',
+      ],
+    ],
+    'vu_course_entry_req_pg' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-entry-req-pg',
+      'variables' => [
+        'entry_requirements' => '',
+        'essential_requirements' => '',
+      ],
+    ],
+    'vu_course_entry_req_ve' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-entry-req-ve',
+      'variables' => [
+        'entry_requirements' => '',
+      ],
+    ],
+    'library_opening_hours' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'library-opening-hours',
+    ],
+    'vu_core_block_find_media_expert' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-core-block-find-media-expert',
+      'variables' => [
+        'data' => '',
+      ],
+    ],
+    'vu_course_intakes_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-core-block-course-intakes',
+      'variables' => [
+        'data' => '',
+      ],
+    ],
+    'vu_core_block_campus_maps' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-core-block-campus-maps',
+      'variables' => [
+        'locations' => '',
+      ],
+    ],
+    'vu_course_atar_adjustment' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-atar-adjustment',
+      'variables' => [
+        'atar_adjustment' => '',
+      ],
+    ],
+    'vu_course_hta_application_due' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-application-due-date',
+      'variables' => [
+        'text' => '',
+        'sup_text' => '',
+        'intake_date' => '',
+      ],
+    ],
+    'vu_course_int_fees' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-int-fees',
+      'variables' => [
+        'fees' => '',
+      ],
+    ],
+    'vu_course_international_intakes' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-int-intakes',
+      'variables' => [
+        'intake' => '',
+      ],
+    ],
+    'vu_course_materials_fee' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-materials-fee',
+      'variables' => [
+        'materials_fee' => '',
+      ],
+    ],
+    'vu_social_media_links' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-social-media-links',
+    ],
+    'vu_news_media_img_caption' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-news-media-img-caption',
+      'variables' => [
+        'img_caption' => '',
+      ],
+    ],
+    'vu_fee_calculator' => [
+      'template' => 'vu-fee-calculator',
+      'path' => $template_path,
+      'file' => $file,
+    ],
+    'vu_course_fee_calculator_link' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-course-fee-calculator-link',
+      'variables' => [
+        'link' => '',
+      ],
+    ],
+    'vu_map_locations' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-map-locations',
+    ],
+    'vu_all_event_dates' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-all-event-dates',
+    ],
+    'vu_all_event_locations' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-all-event-locations',
+    ],
+    'vu_core_qr_code' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-qr-code',
+    ],
+    'vu_unit_assessment' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-unit-assessment',
+      'variables' => [
+        'assessment' => '',
+        'assessment_offshore' => '',
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function vu_core_theme_registry_alter(&$theme_registry) {
+  // Force VU Core's field preprocess to come after the DS preprocess so it can
+  // modify the DS Extra values.
+  if (isset($theme_registry['field'])) {
+    foreach ($theme_registry['field']['preprocess functions'] as $delta => $function) {
+      if ($function == 'vu_core_preprocess_field') {
+        unset($theme_registry['field']['preprocess functions'][$delta]);
+        $theme_registry['field']['preprocess functions'][] = 'vu_core_preprocess_field';
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Wrapper on field_get_items().
+ *
+ * This conveniently grabs a field value from a loaded entity.
+ */
+function vu_core_extract_single_field_value($entity, $entity_type, $field_name, $value_key = 'value') {
+  $items = field_get_items($entity_type, $entity, $field_name);
+  if (!is_array($items)) {
+    return FALSE;
+  }
+  $item = reset($items);
+
+  return $item[$value_key];
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function vu_core_entity_info_alter(&$entity_info) {
+  $entity_info['contact_information']['access callback'] = '_vu_core_entity_access';
+  foreach ($entity_info as &$entity) {
+    if (isset($entity['view callback']) && 'eck__entity__view_callback' === $entity['view callback']) {
+      $entity['view callback'] = 'vu_core_entity_eck_view_callback';
+    }
+  }
+}
+
+/**
+ * Prevent anonymous users from accessing contact information entities directly.
+ */
+function _vu_core_entity_access($op, $entity = NULL, $account = NULL) {
+  if (!user_is_anonymous()) {
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_workbench_moderation_access_alter().
+ */
+function vu_core_workbench_moderation_access_alter(&$access, $op, $node) {
+  if ($op == 'view revisions' && user_access('view revisions')) {
+    $access = TRUE;
+  }
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function vu_core_filter_info() {
+  $filters = [];
+  $filters['vu_expert_guide_form'] = [
+    'title' => t('Expert guide search form token'),
+    'description' => t('Allows adding Expert guide search form to the content using the token:[find_an_expert_form].'),
+    'process callback' => '_vu_core_expert_guide_form_token',
+  ];
+
+  return $filters;
+}
+
+/**
+ * Custom process callback for vu_expert_guide_form filter.
+ *
+ * @param string $text
+ *   Input text.
+ *
+ * @return string
+ *   Processed text.
+ */
+function _vu_core_expert_guide_form_token($text) {
+  $replacement = &drupal_static(__FUNCTION__);
+  if (!isset($replacement)) {
+    $replacement = '';
+    $form_block = block_load('vu_core', 'vu_core_expert_guide_search_form');
+    if (!empty($form_block->bid)) {
+      $renderable_array = _block_get_renderable_array(_block_render_blocks([$form_block]));
+      unset($renderable_array['vu_core_vu_core_expert_guide_search_form']['#contextual_links']);
+      $replacement = drupal_render($renderable_array);
+    }
+  }
+
+  return preg_replace('/\[find_an_expert_form\]/isU', $replacement, $text);
+}
+
+/**
+ * Implements hook_filter_info_alter().
+ */
+function vu_core_filter_info_alter(&$info) {
+  if (!empty($info['video_filter'])) {
+    $info['video_filter']['process callback'] = '_vu_core_video_filter_process';
+  }
+}
+
+/**
+ * Custom process callback for video_filter.
+ */
+function _vu_core_video_filter_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // Override default width settings.
+  $filter->settings['video_filter_width'] = '100%';
+
+  if (preg_match_all('/\[video(\:(.+))?( .+)?\]/isU', $text, $matches_code)) {
+    foreach ($matches_code[0] as $ci => $code) {
+      $video = [
+        'source' => $matches_code[2][$ci],
+        'autoplay' => $filter->settings['video_filter_autoplay'],
+        'related' => $filter->settings['video_filter_related'],
+      ];
+
+      // Pick random out of multiple sources separated by comma (,).
+      if ($filter->settings['video_filter_multiple_sources'] && strstr($video['source'], ',')) {
+        $sources = explode(',', $video['source']);
+        $random = array_rand($sources, 1);
+        $video['source'] = $sources[$random];
+      }
+
+      // Load all codecs.
+      $codecs = video_filter_get_codec_enabled($filter->settings['video_filter_codecs']);
+
+      // Find codec.
+      foreach ($codecs as $codec_name => $codec) {
+        if (!is_array($codec['regexp'])) {
+          $codec['regexp'] = [$codec['regexp']];
+        }
+
+        // Try different regular expressions.
+        foreach ($codec['regexp'] as $delta => $regexp) {
+          if (preg_match($regexp, $video['source'], $matches)) {
+            $video['codec'] = $codec;
+            $video['codec']['delta'] = $delta;
+            $video['codec']['matches'] = $matches;
+            // Used in theme function:
+            $video['codec']['codec_name'] = $codec_name;
+            break 2;
+          }
+        }
+      }
+
+      // Codec found.
+      if (isset($video['codec'])) {
+        // Override default attributes.
+        if ($matches_code[3][$ci] && preg_match_all('/\s+([a-z_\d]+)\:\s*(["\']?)((?(?<=[\'"])[^\2\]]+?|[^\s\]]+))\2/ix', $matches_code[3][$ci], $matches_attributes)) {
+          foreach ($matches_attributes[0] as $ai => $attribute) {
+            $video[$matches_attributes[1][$ai]] = $matches_attributes[3][$ai];
+          }
+        }
+
+        // Use configured ratio if present, otherwise use that from the codec,
+        // if set. Fall back to 1.
+        $ratio = 1;
+        if (isset($video['ratio']) && preg_match('/(\d+)\/(\d+)/', $video['ratio'], $tratio)) {
+          // Validate given ratio parameter.
+          $ratio = $tratio[1] / $tratio[2];
+        }
+        elseif (isset($video['codec']['ratio'])) {
+          if (is_float($video['codec']['ratio']) || is_int($video['codec']['ratio'])) {
+            $ratio = $video['codec']['ratio'];
+          }
+          elseif (preg_match('/(\d+)\s*\/\s*(\d+)/', $video['codec']['ratio'], $cratio)) {
+            $ratio = $cratio[1] / $cratio[2];
+          }
+        }
+
+        // Sets video width & height after any user input has been parsed.
+        // First, check if user has set a width.
+        if (isset($video['width']) && !isset($video['height'])) {
+          if ($ratio) {
+            $video['height'] = ceil($video['width'] / $ratio);
+          }
+          else {
+            $video['height'] = $filter->settings['video_filter_height'];
+          }
+        }
+        // Else, if user has set height.
+        elseif (isset($video['height']) && !isset($video['width'])) {
+          if ($ratio) {
+            $video['width'] = ceil($video['height'] * $ratio);
+          }
+          else {
+            $video['width'] = $filter->settings['video_filter_height'];
+          }
+        }
+        // Maybe both?
+        elseif (isset($video['height']) && isset($video['width'])) {
+          $video['width'] = $video['width'];
+          $video['height'] = $video['height'];
+        }
+        // Fall back to defaults.
+        elseif (!isset($video['height']) && !isset($video['width'])) {
+          $video['width'] = $filter->settings['video_filter_width'] != '' ? $filter->settings['video_filter_width'] : 400;
+          $video['height'] = $filter->settings['video_filter_height'] != '' ? $filter->settings['video_filter_height'] : 400;
+        }
+
+        // Default value for control bar height.
+        $control_bar_height = 0;
+        if (isset($video['control_bar_height'])) {
+          // Respect control_bar_height option if present.
+          $control_bar_height = $video['control_bar_height'];
+        }
+        elseif (isset($video['codec']['control_bar_height'])) {
+          // Respect setting provided by codec otherwise.
+          $control_bar_height = $video['codec']['control_bar_height'];
+        }
+        $video['height'] += $control_bar_height;
+
+        $video['autoplay'] = (bool) $video['autoplay'];
+        $aligns = [
+          'left',
+          'right',
+          'center',
+        ];
+        $video['align'] = (isset($video['align']) && in_array($video['align'], $aligns)) ? $video['align'] : NULL;
+
+        // Let modules have final say on video parameters.
+        drupal_alter('video_filter_video', $video);
+
+        if (isset($video['codec']['html5_callback']) && $filter->settings['video_filter_html5'] == 1 && is_callable($video['codec']['html5_callback'], FALSE)) {
+          $replacement = call_user_func($video['codec']['html5_callback'], $video);
+        }
+        elseif (is_callable($video['codec']['callback'], FALSE)) {
+          $replacement = call_user_func($video['codec']['callback'], $video);
+        }
+        else {
+          // Invalid callback.
+          $replacement = '<!-- VIDEO FILTER - INVALID CALLBACK IN: ' . $code . ' -->';
+        }
+      }
+      // Invalid format.
+      else {
+        $replacement = '<!-- VIDEO FILTER - INVALID CODEC IN: ' . $code . ' -->';
+      }
+
+      $text = str_replace($code, $replacement, $text);
+    }
+  }
+
+  return $text;
+}
+
+/**
+ * Drupal_get_form() callback for site search form.
+ *
+ * @param array $form
+ *   Drupal form array.
+ * @param array &$form_state
+ *   Drupal form state array.
+ *
+ * @return array
+ *   Drupal form array.
+ */
+function vu_core_funnelback_search_form($form, &$form_state) {
+  // Set up form to submit with query params to remote server.
+  $form_state['action'] = 'search/vu/';
+
+  // Attach js for xs search icon.
+  $form['#attached']['js'][] = drupal_get_path('theme', 'victory') . '/js/search/site_search_form.js';
+
+  // Add class for JS / CSS to select.
+  $form['#attributes'] = [
+    'class' => [
+      'search-form',
+      'funnelback-search-form',
+    ],
+  ];
+
+  // Form title.
+  $form['title'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'h2',
+    '#value' => t('<span class="block-header">Search</span>'),
+  ];
+
+  // Search query field.
+  $query = !empty(arg(2)) ? check_plain(arg(2)) : '';
+  $form['query'] = [
+    '#type' => 'textfield',
+    '#size' => 20,
+    '#default_value' => urldecode($query),
+    '#attributes' => [
+      'placeholder' => t('Search eg., courses, units, information, people, facilities'),
+    ],
+    '#prefix' => "<div class='query-input-container'>",
+    '#suffix' => "</div>",
+  ];
+
+  $form['query']['#wrapper_attributes'] = [
+    'class' => [
+      'js-search_button',
+      'pull-left',
+    ],
+  ];
+  $form['query']['#input_group'] = TRUE;
+  // Add auto-completion.
+  $auto_completion = variable_get('funnelback_enable_autocomplete', TRUE);
+  if ($auto_completion) {
+    $form['query']['#autocomplete_path'] = 'funnelback/search/autocompletion';
+  }
+
+  // Form submit.
+  $form['submit'] = ['#type' => 'submit', '#value' => t('<span class="cstm-btn-text">Search</span>')];
+  $form['submit']['#attributes'] = [
+    'class' => [
+      'search',
+      'pull-right',
+    ],
+  ];
+  $form['submit']['#icon'] = '<i class="fa fa-search"></i>';
+  $form['submit']['#icon_position'] = 'before';
+  $form['submit']['#prefix'] = '';
+  $form['submit']['#suffix'] = '';
+
+  return $form;
+}
+
+/**
+ * Send correct parameter for site search form.
+ *
+ * Ensure it redirect to the correct site search link.
+ *
+ * @param array $form
+ *   The form.
+ * @param array $form_state
+ *   The form state/values.
+ */
+function vu_core_funnelback_search_form_submit($form, &$form_state) {
+
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
+  }
+
+  $search_query = urlencode($form_state['values']['query']);
+  $form_state['redirect'] = url($form_state['action'] . $search_query, ['absolute' => TRUE]);
+
+}
+
+/**
+ * Drupal_get_form() callback for Megamenu library search form.
+ *
+ * @param array $form
+ *   Drupal form array.
+ * @param array &$form_state
+ *   Drupal form state array.
+ *
+ * @return array
+ *   Drupal form array.
+ */
+function vu_core_library_search_form($form, &$form_state) {
+  // Set up form to submit with query params to remote server.
+  $form['#method'] = 'get';
+  $form['#action'] = 'http://library.vu.edu.au/search';
+
+  // Add class for JS / CSS to select.
+  $form['#attributes'] = [
+    'class' => [
+      'search-form',
+      'library-search-form',
+    ],
+  ];
+
+  // Form title.
+  $form['title'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'h2',
+    '#value' => t('<strong>Search</strong> the library'),
+  ];
+
+  // Search query field.
+  $form['query'] = [
+    '#type' => 'textfield',
+    '#size' => 20,
+    '#attributes' => [
+      'placeholder' => t('Title, author, journal name, ISBN, etc'),
+    ],
+  ];
+
+  // Array of options to populate radio buttons.
+  $options = [
+    '' => t('All resources'),
+    '(PT ebook OR PT book)' => t('Books & e-books'),
+    '(PT academic journal OR PT Serial OR PT Periodical OR PT Journal Article OR PT Article)' => t('Journal articles'),
+  ];
+
+  // Query category options.
+  $form['options'] = [
+    '#type' => 'radios',
+    '#default_value' => '',
+    '#options' => $options,
+  ];
+
+  // Link for users without library site credentials.
+  $form['link'] = [
+    '#theme' => 'link',
+    '#text' => t('Non-VU access'),
+    '#path' => 'https://library.vu.edu.au/search',
+    '#options' => [
+      'attributes' => ['class' => ['non-vu-access-link']],
+      'html' => FALSE,
+    ],
+  ];
+
+  // Hidden form elements submitted for remote server use.
+  $form['direct'] = ['#type' => 'hidden', '#value' => 'true'];
+  $form['authtype'] = ['#type' => 'hidden', '#value' => 'ip,guest,uid'];
+  $form['bquery'] = ['#type' => 'hidden', '#value' => 'blank'];
+  $form['custid'] = ['#type' => 'hidden', '#value' => 's1145751'];
+  $form['groupid'] = ['#type' => 'hidden', '#value' => 'main'];
+  $form['profid'] = ['#type' => 'hidden', '#value' => 'eds'];
+
+  // Form submit.
+  $form['submit'] = ['#type' => 'submit', '#value' => t('Search')];
+
+  return $form;
+}
+
+/**
+ * Returns TRUE if the current page is Leaders in Sports page.
+ */
+function vu_core_is_leaders_in_sports_page() {
+  $nid = arg(1);
+  $stored_nid = variable_get('leaders_in_sport_nid');
+
+  return !empty($stored_nid) && $stored_nid === $nid;
+}
+
+/**
+ * Returns TRUE if the current page is International students page.
+ */
+function vu_core_is_international_students_page() {
+  $nid = arg(1);
+  $stored_nid = variable_get('international_students_nid');
+
+  return !empty($stored_nid) && $stored_nid === $nid;
+}
+
+/**
+ * Implements hook_block_info_alter().
+ */
+function vu_core_block_info_alter(&$blocks, $theme, $code_blocks) {
+  if ('vu' == $theme) {
+    // Map Webforms to the paths they should display on.
+    $webforms = [
+      'Webform: Enquire about this course' => 'vu-english/english-language-courses/*',
+    ];
+
+    // This isn't always set. It was causing an error in migration.
+    if (!isset($blocks['webform'])) {
+      return;
+    }
+    // Loop through all Webform blocks.
+    foreach ($blocks['webform'] as $delta => $data) {
+      $block_title = $data['info'];
+      // Update blocks contained in the $webforms array.
+      foreach ($webforms as $webform_name => $path) {
+        if ($webform_name == $block_title) {
+          $blocks['webform'][$delta]['status'] = 1;
+          $blocks['webform'][$delta]['visibility'] = 1;
+          $blocks['webform'][$delta]['region'] = 'content';
+          $blocks['webform'][$delta]['pages'] = $path;
+          $blocks['webform'][$delta]['title'] = '<none>';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_validate().
+ *
+ * Modify 'invalid phone number' error message.
+ */
+function vu_core_field_attach_validate($entity_type, $entity, &$errors) {
+  if (empty($errors)) {
+    return;
+  }
+  $fields_of_type_phone = ['field_staff_phone', 'field_staff_fax'];
+  foreach ($fields_of_type_phone as $field) {
+    if (!empty($errors[$field]) && is_array($errors[$field][LANGUAGE_NONE][0])) {
+      foreach ($errors[$field][LANGUAGE_NONE][0] as &$error) {
+        if ('phone_invalid_number' === $error['error']) {
+          $original_message = $error['message'];
+          $additional_info = t('and it should contain an area code <em>e.g. 03</em>.');
+          $error['message'] = t('!original !additional', [
+            '!original' => $original_message,
+            '!additional' => $additional_info,
+          ]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ */
+function vu_core_block_view_menu_block_main_menu_left_nav_alter(&$data, $block) {
+  // Hide block title for Left Sidebar Navigation.
+  $block->title = '<none>';
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ */
+function vu_core_block_view_menu_block_main_menu_our_campuses_alter(&$data, $block) {
+  // Hide block title for Left Sidebar Our Campuses.
+  $block->title = 'Our Campuses';
+}
+
+/**
+ * Implements hook_custom_theme().
+ *
+ * @TODO: Refactor to use menu_get_object instead - workbench moderation
+ * is now patched to return the correct revision of the node.
+ */
+function vu_core_custom_theme() {
+  $nid = arg(1);
+  $vid = arg(3);
+  $arg2_array = [
+    NULL,
+    'draft',
+    'view',
+    'tester',
+    'done',
+  ];
+
+  // The node can not be loaded here, either directly or via menu_get_object()
+  // as it will result in the the incorrect theme being used.
+  if (arg(0) == 'node' && (in_array(arg(2), $arg2_array) || (arg(2) == 'revisions') && arg(4) == 'view')) {
+    // If we are on 'node/%node/draft' then we have to do a lookup to get the
+    // current revision ID.
+    if (arg(2) == 'draft') {
+      $query = db_select('node_revision', 'r');
+      $query->addJoin('LEFT OUTER', 'workbench_moderation_node_history', 'm', 'r.vid = %alias.vid');
+      $query->condition('r.nid', $nid)
+        ->condition('m.is_current', 1)
+        ->fields('m', ['vid']);
+      $vid = $query->execute()->fetchColumn();
+    }
+
+    return vu_core_nid_field_theme_get($nid, $vid);
+  }
+
+  elseif (arg(0) == 'courses' && arg(1) == 'international') {
+    return 'victory';
+  }
+
+  // Handle incoming ajax requests from the new theme.
+  elseif (arg(0) === 'system' && arg(1) === 'ajax' && !empty($_REQUEST['ajax_page_state']['theme']) && $_REQUEST['ajax_page_state']['theme'] === 'victory') {
+    return 'victory';
+  }
+
+  elseif (arg(0) == 'search') {
+    return 'victory';
+  }
+
+  elseif (arg(0) == 'file' && in_array(arg(2), [NULL, 'view'])) {
+    $type = vu_core_fid_get_type($nid);
+    if (!is_null($type) && $type == 'video') {
+      return 'victory';
+    }
+  }
+}
+
+/**
+ * Returns the 'type' value of a given Fid.
+ *
+ * @param int $fid
+ *   The file ID.
+ *
+ * @return string|bool
+ *   The theme name if set, else FALSE.
+ */
+function vu_core_fid_get_type($fid) {
+
+  $type = db_select('file_managed', 'n')
+    ->fields('n', ['type'])
+    ->condition('fid', $fid)
+    ->execute()->fetchColumn();
+
+  return $type;
+}
+
+/**
+ * Returns the 'field_theme' value of a given NID/VID.
+ *
+ * @param int $nid
+ *   The node ID.
+ * @param int|null $vid
+ *   The node revision ID.
+ *
+ * @return string|bool
+ *   The theme name if set, else FALSE.
+ */
+function vu_core_nid_field_theme_get($nid, $vid = NULL) {
+  $theme = FALSE;
+
+  $type = db_select('node', 'n')
+    ->fields('n', ['type'])
+    ->condition('nid', $nid)
+    ->execute()->fetchColumn();
+
+  switch ($type) {
+    case 'courses':
+    case 'unit':
+    case 'unit_set':
+    case 'researcher_profile':
+    case 'staff_profile':
+    case 'webform':
+      return 'victory';
+
+    default:
+      $field = field_info_field('field_theme');
+      if (is_array($field)) {
+        $storage = $field['storage']['details']['sql'][is_null($vid) ? FIELD_LOAD_CURRENT : FIELD_LOAD_REVISION];
+        $table = key($storage);
+        $query = db_select($table, 'f')
+          ->condition('f.entity_id', $nid)
+          ->fields('f', [$storage[$table]['value']]);
+        if (!is_null($vid)) {
+          $query->condition('f.revision_id', $vid);
+        }
+
+        return $query->execute()->fetchColumn();
+      }
+  }
+
+  return $theme;
+}
+
+/**
+ * Returns the 'field_theme' value of a given node object.
+ *
+ * @param object $node
+ *   The node.
+ *
+ * @return string
+ *   The theme name if set, else the default theme.
+ */
+function vu_core_node_field_theme_get($node) {
+
+  // Ensure a 'field_theme' value is present.
+  $items = field_get_items('node', $node, 'field_theme');
+
+  // If not item, return default theme.
+  if (!$items) {
+    return variable_get('theme_default', NULL);
+  }
+
+  // Else, return user selected theme.
+  return $items[0]['value'];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vu_core_menu() {
+  $items = [];
+
+  $items['fees/search/course'] = [
+    'title' => 'Search Course Fees',
+    'description' => 'Search Course Fees',
+    'page callback' => 'vu_core_fees_search_course_view',
+    // Open API endpoint for Fee Calculator to support course fees search.
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  ];
+
+  $items['fees/search/unit'] = [
+    'title' => 'Search Unit Fees',
+    'description' => 'Search Unit Fees',
+    'page callback' => 'vu_core_fees_search_unit_view',
+    // Open API endpoint for Fee Calculator to support unit fees search.
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  ];
+
+  return $items;
+}
+
+/**
+ * Callback to return course fee search results to Fee Calculator.
+ */
+function vu_core_fees_search_course_view() {
+  $fees_results = views_get_view_result('course_fees', 'block');
+
+  $response = [];
+  foreach ($fees_results as $fees_result) {
+    $year = vu_core_get_view_first_raw_value($fees_result, 'field_field_year');
+    $cohort_year = vu_core_get_view_first_raw_value($fees_result, 'field_field_cohort_year');
+
+    array_push($response, [
+      'nid' => $fees_result->nid,
+      'course_code' => vu_core_get_view_first_raw_value($fees_result, 'field_field_unit_code'),
+      'course_title' => $fees_result->node_field_data_field_course_title,
+      'credit_points' => vu_core_get_view_first_raw_value($fees_result, 'field_field_credit_points'),
+      'is_international' => vu_core_get_view_first_raw_value($fees_result, 'field_field_international'),
+      'sector' => vu_core_get_view_first_raw_value($fees_result, 'field_field_sector'),
+      'eftsl' => vu_core_get_view_first_raw_value($fees_result, 'field_field_eftsl'),
+      'year' => $year ? date('Y', strtotime($year)) : '',
+      'fee' => vu_core_get_view_first_raw_value($fees_result, 'field_field_fee'),
+      'fee_type' => vu_core_get_view_first_taxonomy_id($fees_result, 'field_field_fee_type'),
+      'cohort_year' => $cohort_year ? date('Y', strtotime($cohort_year)) : '',
+      'contact_hours' => vu_core_get_view_first_raw_value($fees_result, 'field_field_contact_hours'),
+      'hourly_rate' => vu_core_get_view_first_raw_value($fees_result, 'field_field_hourly_rate'),
+      'disclaimers' => vu_core_get_view_taxonomy_ids($fees_result, 'field_field_disclaimers'),
+    ]);
+  }
+
+  drupal_json_output($response);
+}
+
+/**
+ * Callback to return unit fee search results to Fee Calculator.
+ */
+function vu_core_fees_search_unit_view() {
+  // Given provided feeType query param, get unit_fees view block.
+  $request_params = drupal_get_query_parameters();
+  $foundSector = FALSE;
+  $sector = 'he';
+  if (isset($request_params['feeType'])) {
+    $feeType = intval($request_params['feeType']);
+    $feeTypes = vu_core_get_fee_type_select_options();
+    foreach ($feeTypes as $sector => $sectorFeeTypes) {
+      foreach ($sectorFeeTypes as $sectorFeeType) {
+        if ($sectorFeeType['tid'] === $feeType) {
+          $foundSector = TRUE;
+          $sector = strtolower($sector);
+          break;
+        }
+      }
+      if ($foundSector) {
+        break;
+      }
+    }
+  }
+
+  // There are two view blocks, one for HE students and one for VE.
+  $fees_results = views_get_view_result('unit_fees', $sector);
+
+  $response = [];
+  foreach ($fees_results as $fees_result) {
+    $year = vu_core_get_view_first_raw_value($fees_result, 'field_field_year');
+
+    $unit_code = vu_core_get_view_first_raw_value($fees_result, 'field_field_unit_code');
+
+    $unit_title = $original_unit_title = $fees_result->node_field_data_field_unit_title;
+    $prefix = $unit_code . ' - ';
+    if (substr($original_unit_title, 0, strlen($prefix)) === $prefix) {
+      $unit_title = substr($original_unit_title, strlen($prefix));
+    }
+    if ($fees_result->node_field_data_field_course_title) {
+      $unit_title .= ' (' . $fees_result->node_field_data_field_course_title . ')';
+    }
+
+    array_push($response, [
+      'nid' => $fees_result->nid,
+      'unit_code' => $unit_code,
+      'unit_title' => $unit_title,
+      'credit_points' => vu_core_get_view_first_raw_value($fees_result, 'field_field_credit_points'),
+      'sector' => vu_core_get_view_first_raw_value($fees_result, 'field_field_sector'),
+      'eftsl' => vu_core_get_view_first_raw_value($fees_result, 'field_field_eftsl'),
+      'year' => $year ? date('Y', strtotime($year)) : '',
+      'fee' => vu_core_get_view_first_raw_value($fees_result, 'field_field_fee'),
+      'fee_type' => vu_core_get_view_first_taxonomy_id($fees_result, 'field_field_fee_type'),
+      'contact_hours' => vu_core_get_view_first_raw_value($fees_result, 'field_field_contact_hours'),
+      'hourly_rate' => vu_core_get_view_first_raw_value($fees_result, 'field_field_hourly_rate'),
+      'disclaimers' => vu_core_get_view_taxonomy_ids($fees_result, 'field_field_disclaimers'),
+    ]);
+  }
+
+  drupal_json_output($response);
+}
+
+/**
+ * Get back the first term ID from a row in the view.
+ *
+ * @param object $object
+ *   A row from the view.
+ * @param string $field
+ *   The field to extract the term ID from.
+ *
+ * @return string
+ *   The first extracted term ID.
+ */
+function vu_core_get_view_first_taxonomy_id($object, $field) {
+  $tids = vu_core_get_view_taxonomy_ids($object, $field);
+  if (!empty($tids)) {
+    return $tids[0];
+  }
+  return '';
+}
+
+/**
+ * Get all the raw associated term IDS back from a row in the view.
+ *
+ * @param object $object
+ *   A row from the view.
+ * @param string $field
+ *   The view item field to extract the term IDs from.
+ *
+ * @return array
+ *   The extracted term IDs.
+ */
+function vu_core_get_view_taxonomy_ids($object, $field) {
+  $tids = [];
+  if (!empty($object->{$field})) {
+    foreach ($object->{$field} as $taxonomy) {
+      array_push($tids, $taxonomy['raw']['tid']);
+    }
+  }
+  return $tids;
+}
+
+/**
+ * Get the first raw value back from the view item.
+ *
+ * @param object $object
+ *   A row from the view.
+ * @param string $field
+ *   The view item field to extract the field value from.
+ *
+ * @return string
+ *   The extracted field value.
+ */
+function vu_core_get_view_first_raw_value($object, $field) {
+  if (isset($object->{$field}[0]['raw']['value'])) {
+    return $object->{$field}[0]['raw']['value'];
+  }
+  return '';
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function vu_core_menu_alter(&$items) {
+  $items['homepage']['theme callback'] = 'vu_core_victory_theme';
+  $items['pagepreview/%']['theme callback'] = 'vu_core_victory_theme';
+  // See https://vu-pmo.atlassian.net/browse/PW-1107.
+  // Remove these links from the admin menu for all users. They are not useful.
+  unset($items['admin/index']);
+  unset($items['admin/help']);
+  // Alter access to taxonomy term pages.
+  $items['taxonomy/term/%taxonomy_term']['access callback'] = 'vu_core_taxonomy_term_page_access';
+  if (isset($items['taxonomy/term/%taxonomy_term']['page arguments'])) {
+    $items['taxonomy/term/%taxonomy_term']['access arguments'] = array_merge($items['taxonomy/term/%taxonomy_term']['access arguments'], $items['taxonomy/term/%taxonomy_term']['page arguments']);
+  }
+
+  if (isset($items['admin/structure/menu/item/%menu_link/delete'])) {
+    $items['admin/structure/menu/item/%menu_link/delete']['access arguments'] = ['delete menu item'];
+  }
+}
+
+/**
+ * Theme callback to swap specific paths to Victory theme.
+ *
+ * @param string $theme
+ *   The theme whose blocks are being configured. If not set, the default theme
+ *   is assumed.
+ *
+ * @return string
+ *   The theme that should be used for the block configuration page, or NULL
+ *   to indicate that the default theme should be used.
+ */
+function vu_core_victory_theme($theme = NULL) {
+  $theme = 'victory';
+  $menu_item = menu_get_item();
+  if ($menu_item['path'] == 'pagepreview/%') {
+    $node = pagepreview_cache_get($menu_item['page_arguments'][0]);
+
+    // If we don't have a valid node for whatever reason, quit here.
+    if (!$node) {
+      drupal_exit();
+    }
+
+    $theme = vu_core_node_field_theme_get($node);
+  }
+
+  drupal_alter('vu_core_victory_theme', $theme, $node);
+
+  return $theme;
+}
+
+/**
+ * Implements hook_query_alter().
+ */
+function vu_core_vu_core_query_alter(QueryAlterableInterface $query) {
+  if (!empty($query->alterMetaData['view'])) {
+    if ($query->alterMetaData['view']->name == VU_VIEWS_CONTENT_REVISIONS) {
+      // This is required to remove unnecessary group by fields added by Views.
+      $group_by_fields =& $query->getGroupBy();
+      $group_by_fields = array_slice($group_by_fields, 0, 1);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_entity().
+ */
+function vu_core_preprocess_entity(&$vars) {
+  drupal_alter('preprocess_entity', $vars);
+  drupal_alter("preprocess_entity_{$vars['elements']['#entity_type']}", $vars);
+  drupal_alter("preprocess_entity_{$vars['elements']['#entity_type']}_{$vars['elements']['#bundle']}", $vars);
+}
+
+/**
+ * Implements hook_preprocess_entity_bean_promo().
+ */
+function vu_core_preprocess_entity_bean_promo_alter(&$vars) {
+  $vars['extra_class_names'] = count($vars['field_promo_link']) === 1 ? 'victory-promo--single-link' : '';
+
+  if (count($vars['field_promo_link']) === 1 && isset($vars['field_promo_link'][0]['url'])) {
+    $vars['click_event'] = 'onclick="location.href=\'' . $vars['field_promo_link'][0]['url'] . '\'"';
+  }
+  else {
+    $vars['click_event'] = '';
+  }
+}
+
+/**
+ * Implements hook_ds_pre_alter().
+ */
+function vu_core_ds_pre_render_alter(&$layout_render_array, $context, $variables) {
+  if ($context['entity_type'] == 'paragraphs_item' && $context['bundle'] == 'related_links') {
+    $style = 'default';
+
+    if (!empty($variables['paragraphs_item']->field_paragraph_links_style[LANGUAGE_NONE][0]['value'])) {
+      $style = $variables['paragraphs_item']->field_paragraph_links_style[LANGUAGE_NONE][0]['value'];
+    }
+
+    $hide_title = vu_core_extract_single_field_value($variables['paragraphs_item'], 'paragraphs_item', 'field_hide_title');
+
+    if ($hide_title) {
+      $link_block_title = '';
+    }
+    else {
+      $link_block_title_value = vu_core_extract_single_field_value($variables['paragraphs_item'], 'paragraphs_item', 'field_link_block_title');
+      $link_block_title = $link_block_title_value ? $link_block_title_value : 'Related';
+    }
+
+    $layout_render_array['ds_content'][0]['#prefix'] = '<div class="list__style--' . $style . '">';
+    $layout_render_array['ds_content'][0]['#suffix'] = '</div>';
+    $layout_render_array['ds_content'][0]['#title'] = $link_block_title;
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function vu_core_preprocess_field(&$vars) {
+  if (!isset($vars['element']['#field_name'])) {
+    return;
+  }
+
+  drupal_alter("preprocess_field_{$vars['element']['#field_name']}", $vars);
+}
+
+/**
+ * Convert a string into an ID via Pathauto.
+ *
+ * @param string $title
+ *   The title string.
+ * @param string $context
+ *   Some context for duplicate handling.
+ *
+ * @return string
+ *   The converted ID string.
+ */
+function vu_core_title_id($title, $context) {
+  $titles = &drupal_static(__FUNCTION__, []);
+
+  // Process title via Pathauto.
+  module_load_include('inc', 'pathauto', 'pathauto');
+  $title = $raw_title = pathauto_cleanstring($title);
+
+  // Ensure unique title, and increment if not.
+  $i = 0;
+  while (isset($titles[$context][$title])) {
+    $title = "{$raw_title}-{$i}";
+    $i++;
+  }
+  $titles[$context][$title] = TRUE;
+
+  return $title;
+}
+
+/**
+ * Implements hook_library_alter().
+ */
+function vu_core_library_alter(&$libraries, $module) {
+  // Prevent aggregation of jQuery with other scripts.
+  if ($module == 'system' && isset($libraries['jquery'])) {
+    $libraries['jquery']['js']['misc/jquery.js']['preprocess'] = FALSE;
+  }
+}
+
+/**
+ * This function sets the background, logo etc from a subsite into one object.
+ */
+function vu_core_subsite_meta_get($subsite_node) {
+  if ($subsite_node === NULL || !isset($subsite_node->type)) {
+    return FALSE;
+  }
+  $subsite_metadata = (object) [];
+  $tid = vu_core_extract_single_field_value($subsite_node, 'node', 'field_page_subsite', 'tid');
+  if ($tid === FALSE) {
+    return FALSE;
+  }
+  $subsite_taxonomy = taxonomy_term_load($tid);
+  $subsite_metadata->name = $subsite_taxonomy->name;
+  $background = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_subsite_background', 'uri');
+  if ($background !== FALSE) {
+    $background = file_create_url($background);
+  }
+  $subsite_metadata->background = $background;
+  $subsite_metadata->hide_menu = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_subsite_hide_sec_menu');
+  $logo = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_subsite_page_logo', 'uri');
+  if ($logo !== FALSE) {
+    $logo = file_create_url($logo);
+  }
+  $subsite_metadata->logo = $logo;
+  $subsite_metadata->contact_us_link = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_contact_us_link');
+  $subsite_metadata->contact_us_title = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_contact_us_title');
+  $subsite_metadata->hide_login = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_subsite_hide_login');
+  $subsite_metadata->hide_contact = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_hide_contact_us');
+  $subsite_metadata->hide_search = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_hide_search');
+  $subsite_metadata->hide_child_navigation = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_hide_child_page_navigation');
+  $subsite_metadata->show_upper_footer = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_show_upper_footer');
+  $subsite_metadata->field_override_chat_now = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_override_chat_now');
+  $subsite_metadata->field_override_campus_app = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_override_campus_app');
+  $subsite_metadata->field_override_contact_us = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_override_contact_us');
+  $subsite_metadata->field_override_social_media_link = field_get_items('taxonomy_term', $subsite_taxonomy, 'field_override_social_media_link');
+  $subsite_metadata->field_block_title = vu_core_extract_single_field_value($subsite_taxonomy, 'taxonomy_term', 'field_block_title');
+  return $subsite_metadata;
+}
+
+/**
+ * Gets the menu depth of the current page.
+ */
+function vu_core_menu_depth_get($menu_trail = NULL) {
+  if ($menu_trail === NULL) {
+    $menu_trail = menu_get_active_trail();
+  }
+  $menu_depth = end($menu_trail)['depth'];
+  return $menu_depth;
+}
+
+/**
+ * Get the top level subsite node.
+ */
+function vu_core_subsite_node_get() {
+  $menu_trail = menu_get_active_trail();
+  $menu_depth = vu_core_menu_depth_get($menu_trail);
+  $menu_trail = array_reverse(menu_get_active_trail());
+  $subsite_home_key = $menu_depth - 1;
+  $subsite_node = $subsite_home_key > 0 ? menu_get_object('node', 1, $menu_trail[$subsite_home_key]['link_path']) : menu_get_object();
+
+  return $subsite_node;
+}
+
+/**
+ * Tests if the current page is a subsite page.
+ */
+function vu_core_is_subsite($subsite_name = NULL) {
+  $menu_trail = menu_get_active_trail();
+  $menu_item = end($menu_trail);
+  $menu_name = is_array($menu_item) && !empty($menu_item['menu_name']) ? $menu_item['menu_name'] : FALSE;
+
+  if (!empty($menu_name) && $menu_name === 'menu-subsites') {
+    if ($subsite_name === NULL) {
+      return TRUE;
+    }
+
+    // Load settings from taxonomy.
+    $subsite_node = vu_core_subsite_node_get();
+    $subsite_metadata = vu_core_subsite_meta_get($subsite_node);
+    if ($subsite_metadata !== FALSE && $subsite_metadata->name === $subsite_name) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function vu_core_preprocess_node(&$variables) {
+
+  // Enabling pop up for users from outside AU & NZ on domestic course pages.
+  $course_obj = _vu_core_block_menu_get_course_object();
+  if ($course_obj && $course_obj->type == 'courses') {
+    $is_international_url = vu_courses_is_international_course_url();
+    $domestic_has_int = vu_courses_offered_to_audience($course_obj, 'international');
+    if (!$is_international_url && $domestic_has_int) {
+      $session_var = vu_core_is_session_set_for_user_outside_domestic();
+      // If session var is set then do not check on visitor location.
+      if (!$session_var) {
+        $user_location = vu_core_is_smart_ip_method_exist();
+        if ($user_location) {
+          $country = $user_location['country'];
+          $country_code = $user_location['country_code'];
+          $is_domestic = vu_core_check_country_domestic($country, $country_code);
+          if (!$is_domestic && !empty($country)) {
+            $_SESSION['international-audience-pop-up'] = 'set';
+            drupal_add_js(drupal_get_path('module', 'vu_core') . '/js/vu_core.int_visitor_pop_up.js');
+          }
+        }
+      }
+    }
+  }
+
+  if ('courses' == $variables['type']) {
+    $node = $variables['node'];
+    $variables['title'] = check_plain($variables['title']);
+    $variables['title'] = str_replace('&amp;', '&', $variables['title']);
+
+    $variables['admission_pathways_title'] = t('Admission & pathways');
+    $variables['non_award'] = FALSE;
+
+    if ($node->field_unit_lev[$node->language][0]['value'] == 'short') {
+      $variables['non_award'] = TRUE;
+    }
+
+    if ($variables['non_award']) {
+      $variables['admission_pathways_title'] = t('Admission requirements');
+    }
+
+    // Modify title for ATAR undergrad courses.
+    if (in_array($node->field_unit_lev[$node->language][0]['value'], ['undergrad', 'he_diplomas'])  && vu_feature_switches_switch_state('courses-admission-transparency')) {
+      if ($node->field_course_aqf[$node->language][0]['value'] != 'Diploma' && $node->field_unit_lev[$node->language][0]['value'] == 'he_displomas') {
+        $variables['admission_pathways_title'] = t('Admission & pathways');
+      }
+      $variables['admission_pathways_title'] = t('Admissions');
+    }
+  }
+}
+
+/**
+ * Deliver VU 410 page.
+ *
+ * @param mixed $page_callback_result
+ *   The result of a page callback. Can be one of:
+ *   - NULL: to indicate no content.
+ *   - An integer menu status constant: to indicate an error condition.
+ *   - A string of HTML content.
+ *   - A renderable array of content.
+ *
+ * @see drupal_deliver_page()
+ */
+function vu_core_deliver_410($page_callback_result) {
+  drupal_add_http_header('Status', '410 Gone');
+
+  $fast_404_html = variable_get('404_fast_html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>');
+  // Replace @path in the variable with the page path.
+  print strtr($fast_404_html, ['@path' => check_plain(request_uri())]);
+  exit;
+}
+
+/**
+ * Transform underscored strings to camelcased strings.
+ *
+ * @param string $string
+ *   The underscored string to be transformed.
+ * @param bool $ucfirst
+ *   A boolean value signifying whether the first character should be
+ *   upper-cased.
+ *
+ * @return string
+ *   The transformed string.
+ */
+function vu_core_underscores_to_camelcase($string, $ucfirst = FALSE) {
+  $parts = explode('_', $string);
+  $parts = $parts ? array_map('ucfirst', $parts) : [$string];
+  $parts[0] = $ucfirst ? ucfirst($parts[0]) : lcfirst($parts[0]);
+
+  return implode('', $parts);
+}
+
+/**
+ * Implements hook_ctools_plugin_post_alter().
+ */
+function vu_core_ctools_plugin_post_alter(&$plugin, &$info) {
+  if ($plugin['module'] == 'panels' && $plugin['name'] = 'panel_context') {
+    $plugin['contextual link'] = 'vu_core_frontpage_context_links';
+  }
+}
+
+/**
+ * Implements hook_context_links().
+ */
+function vu_core_frontpage_context_links($handler, $plugin, $contexts, $args) {
+  $links = ctools_task_handler_default_contextual_link($handler, $plugin, $contexts, $args);
+
+  if ($handler->task == 'page' && $handler->subtask == 'homepage') {
+    $entity_type = 'entityqueue_subqueue';
+    if (($queue = entityqueue_queue_load('hero_title_box')) &&
+      ($eq = ctools_get_plugins('ctools', 'export_ui', 'entityqueue_export_ui')) &&
+      ($path = ctools_export_ui_plugin_menu_path($eq, 'edit subqueue', 'hero_title_box'))) {
+
+      $items = ctools_export_crud_load_all($eq['schema']);
+      $query = new EntityFieldQuery();
+      $query
+        ->entityCondition('entity_type', $entity_type)
+        ->entityCondition('bundle', array_keys($items), 'IN');
+      $result = $query->execute();
+      $subqueue = array_pop($result[$entity_type]);
+
+      $links[] = [
+        'title' => t('Edit @title items', ['@title' => $queue->label]),
+        'href' => strtr($path, ['%entityqueue_subqueue' => $subqueue->subqueue_id]),
+        'query' => drupal_get_destination(),
+      ];
+    }
+  }
+
+  return $links;
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function vu_core_form_entityqueue_subqueue_edit_form_alter(&$form, &$form_state, $form_id) {
+  $form['actions']['reverse']['#access'] = 0;
+  $form['actions']['shuffle']['#access'] = 0;
+  $form['actions']['clear']['#access'] = 0;
+}
+
+/**
+ * Implements hook_ds_fields_info().
+ */
+function vu_core_ds_fields_info($entity_type) {
+  $fields = [];
+
+  if ($entity_type == 'node') {
+    $fields['node']['ds_supplementary_description'] = [
+      'title' => t('Supplimentary description (ds)'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'file' => drupal_get_path('module', 'vu_core') . '/includes/ds_fields.inc',
+      'function' => 'vu_core_ds_field_supplimentary_description',
+      'properties' => [
+        'settings' => [
+          'display' => [
+            'type' => 'select',
+            'options' => [],
+          ],
+        ],
+        'defaults' => [
+          'display' => '',
+        ],
+      ],
+    ];
+
+    $fields['node']['ds_supplementary_careers'] = [
+      'title' => t('Supplimentary careers information (ds)'),
+      'field_type' => DS_FIELD_TYPE_FUNCTION,
+      'file' => drupal_get_path('module', 'vu_core') . '/includes/ds_fields.inc',
+      'function' => 'vu_core_ds_field_supplimentary_carreers',
+      'properties' => [
+        'settings' => [
+          'display' => [
+            'type' => 'select',
+            'options' => [],
+          ],
+        ],
+        'defaults' => [
+          'display' => '',
+        ],
+      ],
+    ];
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_ds_field_settings_form().
+ */
+function vu_core_ds_field_settings_form($field) {
+  $field += [
+    'formatter_settings' => [],
+  ];
+  $field['formatter_settings'] += [
+    'display' => '',
+  ];
+
+  switch ($field['name']) {
+    case 'ds_supplementary_description':
+    case 'ds_supplementary_careers':
+      $info = entity_get_info($field['entity_type']);
+      $view_mode_settings = array_filter(field_view_mode_settings($field['entity_type'], $field['bundle']), function ($a) {
+        if ($a['custom_settings']) {
+          return TRUE;
+        }
+      });
+      $view_modes = array_intersect_key($info['view modes'], $view_mode_settings);
+      $other_view_modes = array_map(function ($a) {
+        return $a['label'];
+      }, $view_modes);
+      $view_modes = ['' => t('Default')] + $other_view_modes;
+
+      $form = [];
+
+      $form['display'] = [
+        '#type' => 'select',
+        '#title' => t('Display'),
+        '#options' => $view_modes,
+        '#default_value' => $field['formatter_settings']['display'],
+      ];
+      break;
+  }
+
+  return $form;
+}
+
+/**
+ * Little helper to stop some browsers turning random numbers into links.
+ *
+ * Even if this tag is added "tel" links will still work as expected.
+ */
+function vu_core_prevent_automatic_tel_links() {
+  $head = drupal_add_html_head();
+  if (empty($head['format_detection'])) {
+    $meta_tag = [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => 'format-detection',
+        'content' => 'telephone=no',
+      ],
+    ];
+    drupal_add_html_head($meta_tag, 'format_detection');
+  }
+}
+
+/**
+ * Extract the from and to dates and return as DateTime objects.
+ */
+function _vu_core_get_date_objects(array $item) {
+  $tz = new DateTimeZone($item['timezone']);
+  $tz_db = empty($item['timezone_db']) ? $tz : new DateTimeZone($item['timezone_db']);
+  $from = new DateTime($item['value'], $tz_db);
+  $to = empty($item['value2']) ? '' : new DateTime($item['value2'], $tz_db);
+  $from->setTimezone($tz);
+  $to->setTimezone($tz);
+
+  return [$from, $to];
+}
+
+/**
+ * Property info callback to get course commencement date.
+ */
+function _vu_core_get_property_commencement_date($item) {
+  $commencement_date = _vu_core_get_commencement_date($item);
+
+  if ($commencement_date) {
+    return $commencement_date->format('Y-m-d');
+  }
+
+  return NULL;
+}
+
+/**
+ * Get commencement date from node.
+ */
+function _vu_core_get_commencement_date($node) {
+  // Get course code.
+  $course_code = field_get_items('node', $node, 'field_unit_code', $node->language);
+  if (!empty($course_code[0]['value'])) {
+
+    $delivery = vu_course_index_get_course_intake_list($course_code[0]['value']);
+    $commencement_date = $delivery->commencementDateNext();
+    if ($commencement_date) {
+
+      $date = new DateTime($commencement_date);
+
+      return $date;
+    }
+  }
+
+  return NULL;
+}
+
+/**
+ * Get course duration hours from node.
+ */
+function _vu_core_get_course_duration_hours($node) {
+  $course_duration = field_get_items('node', $node, 'field_duration', $node->language);
+  if (!empty($course_duration[0]['value'])) {
+    $str = $course_duration[0]['value'];
+    preg_match_all('!\d+\.*\d*!', $str, $matches);
+    if ((strpos($str, 'year') !== FALSE)) {
+      $hours = $matches[0][0] * 8760;
+    }
+    if ((strpos($str, 'month') !== FALSE)) {
+      $hours = $matches[0][0] * 730.001;
+    }
+    if ((strpos($str, 'week') !== FALSE)) {
+      $hours = $matches[0][0] * 168;
+    }
+    if ((strpos($str, 'hour') !== FALSE)) {
+      $hours = $matches[0][0];
+    }
+    return $hours;
+  }
+  return NULL;
+}
+
+/**
+ * Set campaign parameters.
+ */
+function vu_core_set_campaign_parameter($key, $value) {
+  if (empty($key) || empty($value)) {
+    return;
+  }
+
+  $_SESSION['cmp'][$key] = $value;
+}
+
+/**
+ * Get campaign parameters from session.
+ */
+function vu_core_get_campaign_parameters() {
+  return isset($_SESSION['cmp']) ? $_SESSION['cmp'] : [];
+}
+
+/**
+ * Check if international version is enabled.
+ */
+function vu_core_is_course_browse_international_version() {
+  if (isset($_SESSION['vu_course_browse_interational']) && $_SESSION['vu_course_browse_interational']) {
+    // Unset existing value.
+    unset($_SESSION['vu_course_browse_interational']);
+
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Access callback for taxonomy term pages.
+ */
+function vu_core_taxonomy_term_page_access($permission, $taxonomy_term) {
+  $access = NULL;
+  foreach (module_implements('vu_core_taxonomy_term_page_access') as $module) {
+    $access = module_invoke($module, 'vu_core_taxonomy_term_page_access', $permission, $taxonomy_term);
+    // Any module returning non-bypassing value will result in returning such
+    // value.
+    if (!is_null($access)) {
+      return $access;
+    }
+  }
+
+  // Default to a standard taxonomy term page callback.
+  return user_access($permission);
+}
+
+/**
+ * Helper to get staff profile node by UID.
+ */
+function vu_core_get_staff_profile_by_uid($uid) {
+  $staff_id = vu_core_get_staff_id_by_uid($uid);
+  if (!$staff_id) {
+    return FALSE;
+  }
+
+  $query = new \EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'staff_profile')
+    ->fieldCondition('field_staff_id', 'value', $staff_id, '=');
+  $result = $query->execute();
+
+  $nodes = isset($result['node']) ? $result['node'] : [];
+  $node = count($nodes) > 0 ? reset($nodes) : FALSE;
+
+  return $node ? node_load($node->nid) : FALSE;
+}
+
+/**
+ * Normalise staff id.
+ */
+function vu_core_normalise_staff_id($id) {
+
+  return stripos($id, 'e') === 0 ? 'E' . substr($id, 1) : 'E' . $id;
+}
+
+/**
+ * Centralised helper to check Staff ID format.
+ */
+function vu_core_staff_id_validate($staff_id) {
+  $split = substr($staff_id, 1, 8);
+  if (!is_numeric($split)) {
+    throw new Exception(t('Staff ID should be numeric'));
+  }
+
+  if (strtolower(substr($staff_id, 0, 1)) !== 'e') {
+    throw new Exception(t('Staff ID should start with "E"'));
+  }
+
+  if (strlen($split) !== 7) {
+    throw new Exception(t('Staff ID should have 7 digits'));
+  }
+}
+
+/**
+ * Lookup the user by staff id.
+ */
+function vu_core_get_user_by_staff_id($id) {
+  vu_core_staff_id_validate($id);
+
+  $cas_name = substr($id, 1);
+
+  return cas_user_load_by_name($cas_name);
+}
+
+/**
+ * Lookup staff id byt the user id.
+ */
+function vu_core_get_staff_id_by_uid($uid) {
+  $staff_id = FALSE;
+
+  $account = user_load($uid);
+  if ($account && !empty($account->cas_names)) {
+    $cas_name = reset($account->cas_names);
+    $staff_id = vu_core_normalise_staff_id($cas_name);
+  }
+
+  return $staff_id;
+}
+
+/**
+ * Checks if user has roles.
+ *
+ * @return bool
+ *   True if user has roles
+ *   or false.
+ */
+function vu_core_user_has_roles($roles = []) {
+  global $user;
+
+  if (empty($roles)) {
+    return FALSE;
+  }
+
+  // Check if user has researcher roles.
+  if (!empty(array_intersect($user->roles, $roles))) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ *
+ * Enabling the block only for Undergrad courses.
+ */
+function vu_core_block_view_views_fym_banner_course_pages_block_alter(&$data, $block) {
+  $courseObj = new VuCoreCourseBlockBase();
+  if (!($courseObj->isUndergrad())) {
+    $data['content'] = '';
+  }
+}
+
+/**
+ * Sort dates in ascending.
+ */
+function vu_core_sort_date($date1, $date2) {
+  if (strtotime($date1) > strtotime($date2)) {
+    return 1;
+  }
+  elseif (strtotime($date1) < strtotime($date2)) {
+    return -1;
+  }
+  else {
+    return 0;
+  }
+}
+
+/**
+ * Theme switcher common functionality.
+ *
+ * @param array $form
+ *   Form array.
+ * @param array $form_state
+ *   Form state array.
+ * @param string $field
+ *   Field name.
+ */
+function vu_core_theme_switcher(&$form, &$form_state, $field = 'field_theme') {
+
+  // Ensure that existing content get's a sane default.
+  if (empty($form[$field][$form['language']['#value']]['#default_value'])) {
+    $form[$field][$form['language']['#value']]['#default_value'] = 'vu';
+  }
+
+  // Workbench moderation moves 'revision_information' to options if there's
+  // admin access.
+  $element = $form['options']['#access'] ? 'options' : 'revision_information';
+  // If user doesn't have the right level of permissions, hide the theme
+  // selection.
+  if (!user_access('switch page theme')) {
+    $form[$element][$field]['#access'] = FALSE;
+  }
+  else {
+    // Move theme selection to revision information.
+    $form[$element][$field] = $form[$field];
+    $form[$element][$field]['#weight'] = -1;
+    unset($form[$field]);
+  }
+}
+
+/**
+ * Set view mode.
+ *
+ * @param object $node
+ *   Node object.
+ */
+function vu_core_set_view_mode(&$node) {
+  if (isset($node->field_theme) && isset($node->ds_switch)) {
+    $items = field_get_items('node', $node, 'field_theme');
+    $item = reset($items);
+    $node->ds_switch = isset($item['value']) && $item['value'] == 'victory' ? 'victory' : 'default';
+  }
+}
+
+/**
+ * Check is course is offered in VU Sydney.
+ *
+ * @param object $node
+ *   Node object.
+ */
+function vu_core_is_vu_sydney($node) {
+  $items = field_get_items('node', $node, 'field_locations');
+  if (is_array($items)) {
+    foreach ($items as $item) {
+      if (strtolower($item['value']) == strtolower(VU_SYDNEY_SUBSITE_TITLE)) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_node_validate().
+ *
+ * Validating key summary box before saving after node edit.
+ */
+function vu_core_node_validate($node, $form, &$form_state) {
+  if (in_array($node->type, ['page_builder', 'campus'])) {
+    drupal_add_css(drupal_get_path('module', 'vu_core') . "/css/vu_core.admin.page_builder.css");
+    $para_array = $form_state['field']['field_page_paragraphs'][LANGUAGE_NONE]['entity'];
+    foreach ($para_array as $paragraph) {
+      if ($paragraph->bundle() == 'key_summary_component') {
+        $key_summary_count = count($paragraph->field_key_summary_row[LANGUAGE_NONE]);
+        if ($key_summary_count != 0 && $key_summary_count < 3) {
+          form_set_error('field_key_summary_row', t('Please create minimum 3 "Key Summary Box" before saving.'));
+        }
+      }
+    }
+  }
+
+  $theme = vu_core_extract_single_field_value($node, 'node', 'field_theme', 'value');
+  if ($node->type == 'events' && $theme == 'victory') {
+    $val = vu_core_extract_single_field_value($node, 'node', 'field_event_cost', 'value');
+    if (empty($val) && $form['#node']->ds_switch != 'victory') {
+      form_set_error('field_event_cost', t('Event cost field is required.'));
+    }
+    if (empty($node->field_rhs_components[LANGUAGE_NONE][0])) {
+      form_set_error('field_rhs_components', t('Please add "RHS Map Component".'));
+    }
+  }
+
+  if (in_array($node->type, ['events', 'news'])) {
+    drupal_add_css(drupal_get_path('module', 'vu_core') . "/css/vu_core.admin.basic_text.css");
+  }
+}
+
+/**
+ * Validation handler for contact us link.
+ */
+function vu_core_contact_us_link_validate($form, &$form_state) {
+
+  $values = $form_state['values'];
+  if (!isset($values['vocabulary_machine_name'])) {
+    return;
+  }
+
+  if ($values['vocabulary_machine_name'] != 'subsites') {
+    return;
+  }
+
+  if (!isset($values['field_contact_us_link'][LANGUAGE_NONE][0]['value'])) {
+    return;
+  }
+
+  $link = $values['field_contact_us_link'][LANGUAGE_NONE][0]['value'];
+  if (strpos($link, 'tel:') == 0) {
+    return;
+  }
+
+  if (!link_validate_url($link)) {
+    form_set_error('field_contact_us_link', t('Invalid URL'));
+  }
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ *
+ * Enabling/Disabling the Upper footer block for subsites.
+ */
+function vu_core_block_view_panels_mini_vu_block_upper_footer_alter(&$data, $block) {
+  // Only alter on new theme.
+  global $theme;
+  if ($theme == 'victory') {
+    if (vu_core_is_subsite()) {
+      $node = vu_core_subsite_node_get();
+      // Load settings from taxonomy.
+      $subsite_metadata = vu_core_subsite_meta_get($node);
+      // Show Upper footer region region.
+      if (!$subsite_metadata->show_upper_footer) {
+        $data['content'] = '';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ *
+ * Override the chat now block on footer for subsites.
+ */
+function vu_core_block_view_vu_chat_now_vu_chat_footer_alter(&$data, $block) {
+  // Only alter on new theme.
+  global $theme;
+  if ($theme == 'victory') {
+    if (vu_core_is_subsite()) {
+      $node = vu_core_subsite_node_get();
+      // Load settings from taxonomy.
+      $subsite_metadata = vu_core_subsite_meta_get($node);
+      // Show Upper footer region region.
+      if ($subsite_metadata && $subsite_metadata->field_override_chat_now) {
+        $data['content'] = $subsite_metadata->field_override_chat_now;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ *
+ * Override the campus app block on footer for subsites.
+ */
+function vu_core_block_view_vumain_vumain_campus_app_alter(&$data, $block) {
+  // Only alter on new theme.
+  global $theme;
+  if ($theme == 'victory') {
+    if (vu_core_is_subsite()) {
+      $node = vu_core_subsite_node_get();
+      // Load settings from taxonomy.
+      $subsite_metadata = vu_core_subsite_meta_get($node);
+      // Show Upper footer region region.
+      if ($subsite_metadata && $subsite_metadata->field_override_campus_app) {
+        $data['content'] = $subsite_metadata->field_override_campus_app;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_block_view_MODULE_DELTA_alter().
+ *
+ * Override the social media links block on footer for subsites.
+ */
+function vu_core_block_view_vumain_vumain_social_media_links_alter(&$data, $block) {
+  // Only alter on new theme.
+  global $theme;
+  if ($theme == 'victory') {
+    if (vu_core_is_subsite()) {
+      $node = vu_core_subsite_node_get();
+      // Load settings from taxonomy.
+      $subsite_metadata = vu_core_subsite_meta_get($node);
+      // Show Upper footer region region.
+      if ($subsite_metadata && $subsite_metadata->field_override_social_media_link) {
+        $links = $subsite_metadata->field_override_social_media_link;
+        $content = [];
+        if ($links) {
+          foreach ($links as $item) {
+            $content[] = '<a href="' . $item['url'] . '"> <i class="fa ' . $item['title'] . '"></i></a>';
+          }
+        }
+        $titles_list = theme('item_list', ['items' => $content]);
+        $data['content'] = $titles_list;
+      }
+    }
+  }
+}
+
+/**
+ * Retrieve every fee type item.
+ *
+ * @return array
+ *   Every fee type item.
+ */
+function vu_core_get_fee_type_select_options() {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('fee_types');
+  $terms = taxonomy_term_load_multiple([], ['vid' => $vocabulary->vid]);
+
+  $feeTypes = [];
+  foreach ($terms as $key => $value) {
+    $sector = vu_core_extract_single_field_value($value, 'taxonomy_term', 'field_sector');
+
+    if (isset($feeTypes[$sector])) {
+      array_push($feeTypes[$sector], [
+        'tid' => $key,
+        'name' => vu_core_extract_single_field_value($value, 'taxonomy_term', 'field_display_name'),
+        'sector' => $sector,
+      ]);
+    }
+    else {
+      $feeTypes[$sector] = [
+        [
+          'tid' => $key,
+          'name' => vu_core_extract_single_field_value($value, 'taxonomy_term', 'field_display_name'),
+          'sector' => $sector,
+        ],
+      ];
+    }
+  }
+
+  return $feeTypes;
+}
+
+/**
+ * Retrieve every sector list item, e.g. HE, VE.
+ *
+ * @return array
+ *   Every sector list item.
+ */
+function vu_core_get_sectors() {
+  $field = field_info_field('field_sector');
+  return list_allowed_values($field);
+}
+
+/**
+ * Retrieve fee year.
+ *
+ * @param int $limit
+ *   Number of fee years to return.
+ * @param bool $asc
+ *   Order by which to sort fee years.
+ *
+ * @return array
+ *   An array of fee years.
+ */
+function vu_core_get_fee_years($limit = 2, $asc = TRUE) {
+  $query = db_select('field_data_field_year')->distinct();
+
+  $query->addField('field_data_field_year', 'field_year_value', 'fee_year');
+  $query->condition('bundle', ['unit_fees', 'course_fees']);
+  $query->range(0, $limit);
+  $query->orderBy('fee_year', $asc ? 'ASC' : 'DESC');
+
+  $entities = $query->execute();
+
+  $response = [];
+  while ($item = $entities->fetchAssoc()) {
+    array_push($response, date('Y', strtotime($item['fee_year'])));
+  }
+
+  sort($response);
+
+  return $response;
+}
+
+/**
+ * Retrieve every cohort year value.
+ *
+ * @return array
+ *   Every cohort year value.
+ */
+function vu_core_get_cohort_years() {
+  $query = db_select('field_data_field_cohort_year')->distinct();
+
+  $query->addField('field_data_field_cohort_year', 'field_cohort_year_value', 'cohort_year');
+
+  $entities = $query->execute();
+
+  $response = [];
+  while ($item = $entities->fetchAssoc()) {
+    array_push($response, date('Y', strtotime($item['cohort_year'])));
+  }
+
+  sort($response);
+
+  return $response;
+}
+
+/**
+ * Retrieve every fee disclaimer taxonomy term.
+ *
+ * @return array
+ *   Every fee disclaimer taxonomy term.
+ */
+function vu_core_get_fee_disclaimers() {
+  $vocabulary = taxonomy_vocabulary_machine_name_load('fee_disclaimers');
+  $terms = taxonomy_term_load_multiple([], ['vid' => $vocabulary->vid]);
+
+  $disclaimers = [];
+  foreach ($terms as $tid => $value) {
+    array_push($disclaimers, [
+      'tid' => $tid,
+      'description' => $value->description,
+    ]);
+  }
+  return $disclaimers;
+}
+
+/**
+ * Array filter callback to filter out unpublished nodes.
+ */
+function _vu_core_filter_unpublished($node) {
+  return isset($node->status) && $node->status;
+}
+
+/**
+ * Override the social media links block on footer for subsites.
+ */
+function vu_core_get_campus_qflow_hours($campus) {
+  $times = [];
+  if (!isset($campus->type)) {
+    return $times;
+  }
+
+  // Get Qflow hours.
+  $qflow_hours = field_get_items('node', $campus, 'field_qflow_hours');
+  if ($qflow_hours) {
+    foreach ($qflow_hours as $item) {
+      $paragraph = paragraphs_item_load($item['value']);
+      if ($paragraph) {
+        $day = vu_core_extract_single_field_value($paragraph, 'paragraphs_item', 'field_qflow_day');
+        $start = vu_core_extract_single_field_value($paragraph, 'paragraphs_item', 'field_qflow_start_time');
+        $end = vu_core_extract_single_field_value($paragraph, 'paragraphs_item', 'field_qflow_end_time');
+        $times[$day] = [
+          'days_open' => 1,
+          'start_time' => $start,
+          'end_time' => $end,
+        ];
+      }
+    }
+  }
+
+  return $times;
+}
+
+/**
+ * Override the social media links block on footer for subsites.
+ */
+function vu_core_get_qflow_hours() {
+  $campuses = vu_core_get_campuses();
+  $times = [];
+  foreach ($campuses as $campus) {
+    $time = vu_core_get_campus_qflow_hours($campus);
+    if (!empty($time)) {
+      $times[$campus->nid] = $time;
+    }
+  }
+
+  $times = vu_core_sort_qflow_hours($times);
+
+  return $times;
+}
+
+/**
+ * Get qflow open times.
+ */
+function vu_core_sort_qflow_hours($times = []) {
+  if (empty($times)) {
+    return $times;
+  }
+
+  // Default.
+  $default = [];
+  foreach ($times as $schedule) {
+    // Set up default.
+    if (empty($default)) {
+      $default = $schedule;
+      continue;
+    }
+
+    foreach ($schedule as $day => $time) {
+      if (!isset($default[$day])) {
+        // Add day in if not present.
+        $default[$day] = $time;
+      }
+      else {
+        // Compare times.
+        if (date('H:i', strtotime($time['start_time'])) < date('H:i', strtotime($default['start_time']))) {
+          $default[$day]['start_time'] = $time['start_time'];
+        }
+        if (date('H:i', strtotime($time['end_time'])) > date('H:i', strtotime($default['end_time']))) {
+          $default[$day]['end_time'] = $time['end_time'];
+        }
+      }
+    }
+  }
+
+  return $default;
+}
+
+/**
+ * Get Campuses.
+ */
+function vu_core_get_campuses() {
+  $campuses = [];
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'campus')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->propertyOrderBy('title');
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $campuses = entity_load('node', $nids);
+  }
+
+  return $campuses;
+}
+
+/**
+ * Implements hook_cronapi().
+ */
+function vu_core_cronapi($op, $job = NULL) {
+  $items['vu_core_clean_event_log'] = [
+    'description' => 'VU Core: Clean event log',
+    // Every day at 11 pm.
+    'rule' => '0 23 1/1 * *',
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements function to delete the event logs older than a month.
+ */
+function vu_core_clean_event_log() {
+  $interval = strtotime('-1 week');
+  $time_delete_event_log = variable_get('time_delete_event_log', $interval);
+  if (!empty($time_delete_event_log)) {
+    $query = db_delete('event_log');
+    $query->condition('created', $time_delete_event_log, '<');
+    $query->execute();
+  }
+  $query = db_update('event_log');
+  $query->fields([
+    'info' => '',
+  ]);
+  $query->execute();
+}
+
+/**
+ * Implements hook_event_log_handlers().
+ */
+function vu_core_event_log_handlers() {
+  // Node event log handler.
+  $handlers = [];
+  $handlers['block'] = [
+    'title' => t('Block'),
+    'relationships' => [
+      [
+        'table' => 'block',
+        'field' => 'bid',
+        'operations' => NULL,
+        'numeric' => TRUE,
+      ],
+    ],
+  ];
+  $handlers['chatNow'] = [
+    'title' => t('VU Chat Now'),
+    'relationships' => [
+      'operations' => NULL,
+      'numeric' => TRUE,
+    ],
+  ];
+  return $handlers;
+}
+
+/**
+ * Log chat configuration updates.
+ */
+function vu_core_chat_updated($form, &$form_state) {
+  $log = [
+    'type' => 'chatNow',
+    'operation' => 'update',
+    'description' => t('Chat now configuration updated.'),
+    'ref_char' => 'vu/chat-now/settings',
+    'path' => 'admin/vu/chat-now/settings',
+    'form_id' => $form['#form_id'],
+  ];
+  event_log_insert($log);
+}
+
+/**
+ * Log block insert.
+ */
+function vu_core_insert($form, &$form_state) {
+  $block = block_load($form_state['values']['module'], $form_state['values']['delta']);
+  $log = [
+    'type' => 'block',
+    'operation' => 'insert',
+    'description' => t('%type: %title', [
+      '%type' => $form_state['values']['module'],
+      '%title' => vu_core_get_title($form_state['values']),
+    ]),
+    'ref_numeric' => $block->bid,
+    'ref_char' => $form_state['values']['module'] . '/' . $form_state['values']['delta'],
+    'info' => $block,
+    'path' => $form_state['storage']['path'],
+    'form_id' => $form['#form_id'],
+  ];
+  event_log_insert($log);
+}
+
+/**
+ * Log block update.
+ */
+function vu_core_update($form, &$form_state) {
+  $blocks = [
+    'old' => $form_state['storage']['original'],
+    'new' => $form_state['values'],
+  ];
+
+  $log = [
+    'type' => 'block',
+    'operation' => 'update',
+    'description' => t('%type: %title', [
+      '%type' => $form_state['values']['module'],
+      '%title' => vu_core_get_title($form_state['values']),
+    ]),
+    'ref_numeric' => $blocks['old']->bid,
+    'ref_char' => $form_state['build_info']['args'][0] . '/' . $form_state['build_info']['args'][1],
+    'info' => $blocks,
+    'path' => $form_state['storage']['path'],
+    'form_id' => $form['#form_id'],
+  ];
+
+  event_log_insert($log);
+}
+
+/**
+ * Log block & bean delete.
+ */
+function vu_core_delete($form, &$form_state) {
+  $log = [
+    'type' => 'block',
+    'operation' => 'delete',
+    'description' => t('%type: %title', [
+      '%type' => $form_state['build_info']['args'][0],
+      '%title' => vu_core_get_title($form_state['values']),
+    ]),
+    'ref_numeric' => $form_state['storage']['original']->bid,
+    'info' => $form_state['storage']['original'],
+    'path' => $form_state['storage']['path'],
+    'form_id' => $form['#form_id'],
+  ];
+  event_log_insert($log);
+}
+
+/**
+ * Return block & bean title.
+ */
+function vu_core_get_title($values) {
+  $title = isset($values['info']) && !empty($values['info']) ? $values['info'] : '';
+  $title .= isset($values['title']) && !empty($values['title']) ? ' - ' . $values['title'] : '';
+
+  if (empty($title)) {
+    $title = strip_tags(drupal_get_title());
+  }
+
+  return $title;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function vu_core_preprocess_page_url_qr_code_block(&$variables) {
+  if (!empty($variables['barcode'])) {
+    $variables['barcode'] = _vu_core_qr_code_alter();
+
+    $icon = theme('html_tag', [
+      'element' => [
+        '#tag' => 'i',
+        '#attributes' => [
+          'class' => 'fa fa-mobile',
+        ],
+        '#value' => '',
+      ],
+    ]);
+
+    $caption = theme('html_tag', [
+      'element' => [
+        '#tag' => 'span',
+        '#attributes' => [
+          'class' => 'caption-text',
+        ],
+        '#value' => t('Scan me'),
+      ],
+    ]);
+
+    $variables['caption'] = $icon . $caption;
+  }
+}
+
+/**
+ * Content Generator.
+ */
+function _vu_core_qr_code_alter() {
+  global $base_root;
+  $request = request_uri();
+  $alias = drupal_get_path_alias($request);
+  $path = $request;
+  if ($alias != $request) {
+    $path = $alias;
+  }
+  $path = $base_root . $path . '?qrcode';
+  $url = urlencode($path);
+  $width = variable_get('page_url_qr_code_width_height', 100);
+  $height = variable_get('page_url_qr_code_width_height', 100);
+  $alt = variable_get('page_url_qr_code_alt', 'QR code');
+
+  $barcode = "<img src='https://chart.apis.google.com/chart?chs={$width}x{$width}&amp;cht=qr&amp;chl={$url}' alt='{$alt}' width='{$width}' height='{$height}' />";
+  return $barcode;
+}
+
+/**
+ * Return custom metatag.
+ */
+function vu_core_set_metatag($content, $name, $theme, $id, $weight) {
+  if (!empty($theme)) {
+    $custom_metatag = [
+      '#theme' => $theme,
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#id' => $id,
+      '#name' => $name,
+      '#value' => $content,
+      '#weight' => $weight,
+    ];
+  }
+  elseif (!empty($id) && ($id == 'dom-link')) {
+    $custom_metatag = [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'hreflang' => $name,
+        'href' => url($content, ['absolute' => TRUE]),
+      ],
+    ];
+    if ($name == 'en') {
+      $custom_metatag['#attributes']['rel'] = 'alternate';
+    }
+  }
+  elseif (!empty($id) && ($id == 'int-link')) {
+    $custom_metatag = [
+      '#type' => 'html_tag',
+      '#tag' => 'link',
+      '#attributes' => [
+        'hreflang' => $name,
+        'href' => url($content, ['absolute' => TRUE]),
+      ],
+    ];
+    if ($name !== 'en') {
+      $custom_metatag['#attributes']['rel'] = 'alternate';
+    }
+  }
+  else {
+    $custom_metatag = [
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => [
+        'name' => $name,
+        'content' => $content,
+      ],
+    ];
+  }
+
+  return $custom_metatag;
+}
+
+/**
+ * Set robots text.
+ */
+function vu_core_set_robotstxt($content) {
+  if (empty($content)) {
+    return FALSE;
+  }
+
+  variable_set('robotstxt', $content);
+}
+
+/**
+ * Check country comes under domestic or not.
+ *
+ * @param string $country
+ *   The name of the country.
+ * @param string $country_code
+ *   The code of the country.
+ *
+ * @return bool
+ *   Return true if country matches with domestic conditions.
+ */
+function vu_core_check_country_domestic($country, $country_code) {
+  if ($country == 'Australia' || $country == 'New Zealand') {
+    if ($country_code == 'AU' || $country_code == 'NZ') {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Check if user outside AU or NZ pop-up session is set.
+ */
+function vu_core_is_session_set_for_user_outside_domestic() {
+  if (isset($_SESSION['international-audience-pop-up']) && $_SESSION['international-audience-pop-up']) {
+    if ($_SESSION['international-audience-pop-up'] == 'set') {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Check if the smart_ip method exist.
+ */
+function vu_core_is_smart_ip_method_exist() {
+  if (function_exists('smart_ip_get_current_visitor_location_data')) {
+    return smart_ip_get_current_visitor_location_data(TRUE);
+  }
+  return FALSE;
+}

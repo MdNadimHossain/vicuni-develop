@@ -1,0 +1,127 @@
+.paragraphs-item-chat-box {
+  .victory_chat_box {
+    background-color: $color-blue-lochmara;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.04);
+    padding: 25px;
+    .bubble {
+      $local-bubble-border-width: 2px;
+      $local-triangle-width: 36px;
+      $local-triangle-height: 36px;
+      $local-triangle-left: 16px;
+      $local-triangle-border-color: $color-white;
+      $local-triangle-color: $color-blue-elephant;
+
+      @include font(24px, 'futura');
+      @include link-color($color-blue-elephant, $color-blue-elephant, $color-blue-elephant, $color-blue-elephant);
+      display: block;
+      position: relative;
+      text-align: center;
+      padding: 15px 15px;
+      outline: 0;
+      margin-bottom: $local-triangle-height + $spacing-vertical-bottom-sm - $local-bubble-border-width;
+      width: 100%;
+      background-color: $color-white;
+      color: $color-blue-elephant;
+      @include center-block;
+
+      @include breakpoint($breakpoint-sm-up) {
+        margin-left: 0;
+      }
+
+      @include breakpoint($breakpoint-lg-up) {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: $local-triangle-height + $spacing-vertical-bottom-xs - $local-bubble-border-width;
+      }
+
+      &:before,
+      &:after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: $local-triangle-width $local-triangle-height 0 0;
+        bottom: -$local-triangle-height;
+        left: $local-triangle-left;
+      }
+
+      &:before {
+        bottom: -$local-triangle-height;
+        border-width: 0 0 0 0;
+        border-color: $color-white transparent transparent transparent;
+      }
+
+      &:after {
+        border-color: $color-white transparent transparent transparent;
+        border-width: ($local-triangle-width - 2) ($local-triangle-height - 2) 0 0;
+        bottom: -$local-triangle-height + 5;
+        left: $local-triangle-left + 2;
+      }
+
+      &:hover {
+        background-color: #FFB42D;
+        color: $color-blue-elephant;
+
+        &:before {
+          border-color: #FFB42D transparent transparent transparent;
+        }
+
+        &:after { 
+          border-color: #FFB42D transparent transparent transparent;
+        }
+      }
+    }
+
+    .bubble.chat-close {
+      background-color: #0095CF;
+      color: $color-white;
+
+      &:before {
+        border-color: #0095CF transparent transparent transparent;
+      }
+
+      &:after { 
+        border-color: #0095CF transparent transparent transparent;
+      }
+
+      &:hover {
+        color: $color-white;
+      }
+    }
+
+    .js-chat-status-message {
+      @include font(24px, 'futura');
+      color: $color-white;
+      margin-bottom: 30px;
+      display: block;
+    }
+    .chat-time-info, .local-time {
+      color: $color-white;
+      margin-bottom: 10px;
+    }
+    .hours-title, .local-time strong {
+      display: inline-block;
+    }
+    .hours-values, .locat-time .chat-now-local-time {
+      display: inline;
+    }
+    .chat-online-info-wrapper {
+      line-height: 24px;
+      margin-top: 30px;
+
+      .chat-online-info {
+        color : $color-white;
+        text-decoration: none;
+        border-bottom: 2px solid $color-white;
+        opacity: 0.8;
+
+        &:hover {
+          background-color: $color-white;
+          text-decoration: none;
+          color: #262626;
+        }
+      }
+    }
+  }
+}

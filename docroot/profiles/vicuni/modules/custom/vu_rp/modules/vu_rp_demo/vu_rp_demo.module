@@ -1,0 +1,276 @@
+<?php
+
+/**
+ * @file
+ * VU Researcher Profile Demo functionality.
+ *
+ * Enable this module to provision researcher profile demo content: nodes, terms
+ * and users.
+ *
+ * Disable this module and all demo content will be removed.
+ */
+
+use Drupal\drupal_helpers\General;
+
+require_once 'vu_rp_demo.random.inc';
+require_once 'vu_rp_demo.random_fields.inc';
+require_once 'vu_rp_demo.random_api.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function vu_rp_demo_menu() {
+  $items['admin/config/development/demo-content'] = [
+    'title' => 'Demo content',
+    'description' => 'provision researcher profile demo content',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_demo_provision_form'],
+    'access arguments' => ['provision researcher profile demo content'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'vu_rp_demo.admin.inc',
+  ];
+
+  $items['demo-content'] = [
+    'page callback' => '_vu_rp_demo_path_holder_page_callback',
+    // Public homepage - no restrictions.
+    'access callback' => TRUE,
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function vu_rp_demo_permission() {
+  return [
+    'provision researcher profile demo content' => [
+      'title' => t('provision researcher profile demo content'),
+      'description' => t('provision researcher profile demo content defined by the administrator'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_features_banish_alter().
+ */
+function vu_rp_demo_features_banish_alter(&$banished_items) {
+  $banished_items['user_permission'][] = 'provision researcher profile demo content';
+}
+
+/**
+ * Run all provision steps.
+ */
+function vu_rp_demo_process_provision_steps($steps = []) {
+  _vu_rp_demo_include_provision_step_files();
+
+  General::messageSet(format_string('Provisioning steps in the following order: @steps', [
+    '@steps' => PHP_EOL . ' * ' . implode(PHP_EOL . ' * ', $steps) . PHP_EOL,
+  ]), '==> ', 0);
+
+  foreach ($steps as $step) {
+    General::messageSet(format_string('Provisioning step "@step"', [
+      '@step' => ucfirst(str_replace('_', ' ', $step)),
+    ]), '==> ', 0);
+    $function = 'vu_rp_demo_provision_step_' . $step;
+    call_user_func($function);
+  }
+}
+
+/**
+ * Get all available steps.
+ */
+function vu_rp_demo_get_all_steps() {
+  $steps = &drupal_static(__FUNCTION__);
+
+  if (!$steps) {
+    $steps = [];
+    _vu_rp_demo_include_provision_step_files();
+    $functions = get_defined_functions();
+    foreach ($functions['user'] as $function) {
+      if (strpos($function, 'vu_rp_demo_provision_step_') === 0 && strpos($function, '_page_content') === FALSE) {
+        $steps[] = substr($function, strlen('vu_rp_demo_provision_step_'));
+      }
+    }
+  }
+
+  return $steps;
+}
+
+/**
+ * Include all available provision step files.
+ */
+function _vu_rp_demo_include_provision_step_files() {
+  foreach (glob(dirname(__FILE__) . '/steps/*.inc') as $filename) {
+    require_once $filename;
+  }
+}
+
+/**
+ * Add record about created entity.
+ */
+function vu_rp_demo_record_add($entity_type, $bundle, $entity_id) {
+  db_insert('vu_rp_demo')->fields([
+    'entity_type' => $entity_type,
+    'bundle' => $bundle,
+    'entity_id' => $entity_id,
+  ])->execute();
+}
+
+/**
+ * Remove record about created entity.
+ */
+function vu_rp_demo_record_remove($entity_type, $entity_id) {
+  db_delete('vu_rp_demo')
+    ->condition('entity_type', $entity_type)
+    ->condition('entity_id', $entity_id)
+    ->execute();
+}
+
+/**
+ * Get records about created entity of specified type an optional bundle.
+ */
+function vu_rp_demo_record_get_all($entity_type, $bundle = NULL) {
+  $query = db_select('vu_rp_demo')
+    ->fields('vu_rp_demo', ['entity_id'])
+    ->condition('entity_type', $entity_type);
+  if ($bundle) {
+    $query->condition('bundle', $bundle);
+  }
+
+  return $query->execute()
+    ->fetchCol();
+}
+
+/**
+ * Remove all demo content entities.
+ */
+function vu_rp_demo_records_remove_all($verbose = FALSE) {
+  $result = db_select('vu_rp_demo', 'od')->fields('od')->execute();
+  if ($result) {
+    while ($row = $result->fetchAssoc()) {
+      if (entity_get_info($row['entity_type'])) {
+        $entity = entity_load_single($row['entity_type'], $row['entity_id']);
+        if ($entity) {
+          $deleted = entity_delete($row['entity_type'], $row['entity_id']);
+          if ($deleted !== FALSE) {
+            if ($verbose) {
+              General::messageSet(format_string('Removed entity @type with id @id', [
+                '@type' => $row['entity_type'],
+                '@id' => $row['entity_id'],
+              ]));
+            }
+
+            vu_rp_demo_record_remove($row['entity_type'], $row['entity_id']);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Check that entities required for this step exist.
+ *
+ * @param array $requirements
+ *   Array of required entity conditions with first element being an entity
+ *   type, the second is bundle (optional) and the third one is a
+ *   comma-separated list of step names (optional).
+ *
+ * @throws RuntimeException
+ *   If required entities do not exist.
+ */
+function vu_rp_demo_check_step_required_entities(array $requirements) {
+  foreach ($requirements as $requirement) {
+    $requirement += [NULL, NULL, NULL];
+    list($entity_type, $bundle, $step_names) = $requirement;
+    if (count(vu_rp_demo_record_get_all($entity_type, $bundle)) == 0) {
+      throw new \RuntimeException(format_string('There are no provisioned "@entity_type"!bundle demo entities. Please run "!step_names" step(s) to provision them.', [
+        '@entity_type' => $entity_type,
+        '!bundle' => $bundle ? ' "' . $bundle . '"' : '',
+        '!step_names' => $step_names ? implode('", "', preg_split('/\,\s*/', $step_names)) : 'relevant',
+      ]));
+    }
+  }
+}
+
+/**
+ * Path holder callback with content gathered from hook implementations.
+ */
+function _vu_rp_demo_path_holder_page_callback() {
+  $content = '';
+
+  foreach (vu_rp_demo_get_all_steps() as $step) {
+    $function = 'vu_rp_demo_provision_step_' . $step . '_page_content';
+    if (function_exists($function)) {
+      $content = call_user_func($function, $content);
+    }
+  }
+
+  return $content;
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function vu_rp_demo_preprocess_page(&$variables) {
+  if (!user_access('provision researcher profile demo content')) {
+    return;
+  }
+
+  $node = isset($variables['node']) && is_object($variables['node']) ? $variables['node'] : FALSE;
+  if (!$node || $node->type != 'researcher_profile') {
+    return;
+  }
+
+  $rows = [];
+  $lines = explode(PHP_EOL, $node->log);
+  foreach ($lines as $line) {
+    $items = explode(':', $line);
+    $rows[] = [$items[0], implode(' ', array_slice($items, 1))];
+  }
+  $header = ['Field', 'Value'];
+  $output = theme('table', [
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => [
+      'style' => 'width: 400px;margin: 0 auto;',
+    ],
+  ]);
+  $output = '<details><summary>Demo provision details</summary>' . $output . '</details>';
+
+  $variables['page']['below_header'] = isset($variables['page']['below_header']) ? $variables['page']['below_header'] : [];
+  array_unshift($variables['page']['below_header'], [
+    'log_container' => [
+      '#markup' => $output,
+    ],
+  ]);
+}
+
+/**
+ * Helper to render log records from passed variables.
+ */
+function vu_rp_demo_make_log($variables) {
+  $output = '';
+  $output .= 'RP #' . $variables['idx'];
+  unset($variables['idx']);
+  $output .= " [\n";
+  $output .= implode(", \n", array_map(function ($k, $v) {
+    return $k . ': ' . $v;
+  }, array_keys($variables), $variables));
+  $output .= "\n]";
+
+  return $output;
+}
+
+/**
+ * Helper to set field value.
+ */
+function vu_rp_demo_set_field_value($value, $entity, $field_name, $key = 'value', $delta = NULL) {
+  if (!is_null($delta)) {
+    $entity->{$field_name}[LANGUAGE_NONE][$delta][$key] = $value;
+  }
+  else {
+    $entity->{$field_name}[LANGUAGE_NONE][][$key] = $value;
+  }
+}

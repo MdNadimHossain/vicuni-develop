@@ -1,0 +1,28 @@
+name = VPoly Core
+description = Victoria Polytechnic core feature
+core = 7.x
+package = VU Features
+
+; Dependencies
+
+dependencies[] = eck
+dependencies[] = features
+dependencies[] = link
+dependencies[] = vu_core
+
+; Features
+
+features[eck_bundle][] = course_information_session_links_tafe_info_session_link
+
+features[eck_entity_type][] = course_information_session_links
+
+features[features_api][] = api:2
+
+features[field_base][] = field_info_session_link
+
+features[field_instance][] = course_information_session_links-tafe_info_session_link-field_info_session_link
+features[field_instance][] = course_information_session_links-tafe_info_session_link-field_related_courses
+
+features[user_permission][] = eck administer course_information_session_links tafe_info_session_link entities
+
+features[user_role][] = TAFE Author

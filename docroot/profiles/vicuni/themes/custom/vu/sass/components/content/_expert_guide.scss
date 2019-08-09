@@ -1,0 +1,49 @@
+@charset "UTF-8";
+.expert-guide-results {
+  .results-list {
+    padding: 0;
+    margin: 0;
+    li {
+      @include standard-search-results;
+      float: left;
+      width: 100%;
+      &, &:first-child {
+        margin: 20px 0;
+      }
+      .result-item-meta {
+        display: block;
+      }
+      .staff-picture-thumbnail {
+        float: left;
+        margin-top: 5px;
+        margin-right: 20px;
+        img {
+          min-width: 100px;
+        }
+      }
+    }
+  }
+  .page-summary {
+    @include standard-search-page-summary;
+    float: left;
+    width: 100%;
+    border-bottom: none;
+  }
+}
+
+.vu-core-expert-guide-search-form {
+  margin: 20px 0;
+  .form-control {
+    float: left;
+    &.query {
+      max-width: 300px;
+      height: 37px;
+      margin-right: 5px;
+    }
+  }
+  button.btn-action-lg {
+    &:hover {
+      @extend .btn-action-lg;
+    }
+  }
+}

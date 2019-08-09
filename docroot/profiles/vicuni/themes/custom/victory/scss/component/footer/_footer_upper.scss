@@ -1,0 +1,136 @@
+//
+// Upper footer component.
+//
+.footer {
+  #block-panels-mini-vu-block-upper-footer {
+    $local-font-size-h3: 16px;
+    $local-font-size-strong-p: $font-size-base;
+
+    background-color: $color-blue-bahama;
+    color: $color-white;
+    padding-bottom: $spacing-vertical-bottom-lg;
+
+    .panel-pane {
+      padding-top: $spacing-vertical-top-lg;
+      .pane-content {
+        // Remove standard panel styles.
+        @include reset-box-model;
+      }
+    }
+
+    .middle {
+      .col {
+        &:nth-child(2) {
+          clear: left;
+        }
+
+        @include breakpoint($breakpoint-sm-up) {
+          &:nth-child(2) {
+            clear: none;
+          }
+        }
+      }
+      .col-sm-3 {
+        float: left;
+        width: 50%;
+        @include breakpoint($breakpoint-sm-up) {
+          width: 25%;
+        }
+      }
+    }
+
+    h3 {
+      @include font($local-font-size-h3);
+      line-height: $headings-line-height;
+      margin-top: 0;
+      margin-bottom: $spacing-vertical-bottom-sm;
+    }
+
+    strong p {
+      @include font($local-font-size-strong-p, 'default', bold);
+      line-height: 28px/$font-size-h3;
+      margin-top: 0;
+      margin-bottom: $spacing-vertical-bottom-xs;
+    }
+
+    a {
+      @include link-color($color-blue-botticelli, $color-white, $color-blue-botticelli, $color-blue-botticelli);
+      font-size: $font-size-small;
+      @include breakpoint($breakpoint-lg-up) {
+        font-size: $font-size-base;
+      }
+    }
+
+    // Useful links menus.
+    .menu-name-menu-footer-useful-links,
+    .menu-name-main-menu {
+      ul.menu {
+        padding: 0;
+        margin: 0;
+
+        li {
+          margin-top: 10px;
+          &:first-child {
+            margin-top: 0;
+          }
+        }
+      }
+    }
+
+    .menu-name-menu-footer-useful-links {
+      span.separator {
+        display: none;
+      }
+      > ul.menu {
+        @include make-row;
+        > li {
+          @include make-grid-column;
+          &.separator {
+            margin-top: 0;
+          }
+
+          strong p {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .staff-footer-menu {
+      width: 100%;
+      padding-right: 0;
+    }
+
+    .menu-block-footer-main-menu-tools {
+      strong p {
+        margin-top: $local-font-size-h3 + $spacing-vertical-bottom-sm;
+      }
+
+      // Override font awesome icons with our custom implementation.
+      a {
+        &[class^="fa-"] {
+          &:before {
+            content: '';
+          }
+        }
+
+        &.ext {
+          $local-external-link-icon-width: 11px;
+          $local-external-link-icon-height: 11px;
+          &:after {
+            content: '';
+            background-image: url($image-link-external);
+            width: $local-external-link-icon-width;
+            height: $local-external-link-icon-height;
+            display: inline-block;
+            margin-left: $spacing-horizontal-inline-icons;
+          }
+        }
+      }
+    }
+
+    .pane-menu-block-footer-useful-links-col2.col-xs-6 {
+      margin-left: $grid-gutter-width / -2;
+    }
+  }
+}

@@ -1,0 +1,349 @@
+<?php
+
+/**
+ * @file
+ * Core functions for VU: Tester.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function vu_tester_permission() {
+  return [
+    'access vu_tester' => [
+      'title' => t('Access VU Tester'),
+    ]
+  ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vu_tester_menu() {
+  $items['node/%node/tester'] = [
+    'title' => 'Tester',
+    // The page callback also invokes drupal_set_title() in case
+    // the menu router's title is overridden by a menu link.
+    'page callback' => 'vu_tester_page',
+    'page arguments' => [1],
+    'access callback' => 'vu_tester_node_access',
+    'access arguments' => [1],
+    'weight' => 10,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  ];
+
+  return $items;
+}
+
+/**
+ * Access callback for VU tester.
+ *
+ * @param $node
+ *   The node object.
+ *
+ * @return bool
+ *   TRUE if user has access, else FALSE.
+ */
+function vu_tester_node_access($node) {
+  if (user_access('access vu_tester')) {
+    return node_access('update', $node);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Page callback for VU Tester node view.
+ */
+function vu_tester_page($node) {
+  $output = [];
+
+  // Attach the tester form if applicable.
+  $output['tester'] = drupal_get_form('vu_tester_form', $node);
+
+  // Append the default Node view to the output render array.
+  $node_view = node_page_view($node);
+  $output = array_merge($output, $node_view);
+
+  // Return the render array.
+  return $output;
+}
+
+/**
+ * Form callback for VU Tester form.
+ */
+function vu_tester_form($form, &$form_state, $node) {
+  $tester = module_invoke_all('vu_tester', 'node', ['node' => $node]);
+  if (!empty($tester)) {
+    $form['tester'] = [
+      '#title' => t('VU Tester'),
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+    ];
+
+    $form['tester']['path'] = [
+      '#type' => 'value',
+      '#value' => "node/{$node->nid}/tester"
+    ];
+
+    $form['tester']['options'] = $tester;
+
+    $form['tester']['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => t('Tester'),
+    ];
+  }
+
+  return $form;
+}
+
+/**
+ * Submit callback for VU Tester form.
+ */
+function vu_tester_form_submit($form, &$form_state) {
+  drupal_goto($form_state['values']['tester']['path'], ['query' => $form_state['values']['tester']['options']]);
+}
+
+/**
+ * Implements hook_vu_tester().
+ */
+function vu_tester_vu_tester($type, $context) {
+  if ($type == 'node' && isset($context['node']->type) && $context['node']->type == 'courses') {
+    $form = ['#tree' => TRUE];
+    $intakes = [];
+
+    $node = &$context['node'];
+    $params = drupal_get_query_parameters();
+    $values = isset($params['courses']) ? $params['courses'] : [];
+
+    $date_format = 'Y-m-d H:i';
+
+    // Direct presets form.
+    $form['direct'] = [
+      '#title' => t('Direct'),
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+    ];
+
+    $form['direct']['preset'] = [
+      '#title' => t('Preset'),
+      '#type' => 'select',
+      '#options' => [
+        'closed' => t('Closed'),
+        'closed_past' => t('Closed (dates passed)'),
+        'open_early' => t('Open now (early)'),
+        'open' => t('Open now'),
+        'future' => t('Open in the future'),
+      ],
+      '#default_value' => isset($values['direct']['preset']) ? $values['direct']['preset'] : 'closed',
+    ];
+
+    $form['direct']['is_admissions_centre_available'] = [
+      '#title' => t('Online applications'),
+      '#type' => 'select',
+      '#options' => [
+        'Y' => t('Allowed'),
+        'N' => t('Disabled'),
+      ],
+      '#empty_value' => '',
+      '#empty_option' => '',
+      '#default_value' => isset($values['direct']['is_admissions_centre_available']) ? $values['direct']['is_admissions_centre_available'] : '',
+    ];
+
+    $form['direct']['expression_of_interest'] = [
+      '#title' => t('Expression of interest'),
+      '#type' => 'select',
+      '#options' => [
+        'Y' => t('Enabled'),
+        'N' => t('Disabled'),
+      ],
+      '#empty_value' => '',
+      '#empty_option' => '',
+      '#default_value' => isset($values['direct']['expression_of_interest']) ? $values['direct']['expression_of_interest'] : '',
+    ];
+
+    // Direct preset overrides.
+    if (isset($values['direct']['preset'])) {
+      $intakes['direct'] = [
+        'application_entry_method' => 'DIRECT',
+        'intake_enabled' => TRUE,
+        'course_intake_status' => $values['direct']['preset'] !== 'closed' ? 'OFFERED' : '',
+        'course_code' => $node->field_unit_code[LANGUAGE_NONE][0]['value'],
+        'is_admissions_centre_available' => $values['direct']['is_admissions_centre_available'] == 'N' ? 'N' : 'Y',
+      ];
+
+      if (isset($values['direct']['expression_of_interest'])) {
+        $intakes['direct']['expression_of_interest'] = $values['direct']['expression_of_interest'];
+      }
+
+      $dates = [];
+      switch ($values['direct']['preset']) {
+        case 'closed_past':
+          $dates['admissions_start_date'] = new DateTime('-2 weeks');
+          $dates['admissions_end_date'] = new DateTime('-1 week');
+          break;
+
+        case 'open_early':
+          $dates['admissions_start_date'] = new DateTime('-1 weeks');
+          $dates['admissions_end_date'] = new DateTime('+2 weeks');
+          $dates['early_admissions_end_date'] = new DateTime('+1 week');
+          break;
+
+        case 'open':
+          $dates['admissions_start_date'] = new DateTime('-2 weeks');
+          $dates['admissions_end_date'] = new DateTime('+2 weeks');
+          $dates['early_admissions_end_date'] = new DateTime('-1 week');
+          break;
+
+        case 'future':
+          $dates['admissions_start_date'] = new DateTime('+2 weeks');
+          $dates['admissions_end_date'] = new DateTime('+4 weeks');
+          break;
+      }
+
+      $fields = [
+        'admissions_start_date',
+        'admissions_end_date',
+        'early_admissions_end_date'
+      ];
+      foreach ($fields as $field) {
+        if (isset($dates[$field])) {
+          $intakes['direct'][$field] = $dates[$field]->format($date_format);
+        }
+      }
+    }
+
+    // VTAC presets form.
+    $form['vtac'] = [
+      '#title' => t('VTAC'),
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+    ];
+
+    $form['vtac']['preset'] = [
+      '#title' => t('Preset'),
+      '#type' => 'select',
+      '#options' => [
+        'closed' => t('Closed'),
+        'closed_past' => t('Closed (dates passed)'),
+        'open_timely' => t('Open now (timely)'),
+        'open_late' => t('Open now (late)'),
+        'open_very_late' => t('Open now (very late)'),
+        'future' => t('Open in the future'),
+      ],
+      '#default_value' => isset($values['vtac']['preset']) ? $values['vtac']['preset'] : 'closed',
+    ];
+
+    // VTAC preset overrides.
+    if (isset($values['vtac']['preset']) && $values['vtac']['preset'] !== 'closed') {
+      $intakes['vtac'] = [
+        'application_entry_method' => 'VTAC',
+        'intake_enabled' => TRUE,
+        'course_intake_status' => 'OFFERED',
+        'course_code' => $node->field_unit_code[LANGUAGE_NONE][0]['value'],
+        'is_vtac_course' => 'Y',
+        'is_admissions_centre_available' => 'Y',
+      ];
+
+      $dates = [];
+      switch ($values['vtac']['preset']) {
+        case 'closed_past':
+          $dates['vtac_open_date'] = new DateTime('-2 weeks');
+          $dates['vtac_very_late_date'] = new DateTime('-1 week');
+          break;
+
+        case 'open_timely':
+          $dates['vtac_open_date'] = new DateTime('-1 weeks');
+          $dates['vtac_timely_date'] = new DateTime('+1 week');
+          $dates['vtac_late_date'] = new DateTime('+2 weeks');
+          $dates['vtac_very_late_date'] = new DateTime('+3 weeks');
+          break;
+
+        case 'open_late':
+          $dates['vtac_open_date'] = new DateTime('-2 weeks');
+          $dates['vtac_timely_date'] = new DateTime('-1 week');
+          $dates['vtac_late_date'] = new DateTime('+2 weeks');
+          $dates['vtac_very_late_date'] = new DateTime('+3 weeks');
+          break;
+
+        case 'open_very_late':
+          $dates['vtac_open_date'] = new DateTime('-3 weeks');
+          $dates['vtac_timely_date'] = new DateTime('-2 weeks');
+          $dates['vtac_late_date'] = new DateTime('-1 week');
+          $dates['vtac_very_late_date'] = new DateTime('+3 weeks');
+          break;
+
+        case 'future':
+          $dates['vtac_open_date'] = new DateTime('+1 week');
+          $dates['vtac_timely_date'] = new DateTime('+2 weeks');
+          $dates['vtac_late_date'] = new DateTime('+3 weeks');
+          $dates['vtac_very_late_date'] = new DateTime('+4 week');
+          break;
+      }
+
+      $fields = [
+        'vtac_open_date',
+        'vtac_timely_date',
+        'vtac_late_date',
+        'vtac_very_late_date'
+      ];
+      foreach ($fields as $field) {
+        if (isset($dates[$field])) {
+          $intakes['vtac'][$field] = $dates[$field]->format($date_format);
+        }
+      }
+      $intakes['vtac']['vtac_course_code'] = mt_rand(4000000000, 4999999999);
+    }
+
+    // Direct presets form.
+    $form['vu_online'] = [
+      '#title' => t('Victoria University Online'),
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+    ];
+
+    $form['vu_online']['preset'] = [
+      '#title' => t('Preset'),
+      '#type' => 'select',
+      '#options' => [
+        'closed' => t('Closed'),
+        'open' => t('Open'),
+      ],
+      '#default_value' => isset($values['vu_online']['preset']) ? $values['vu_online']['preset'] : 'closed',
+    ];
+
+    // // VU Online preset overrides.
+    if (isset($values['vu_online']['preset'])) {
+
+      if ($values['vu_online']['preset'] !== 'closed') {
+        $present = false;
+        foreach ($node->field_locations[LANGUAGE_NONE] as $id => $location) {
+          if ($location['value'] == 'Victoria University Online') {
+            $present = true;
+            break;
+          }
+        }
+
+        if (!$present) {
+          $node->field_locations[LANGUAGE_NONE][]['value'] = 'Victoria University Online';
+        }
+      } else {
+        foreach ($node->field_locations[LANGUAGE_NONE] as $id => $location) {
+          if ($location['value'] == 'Victoria University Online') {
+            unset($node->field_locations[LANGUAGE_NONE][$id]);
+            break;
+          }
+        }
+      }
+    }
+
+    // Attach custom intakes array to our node.
+    if (!empty($intakes)) {
+      $node->_intakes = $intakes;
+    }
+
+    return ['courses' => $form];
+  }
+  return FALSE;
+}

@@ -1,0 +1,424 @@
+<?php
+/**
+ * @file
+ * Install file for vu_course_index.
+ */
+
+/**
+ * Implements hook_schema.
+ */
+function vu_course_index_schema() {
+  $schema['course_intake'] = array(
+    'description' => 'TODO: please describe this table!',
+    'fields' => array(
+      'id' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'course_index_id' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'academic_year' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '4',
+        'not null' => TRUE,
+      ),
+      'academic_calendar_type' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'academic_calendar_sequence_number' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'academic_start_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => TRUE,
+      ),
+      'academic_end_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => TRUE,
+      ),
+      'course_srt_dt' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'teaching_cal_type' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => FALSE,
+      ),
+      'teach_perd_desc' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '60',
+        'not null' => FALSE,
+      ),
+      'aqf_level' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'is_mid_year_intake' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '1',
+        'not null' => TRUE,
+      ),
+      'admissions_calendar_type' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '15',
+        'not null' => TRUE,
+      ),
+      'admissions_calendar_sequence_number' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'admissions_start_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => TRUE,
+      ),
+      'early_admissions_end_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'admissions_end_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => TRUE,
+      ),
+      'vtac_open_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'vtac_timely_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'vtac_late_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'vtac_very_late_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'admissions_category' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+      'course_offering_id' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'sector_code' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+      'course_code' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '20',
+        'not null' => TRUE,
+      ),
+      'course_version' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => TRUE,
+      ),
+      'course_name' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '100',
+        'not null' => TRUE,
+      ),
+      'is_vtac_course' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '1',
+        'not null' => TRUE,
+      ),
+      'location' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+      'attendance_type' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '2',
+        'not null' => TRUE,
+      ),
+      'attendance_mode' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '2',
+        'not null' => TRUE,
+      ),
+      'course_type' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '60',
+        'not null' => FALSE,
+      ),
+      'place_type' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+      'specialisation_code' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => FALSE,
+      ),
+      'specialisation_name' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '90',
+        'not null' => FALSE,
+      ),
+      'unit_set_version' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'size' => 'small',
+        'not null' => FALSE,
+      ),
+      'application_start_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'application_end_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'early_application_end_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'vtac_start_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'vtac_end_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'course_intake_status' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+      'college' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '10',
+        'not null' => TRUE,
+      ),
+      'college_name' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '60',
+        'not null' => TRUE,
+      ),
+      'is_admissions_centre_available' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '1',
+        'not null' => TRUE,
+      ),
+      'additional_requirements' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '200',
+        'not null' => FALSE,
+      ),
+      'published_date' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => TRUE,
+      ),
+      'created_date_time' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => FALSE,
+      ),
+      'intake_enabled' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'vtac_course_code' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '20',
+        'not null' => FALSE,
+      ),
+      'application_entry_method' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '20',
+        'not null' => TRUE,
+      ),
+      'supplementary_forms' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '500',
+        'not null' => FALSE,
+      ),
+      'referee_reports' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '200',
+        'not null' => FALSE,
+      ),
+      'expression_of_interest' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'varchar',
+        'length' => '1',
+        'not null' => TRUE,
+      ),
+      'updated_date_time' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'datetime',
+        'mysql_type' => 'DATETIME',
+        'pgsql_type' => 'timestamp without time zone',
+        'sqlite_type' => 'VARCHAR',
+        'sqlsrv_type' => 'smalldatetime',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'find_latest' => array('course_code', 'intake_enabled'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Creates schema.
+ */
+function vu_course_index_update_7001() {
+  $schema = vu_course_index_schema();
+
+  foreach ($schema as $table_name => $table) {
+    db_create_table($table_name, $table);
+  }
+}
+
+/**
+ * Add new fields to Course Index.
+ */
+function vu_course_index_update_7002() {
+  $schema = vu_course_index_schema();
+  foreach ($schema['course_intake']['fields'] as $field => $spec) {
+    if (!db_field_exists('course_intake', $field)) {
+      db_add_field('course_intake', $field, $spec);
+    }
+  }
+}

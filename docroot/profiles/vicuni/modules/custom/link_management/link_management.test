@@ -1,0 +1,146 @@
+<?php
+
+/**
+ * @file
+ * Tests for link management module.
+ */
+
+/**
+ * Simpletest DrupalWebTestCase.
+ */
+class LinkManagementTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'vicuni';
+
+  /**
+   * Describes the test case.
+   */
+  public static function getInfo() {
+    return [
+      'name' => 'Link management test',
+      'description' => 'Check internal link management logic, especially around resolving external links.',
+      'group' => 'Custom',
+    ];
+  }
+
+  /**
+   * IDs of temporary redirects created for test.
+   *
+   * @var array
+   */
+  private $redirectIds = [];
+
+  /**
+   * Enable redirect module so we can save and delete test redirects.
+   */
+  protected function setup($modules = []) {
+    $modules[] = 'redirect';
+    $modules[] = 'link_management';
+    parent::setup($modules);
+  }
+
+  /**
+   * Cleanup: delete any temp redirects we created for test.
+   */
+  protected function tearDown() {
+    foreach ($this->redirectIds as $rid) {
+      redirect_delete($rid);
+    }
+    parent::tearDown();
+  }
+
+  /**
+   * Create a test redirect and store the id so we can delete it later.
+   */
+  private function createRedirect($from, $to) {
+    $redirect = new StdClass();
+    redirect_object_prepare(
+      $redirect,
+      [
+        'source' => $from,
+        'source_options' => [],
+        'redirect' => $to,
+        'redirect_options' => [],
+        'status_code' => 0,
+        'type' => 'redirect',
+        'language' => LANGUAGE_NONE,
+      ]
+    );
+    redirect_save($redirect) && $this->redirectIds[] = $redirect->rid;
+  }
+
+  /**
+   * Test email addresses are resolved correctly.
+   */
+  public function testEmailAddresses() {
+    $cases = [
+      "mailto:seekRA@vu.edu.au",
+      "mailto:stalbans@aromacafe.com.au",
+      "mailto:stalbansfitness@vu.edu.au",
+      "mailto:ccentre.city@vu.edu.au",
+      "mailto:dermalclinic@vu.edu.au",
+      "mailto:spaandsalon@vu.edu.au",
+      "mailto:cowen.centre@vu.edu.au",
+      "mailto:nicholsonsport@vu.edu.au",
+      "mailto:lee.dare@vu.edu.au",
+      "mailto:mary.olanda@vu.edu.au",
+      "mailto:leesa.lawatzki@vu.edu.au",
+      "mailto:environment@vu.edu.au",
+      "mailto:vuafc@vu.edu.au",
+      "mailto:artistic.catering@vu.edu.au",
+      "mailto:vucafenoodlehouse.catering@vu.edu.au",
+      "mailto:readingroom.catering@vu.edu.au",
+      "mailto:vubar.catering@vu.edu.au",
+      "mailto:sally.webster@vu.edu.au",
+      "mailto:werribeefitness@vu.edu.au",
+      "mailto:vupc@vu.edu.au",
+      "mailto:Carolyn.Deans@vu.edu.au",
+    ];
+    foreach ($cases as $case) {
+      $resolved = link_management_resolve_path($case);
+      $this->assertEqual($resolved, ["${case}", 1]);
+    }
+  }
+
+  /**
+   * Test that external links are resolved as external links and not modified.
+   */
+  public function testExternalAddresses() {
+    $cases = [
+      "http://mitchellinstitute.org.au",
+      "http://askvu.vu.edu.au",
+      "https://www.outlook.com/live.vu.edu.au",
+      "https://servicedesk.vu.edu.au",
+      "http://gotovu.custhelp.com",
+      "http://www.mitchellinstitute.org.au",
+      "http://tbe.taleo.net/NA4/ats/careers/searchResults.jsp",
+    ];
+    foreach ($cases as $case) {
+      $resolved = link_management_resolve_path($case);
+      $this->assertEqual($resolved, [$case, 1]);
+    }
+  }
+
+  /**
+   * Test redirects to internal URLs.
+   */
+  public function testInternalRedirections() {
+    $src = 'asdf';
+    $dest = 'home';
+    $this->createRedirect($src, $dest);
+    $resolved = link_management_resolve_path($src);
+    $this->assertEqual($resolved, ["/${dest}", 0]);
+  }
+
+  /**
+   * Test redirects to external URLs.
+   */
+  public function testExternalRedirections() {
+    $src = 'asdf';
+    $dest = 'http://www.example.com';
+    $this->createRedirect($src, $dest);
+    $resolved = link_management_resolve_path($src);
+    $this->assertEqual($resolved, [$dest, 1]);
+  }
+
+}

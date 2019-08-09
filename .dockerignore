@@ -1,0 +1,25 @@
+# Ignore everything but a whitelist of files.
+*
+# But do not ignore custom files.
+!docroot/profiles/vicuni/vicuni.info
+!docroot/profiles/vicuni/vicuni.profile
+!docroot/profiles/vicuni/modules/custom
+!docroot/profiles/vicuni/themes/custom
+!docroot/sites/default/settings.php
+!docroot/.htaccess
+!docroot/robots.txt
+# Do not ignore other required files.
+!drush
+!hooks
+!patches
+!scripts
+!.env
+!.eslintrc.json
+!.sass-lint.yml
+!.dev
+!composer.json
+!composer.patches.json
+!Gruntfile.js
+!composer.lock
+!package.json
+!package-lock.json

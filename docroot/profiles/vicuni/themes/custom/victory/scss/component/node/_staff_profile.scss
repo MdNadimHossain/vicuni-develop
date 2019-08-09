@@ -1,0 +1,127 @@
+.node-type-staff-profile {
+  @include breakpoint($breakpoint-xs) {
+    .title-box__feature {
+      display: none;
+    }
+  }
+  .title-box__feature__with_photo {
+    background-color: $color-white !important;
+    .js-staff-photo {
+      @include breakpoint($breakpoint-sm) {
+        height: 100%;
+      }
+      @include breakpoint($breakpoint-md) {
+        height: 100%;
+      }
+    }
+  }
+  .page-header-title-sub1 {
+    color: $color-white;
+    margin-top: 10px;
+    .staff-profile-title {
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 24px;
+      font-family: $font-futura;
+    }
+    .staff-profile-credentials {
+      font-family: $fonts-default;
+      font-size: 14px;
+      font-style: italic;
+    }
+  }
+  .field-name-body {
+    a {
+      @include default-link;
+    }
+    margin-top: 40px;
+    .js-staff-image-target {
+      margin-bottom: 20px;
+    }
+  }
+  .field-name-field-staff-porfolio,
+  .field-name-field-staff-expertise {
+    a {
+      @include default-link;
+    }
+    > ul {
+      align-items: flex-start;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 30px;
+      margin-top: 20px;
+      padding: 0;
+      li {
+        @include auto-line-height(14px, 22px);
+        border: 1px solid $color-blue-cornflower;
+        color: $color-black-mine_shaft;
+        display: block;
+        font-family: $fonts-default;
+        margin: 0 0 5px;
+        padding: 4px 10px;
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+  .field-name-field-staff-picture {
+    margin-top: 40px;
+    margin-bottom: 30px;
+    .field-items {
+      text-align: center;
+      .field-item {
+        display: inline-block;
+      }
+    }
+  }
+  .group-contact-us {
+    background-color: #1F435D;
+    padding: 27px;
+    margin-top: 20px;
+    color: $color-white;
+    h3 {
+      margin-top: 0px;
+    }
+    .field-name-field-staff-assistant-title {
+      font-weight: 500;
+    }
+    .field-name-field-staff-assistant-name {
+      font-weight: 700;
+    }
+    .field-name-field-staff-email {
+      word-break: break-all;
+      display: inline;
+    }
+    .group-assistant-details,
+    .group-contact-info,
+    .group-addition-info {
+      i {
+        padding-right: 10px;
+      }
+      a {
+        @include default-link;
+        color: $color-white;
+      }
+    }
+    .group-contact-info {
+      margin-top: 10px;
+    }
+    .group-addition-info  {
+      margin-top: 20px;
+    }
+  }
+
+  .node-staff-profile {
+    &.view-mode-victory {
+        @include breakpoint($breakpoint-sm-up) {
+        margin-bottom: $spacing-vertical-bottom-sm !important;
+      }
+
+      @include breakpoint($breakpoint-lg-up) {
+        margin-bottom: $spacing-vertical-bottom-lg !important;
+      }
+    }
+  }
+
+}

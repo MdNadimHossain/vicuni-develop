@@ -1,0 +1,4 @@
+name = VU Courses XML
+description = Test module to make sure that XML exports work correctly.
+package = VU
+core = 7.x

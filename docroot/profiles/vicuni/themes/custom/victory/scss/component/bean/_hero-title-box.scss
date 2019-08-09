@@ -1,0 +1,374 @@
+//
+// Hero title box style.
+//
+$images-path: '../images';
+.panel-pane.hero-title-box {
+  margin-bottom: 0 !important;
+  position: relative;
+  width: 100% !important;
+
+  @include breakpoint($breakpoint-sm) {
+    padding-bottom: $spacing-vertical-bottom-sm !important;
+    margin-top: -20px !important;
+  }
+
+  @include breakpoint($breakpoint-md-up) {
+    height: 600px;
+    overflow: hidden;
+  }
+
+  @include breakpoint($breakpoint-lg-up) {
+    margin-bottom: $spacing-vertical-bottom-sm !important;
+  }
+
+  &--loaded::after {
+    background: $color-white;
+    bottom: 25%;
+    content: '';
+    display: block;
+    height: 110px;
+    position: absolute;
+    transform: skewY(-1.2deg);
+    width: 100%;
+
+    @include breakpoint($breakpoint-sm) {
+      bottom: 15%;
+    }
+
+    @include breakpoint($breakpoint-md) {
+      bottom: -10%;
+      height: 100px;
+    }
+
+    @include breakpoint($breakpoint-lg-up) {
+      background: $color-grey-gallery;
+      bottom: -20%;
+      height: 150px;
+    }
+  }
+
+  &--loaded.rebrand-homepage::after {
+    transform: none;
+  }
+
+  .carousel-inner {
+    .item {
+      transition-property: opacity;
+    }
+
+    .item,
+    .active.left,
+    .active.right {
+      opacity: 0;
+    }
+
+    .active,
+    .next.left,
+    .prev.right {
+      opacity: 1;
+    }
+
+    .next,
+    .prev,
+    .active.left,
+    .active.right {
+      left: 0;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .carousel-indicators-wrapper {
+    position: absolute;
+    height: 22px;
+    left: 0;
+    top: 80%;
+    margin-top: 9px;
+
+    @media (min-width: 400px) {
+      top: 70%;
+    }
+
+    @include breakpoint($breakpoint-xs) {
+      width: 100%;
+    }
+
+    @include breakpoint($breakpoint-sm) {
+      margin-top: 4px;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    @include breakpoint($breakpoint-md-up) {
+      margin-top: 4px;
+      top: calc(50% + 20px);
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .carousel-indicators {
+      position: relative;
+      text-align: left;
+      width: 100%;
+      margin: 0;
+      top: 0;
+      left: 0;
+      height: 22px;
+      padding: 5px 0;
+
+      li {
+        width: 12px;
+        height: 12px;
+        background: $color-white;
+        margin: 0 10px 0 0;
+        border: none;
+        vertical-align: top;
+        a {
+          display: block;
+          height: 12px;
+        }
+        &.active {
+          background: $color-orange-yellow_orange;
+        }
+
+        li.carousel-indicator:last-child {
+          margin-right: 20px;
+        }
+      }
+
+      .carousel-control {
+        z-index: 2;
+        position: relative;
+        border: none;
+        text-indent: 0;
+        background: none;
+        border-radius: 0;
+        opacity: 1;
+        font-size: 13px;
+        width: 15px;
+        height: 15px;
+        color: $color-white;
+        text-shadow: none;
+        display: inline-block;
+        line-height: 13px;
+        a {
+          height: 15px;
+          color: $color-white;
+          /* !important because IE sucks */
+          text-decoration: none !important;
+
+          &:hover {
+            color: $color-orange-yellow_orange;
+            text-decoration: none !important;
+          }
+        }
+
+        &--active {
+          a {
+            color: $color-orange-yellow_orange;
+          }
+        }
+
+        &--pause {
+          margin-left: 10px;
+          a {
+            @include fa-prefix(' \f04c ');
+            &:before {
+              margin-right: 0;
+            }
+          }
+        }
+
+        &--play {
+          a {
+            @include fa-prefix(' \f04b ');
+            &:before {
+              margin-right: 0;
+            }
+          }
+        }
+      }
+
+    }
+  }
+
+  &.rebrand-homepage .carousel-indicators-wrapper {
+    @include breakpoint($breakpoint-xs) {
+      top: 75%;
+    }
+  }
+
+  .hero-banner {
+    @include hero-banner-default-values;
+  }
+
+  &.rebrand-homepage .hero-banner {
+    &__header {
+      font-family: $font-engschrift;
+      font-style: normal;
+      font-weight: 500;
+
+      @include breakpoint($breakpoint-xs) {
+        line-height: 36px;
+      }
+
+      @include breakpoint($breakpoint-sm) {
+        line-height: 48px;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        line-height: 72px;
+      }
+    }
+
+    .field-name-field-hero-banner-message {
+      font-family: $font-tajawal-medium;
+      @include breakpoint($breakpoint-md-up) {
+        line-height: 26px;
+      }
+      p {
+        display: inline-block;
+        text-shadow: none;
+        a {
+          box-shadow: inset 0 -4px 0 $color-light-yellow;
+
+          &:hover {
+            box-shadow: none;
+            background-color: $color-orange-light_orange;
+            text-decoration: none;
+          }
+        }
+      }
+    }
+  }
+
+  &.panel-pane .pane-content {
+    padding-bottom: 0;
+  }
+
+  .panel-pane.pane-vu-core-vu-course-search {
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+
+    .pane-title {
+      margin-left: -15px;
+
+      @include breakpoint($breakpoint-sm-up) {
+        margin-left: 0;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        padding: 0 !important;
+      }
+    }
+
+    @include breakpoint($breakpoint-md-up) {
+      background-color: transparent;
+      color: $color-white;
+      left: 50%;
+      position: absolute;
+      top: calc(50% + 86px);
+      transform: translateX(-50%);
+    }
+
+    @include breakpoint($breakpoint-sm) {
+      width: $container-sm;
+      height: 137px;
+    }
+
+    @include breakpoint($breakpoint-md) {
+      width: $container-md;
+    }
+
+    @include breakpoint($breakpoint-lg-up) {
+      width: $container-lg;
+    }
+  }
+
+  &.rebrand-homepage .panel-pane.pane-vu-core-vu-course-search {
+
+    .pane-title {
+      font-family: $font-tajawal-medium;
+    }
+
+    .pane-content #vu-core-course-search-form {
+
+      input.form-text {
+        font-family: $font-tajawal-light;
+        border: none;
+        border-radius: 0px;
+        height: 60px;
+        background-color: rgba(255,255,255,0.95);
+        box-shadow: 0 3px 4px 0 rgba(0,0,0,0.06);
+        color: #262626;
+        @include breakpoint ($breakpoint-sm-down) {
+          border: 2px solid $color-grey-suva;
+        }
+      }
+
+      button.search {
+        background-color: $color-red-strong_red;
+        font-family: $font-engschrift;
+        font-size: 23px;
+        padding: 13px 16px;
+        text-transform: uppercase;
+        border-radius: 0px;
+        letter-spacing: 1px;
+        i.fa-search {
+          display: none;
+        }
+
+        &:hover {
+          background-color: $color-navy-light_navy;
+          color: $color-white;
+        }
+      }
+
+      #edit-iam {
+        font-family: $font-tajawal-medium;
+
+        .radio .control-label {
+          font-size: 20px;
+
+          input[type="radio"] {
+            display: none;
+          }
+        }
+
+        .custom-radio-image::before {
+          content: '';
+          display: inline-block;
+          width: 40px;
+          height:29px;
+          background: url('#{$images-path}/Not-selected.svg') no-repeat 0 0;
+          background-size: 31px 29px;
+          position: absolute;
+          top: 8px;
+          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            /* IE10+ CSS styles go here */
+            background-size: 31px 29px !important;
+            top: 11px !important;
+          }
+          left: -25px;
+        }
+        .custom-radio-selected-image::before {
+          content: '';
+          display: inline-block;
+          width: 40px;
+          height:29px;
+          background: url('#{$images-path}/Selected.svg') no-repeat 0 0;
+          background-size: 31px 29px;
+          position: absolute;
+          top: 8px;
+          @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            /* IE10+ CSS styles go here */
+            background-size: 31px 29px !important;
+            top: 11px !important;
+          }
+          left: -25px;
+        }
+      }
+    }
+  }
+}

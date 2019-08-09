@@ -1,0 +1,64 @@
+@charset "UTF-8";
+.learning--teaching {
+  .container.main-container .sidebar-second-wrapper {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    @include breakpoint(desktop_large) {
+      width: 33%;
+      padding-top: 190px;
+      min-width: 268px;
+    }
+    .sidebar-box {
+      @include sidebar_box();
+    }
+    .heading {
+      margin-bottom: 18px;
+    }
+    ul + p {
+      font-weight: bold;
+      margin-bottom: 0;
+      margin-top: 20px;
+      text-align: right;
+      &:after {
+        content: "\f054";
+        display: inline-block;
+        font-family: FontAwesome;
+        color: $vuBlue;
+        margin-left: 8px;
+        font-weight: normal;
+      }
+    }
+    .thumbnail-block-form {
+      position: relative;
+      border-bottom: none;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+      &--right {
+        padding: 15px 40px 15px 25px;
+        @include breakpoint(desktop_large) {
+          margin: 0 -16px 25px 0;
+          &:after {
+            left: auto;
+            content: '';
+            display: block;
+            width: 0;
+            position: absolute;
+            bottom: -15px;
+            background: transparent;
+            z-index: -1;
+            border-top: 15px solid black;
+            right: 0;
+            border-right: 15px solid transparent;
+          }
+        }
+      }
+      &--blue {
+        color: $white;
+        background-color: $vuBlue;
+      }
+      ul li a {
+        color: $white;
+      }
+    }
+  }
+}

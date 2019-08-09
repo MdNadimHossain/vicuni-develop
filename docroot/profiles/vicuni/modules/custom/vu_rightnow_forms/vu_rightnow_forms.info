@@ -1,0 +1,6 @@
+name = VU RightNow Forms
+description = RightNow forms integration for Drupal webforms.
+package = VU
+version = "7.x-1.0"
+core = 7.x
+dependencies[] = webform

@@ -1,0 +1,444 @@
+name = VU Researcher Profile
+description = VU Researcher Profile
+core = 7.x
+package = VU
+version = 7.x-1.0
+
+
+
+; Dependencies
+
+dependencies[] = admin_menu
+dependencies[] = admin_menu_source
+dependencies[] = better_formats
+dependencies[] = chosen
+dependencies[] = colorbox
+dependencies[] = conditional_fields
+dependencies[] = ctools
+dependencies[] = custom_formatters
+dependencies[] = date
+dependencies[] = ds
+dependencies[] = ds_extras
+dependencies[] = email
+dependencies[] = entity
+dependencies[] = entityreference
+dependencies[] = fe_block
+dependencies[] = features
+dependencies[] = field_group
+dependencies[] = field_permissions
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = image
+dependencies[] = link
+dependencies[] = list
+dependencies[] = markup
+dependencies[] = maxlength
+dependencies[] = media_wysiwyg
+dependencies[] = menu
+dependencies[] = metatag
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = page_manager
+dependencies[] = paragraphs
+dependencies[] = pathologic
+dependencies[] = role_delegation
+dependencies[] = search_api
+dependencies[] = strongarm
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = view_unpublished
+dependencies[] = views
+dependencies[] = vppr
+dependencies[] = vu_core
+dependencies[] = wysiwyg
+
+
+
+; Features
+
+features[conditional_fields][] = node:researcher_profile
+
+features[ctools][] = custom_formatters:custom_formatters:2
+features[ctools][] = ds:ds:1
+features[ctools][] = field_group:field_group:1
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = strongarm:strongarm:1
+features[ctools][] = views:views_default:3.0
+
+features[ds_field_settings][] = node|researcher_profile|full
+features[ds_field_settings][] = paragraphs_item|find_researcher|default
+
+features[ds_fields][] = find_researcher
+features[ds_fields][] = researcher_contact_details
+features[ds_fields][] = researcher_current_supervisions
+features[ds_fields][] = researcher_is_supervising
+features[ds_fields][] = researcher_key_details
+features[ds_fields][] = researcher_organisation_to_ackn
+features[ds_fields][] = researcher_overview_related_link
+features[ds_fields][] = researcher_past_supervisions
+features[ds_fields][] = researcher_publications
+features[ds_fields][] = researcher_qualifications
+features[ds_fields][] = rp_academic_roles
+features[ds_fields][] = rp_awards
+features[ds_fields][] = rp_funding_related_links
+features[ds_fields][] = rp_fundings
+features[ds_fields][] = rp_industry_roles
+features[ds_fields][] = rp_keynotes
+features[ds_fields][] = rp_media_appearance
+features[ds_fields][] = rp_memberships
+features[ds_fields][] = rp_supervision
+features[ds_fields][] = rp_supervision_related_l
+
+features[ds_layout_settings][] = node|researcher_profile|full
+features[ds_layout_settings][] = paragraphs_item|find_researcher|default
+features[ds_layout_settings][] = paragraphs_item|find_researcher|form
+
+features[fe_block_settings][] = vu_rp-researcher_profile_navbar
+
+features[features_api][] = api:2
+
+features[field_base][] = field_research_institutes_abbr
+features[field_base][] = field_research_institutes_is_f
+features[field_base][] = field_research_institutes_link
+features[field_base][] = field_researcher_link
+features[field_base][] = field_rp_a_award_name
+features[field_base][] = field_rp_a_organisation
+features[field_base][] = field_rp_a_organisation_link
+features[field_base][] = field_rp_a_year
+features[field_base][] = field_rp_academic_roles
+features[field_base][] = field_rp_ar_organisation
+features[field_base][] = field_rp_ar_period
+features[field_base][] = field_rp_ar_role
+features[field_base][] = field_rp_available_to_media
+features[field_base][] = field_rp_awards
+features[field_base][] = field_rp_biography
+features[field_base][] = field_rp_conversation_profile
+features[field_base][] = field_rp_expertise
+features[field_base][] = field_rp_facebook
+features[field_base][] = field_rp_first_name
+features[field_base][] = field_rp_fund_amount
+features[field_base][] = field_rp_fund_investigators
+features[field_base][] = field_rp_fund_period_duration
+features[field_base][] = field_rp_fund_sources
+features[field_base][] = field_rp_has_academic_roles
+features[field_base][] = field_rp_has_awards
+features[field_base][] = field_rp_has_key_industry
+features[field_base][] = field_rp_has_keynote_invitations
+features[field_base][] = field_rp_has_media_appearances
+features[field_base][] = field_rp_has_memberships
+features[field_base][] = field_rp_has_ota
+features[field_base][] = field_rp_industry_roles
+features[field_base][] = field_rp_institute_best_align
+features[field_base][] = field_rp_institute_primary
+features[field_base][] = field_rp_ir_organisation
+features[field_base][] = field_rp_ir_period
+features[field_base][] = field_rp_ir_role
+features[field_base][] = field_rp_job_title
+features[field_base][] = field_rp_job_title_variation
+features[field_base][] = field_rp_k_details
+features[field_base][] = field_rp_k_title
+features[field_base][] = field_rp_k_year
+features[field_base][] = field_rp_keynotes
+features[field_base][] = field_rp_last_name
+features[field_base][] = field_rp_linkedin
+features[field_base][] = field_rp_m_organisation
+features[field_base][] = field_rp_m_role
+features[field_base][] = field_rp_ma_date
+features[field_base][] = field_rp_ma_link
+features[field_base][] = field_rp_ma_summary
+features[field_base][] = field_rp_ma_title
+features[field_base][] = field_rp_media
+features[field_base][] = field_rp_memberships
+features[field_base][] = field_rp_name_variation
+features[field_base][] = field_rp_nid
+features[field_base][] = field_rp_optin
+features[field_base][] = field_rp_optout_timestamp
+features[field_base][] = field_rp_ota
+features[field_base][] = field_rp_ota_description
+features[field_base][] = field_rp_ota_link
+features[field_base][] = field_rp_ota_name
+features[field_base][] = field_rp_phone
+features[field_base][] = field_rp_photo
+features[field_base][] = field_rp_post_nominal
+features[field_base][] = field_rp_project_title
+features[field_base][] = field_rp_qualification
+features[field_base][] = field_rp_related_links
+features[field_base][] = field_rp_research_repo_link
+features[field_base][] = field_rp_shorter_biography
+features[field_base][] = field_rp_sup_is_available
+features[field_base][] = field_rp_sup_other
+features[field_base][] = field_rp_sup_role
+features[field_base][] = field_rp_sup_students
+features[field_base][] = field_rp_sup_study_level
+features[field_base][] = field_rp_teaching_experience
+features[field_base][] = field_rp_title
+features[field_base][] = field_rp_twitter
+features[field_base][] = field_rp_use_photo
+features[field_base][] = field_rpa_email
+features[field_base][] = field_rpa_first_name
+features[field_base][] = field_rpa_funding
+features[field_base][] = field_rpa_job_title
+features[field_base][] = field_rpa_last_name
+features[field_base][] = field_rpa_middle_name
+features[field_base][] = field_rpa_orcid_id
+features[field_base][] = field_rpa_p_doi
+features[field_base][] = field_rpa_p_type
+features[field_base][] = field_rpa_p_year
+features[field_base][] = field_rpa_preferred_name
+features[field_base][] = field_rpa_publications
+features[field_base][] = field_rpa_staff_id
+features[field_base][] = field_rpa_sup_completed
+features[field_base][] = field_rpa_sup_current
+features[field_base][] = field_rpc_p_citation
+features[field_base][] = field_rpc_publication_count
+features[field_base][] = field_rpc_publication_type_count
+
+features[field_group][] = group_research_profile|node|researcher_profile|form
+features[field_group][] = group_rp_biography_expertise|node|researcher_profile|form
+features[field_group][] = group_rp_career|node|researcher_profile|form
+features[field_group][] = group_rp_funding|node|researcher_profile|form
+features[field_group][] = group_rp_personal_details|node|researcher_profile|form
+features[field_group][] = group_rp_publications|node|researcher_profile|form
+features[field_group][] = group_rp_supervising_teaching|node|researcher_profile|form
+
+features[field_instance][] = comment-comment_node_researcher_profile-comment_body
+features[field_instance][] = node-researcher_profile-field_rp_academic_roles
+features[field_instance][] = node-researcher_profile-field_rp_available_to_media
+features[field_instance][] = node-researcher_profile-field_rp_awards
+features[field_instance][] = node-researcher_profile-field_rp_biography
+features[field_instance][] = node-researcher_profile-field_rp_conversation_profile
+features[field_instance][] = node-researcher_profile-field_rp_expertise
+features[field_instance][] = node-researcher_profile-field_rp_facebook
+features[field_instance][] = node-researcher_profile-field_rp_first_name
+features[field_instance][] = node-researcher_profile-field_rp_has_academic_roles
+features[field_instance][] = node-researcher_profile-field_rp_has_awards
+features[field_instance][] = node-researcher_profile-field_rp_has_key_industry
+features[field_instance][] = node-researcher_profile-field_rp_has_keynote_invitations
+features[field_instance][] = node-researcher_profile-field_rp_has_media_appearances
+features[field_instance][] = node-researcher_profile-field_rp_has_memberships
+features[field_instance][] = node-researcher_profile-field_rp_has_ota
+features[field_instance][] = node-researcher_profile-field_rp_industry_roles
+features[field_instance][] = node-researcher_profile-field_rp_institute_best_align
+features[field_instance][] = node-researcher_profile-field_rp_institute_primary
+features[field_instance][] = node-researcher_profile-field_rp_job_title
+features[field_instance][] = node-researcher_profile-field_rp_job_title_variation
+features[field_instance][] = node-researcher_profile-field_rp_keynotes
+features[field_instance][] = node-researcher_profile-field_rp_last_name
+features[field_instance][] = node-researcher_profile-field_rp_linkedin
+features[field_instance][] = node-researcher_profile-field_rp_media
+features[field_instance][] = node-researcher_profile-field_rp_memberships
+features[field_instance][] = node-researcher_profile-field_rp_name_variation
+features[field_instance][] = node-researcher_profile-field_rp_ota
+features[field_instance][] = node-researcher_profile-field_rp_phone
+features[field_instance][] = node-researcher_profile-field_rp_photo
+features[field_instance][] = node-researcher_profile-field_rp_post_nominal
+features[field_instance][] = node-researcher_profile-field_rp_qualification
+features[field_instance][] = node-researcher_profile-field_rp_related_links
+features[field_instance][] = node-researcher_profile-field_rp_research_repo_link
+features[field_instance][] = node-researcher_profile-field_rp_shorter_biography
+features[field_instance][] = node-researcher_profile-field_rp_sup_is_available
+features[field_instance][] = node-researcher_profile-field_rp_sup_other
+features[field_instance][] = node-researcher_profile-field_rp_teaching_experience
+features[field_instance][] = node-researcher_profile-field_rp_title
+features[field_instance][] = node-researcher_profile-field_rp_twitter
+features[field_instance][] = node-researcher_profile-field_rp_use_photo
+features[field_instance][] = node-researcher_profile-field_rpa_email
+features[field_instance][] = node-researcher_profile-field_rpa_first_name
+features[field_instance][] = node-researcher_profile-field_rpa_funding
+features[field_instance][] = node-researcher_profile-field_rpa_job_title
+features[field_instance][] = node-researcher_profile-field_rpa_last_name
+features[field_instance][] = node-researcher_profile-field_rpa_middle_name
+features[field_instance][] = node-researcher_profile-field_rpa_orcid_id
+features[field_instance][] = node-researcher_profile-field_rpa_preferred_name
+features[field_instance][] = node-researcher_profile-field_rpa_publications
+features[field_instance][] = node-researcher_profile-field_rpa_staff_id
+features[field_instance][] = node-researcher_profile-field_rpa_sup_completed
+features[field_instance][] = node-researcher_profile-field_rpa_sup_current
+features[field_instance][] = node-researcher_profile-field_rpc_publication_count
+features[field_instance][] = node-researcher_profile-field_rpc_publication_type_count
+features[field_instance][] = paragraphs_item-find_researcher-field_researcher_link
+features[field_instance][] = paragraphs_item-rp_academic_role-field_rp_ar_organisation
+features[field_instance][] = paragraphs_item-rp_academic_role-field_rp_ar_period
+features[field_instance][] = paragraphs_item-rp_academic_role-field_rp_ar_role
+features[field_instance][] = paragraphs_item-rp_award-field_rp_a_award_name
+features[field_instance][] = paragraphs_item-rp_award-field_rp_a_organisation
+features[field_instance][] = paragraphs_item-rp_award-field_rp_a_organisation_link
+features[field_instance][] = paragraphs_item-rp_award-field_rp_a_year
+features[field_instance][] = paragraphs_item-rp_funding-field_rp_fund_amount
+features[field_instance][] = paragraphs_item-rp_funding-field_rp_fund_investigators
+features[field_instance][] = paragraphs_item-rp_funding-field_rp_fund_period_duration
+features[field_instance][] = paragraphs_item-rp_funding-field_rp_fund_sources
+features[field_instance][] = paragraphs_item-rp_funding-field_rp_project_title
+features[field_instance][] = paragraphs_item-rp_industry_roles-field_rp_ir_organisation
+features[field_instance][] = paragraphs_item-rp_industry_roles-field_rp_ir_period
+features[field_instance][] = paragraphs_item-rp_industry_roles-field_rp_ir_role
+features[field_instance][] = paragraphs_item-rp_keynote-field_rp_k_details
+features[field_instance][] = paragraphs_item-rp_keynote-field_rp_k_title
+features[field_instance][] = paragraphs_item-rp_keynote-field_rp_k_year
+features[field_instance][] = paragraphs_item-rp_media_appearance-field_rp_ma_date
+features[field_instance][] = paragraphs_item-rp_media_appearance-field_rp_ma_link
+features[field_instance][] = paragraphs_item-rp_media_appearance-field_rp_ma_summary
+features[field_instance][] = paragraphs_item-rp_media_appearance-field_rp_ma_title
+features[field_instance][] = paragraphs_item-rp_membership-field_rp_m_organisation
+features[field_instance][] = paragraphs_item-rp_membership-field_rp_m_role
+features[field_instance][] = paragraphs_item-rp_ota-field_rp_ota_description
+features[field_instance][] = paragraphs_item-rp_ota-field_rp_ota_link
+features[field_instance][] = paragraphs_item-rp_ota-field_rp_ota_name
+features[field_instance][] = paragraphs_item-rp_publication-field_rpa_p_doi
+features[field_instance][] = paragraphs_item-rp_publication-field_rpa_p_type
+features[field_instance][] = paragraphs_item-rp_publication-field_rpa_p_year
+features[field_instance][] = paragraphs_item-rp_publication-field_rpc_p_citation
+features[field_instance][] = paragraphs_item-rp_supervision-field_rp_sup_role
+features[field_instance][] = paragraphs_item-rp_supervision-field_rp_sup_students
+features[field_instance][] = paragraphs_item-rp_supervision-field_rp_sup_study_level
+features[field_instance][] = taxonomy_term-research_institutes-field_research_institutes_abbr
+features[field_instance][] = taxonomy_term-research_institutes-field_research_institutes_is_f
+features[field_instance][] = taxonomy_term-research_institutes-field_research_institutes_link
+features[field_instance][] = user-user-field_rp_nid
+features[field_instance][] = user-user-field_rp_optin
+features[field_instance][] = user-user-field_rp_optout_timestamp
+
+features[filter][] = researcher
+
+features[formatters][] = research_profile_flags
+features[formatters][] = staff_profiles_media_flag
+
+features[image][] = rp_title_photo
+
+features[menu_custom][] = menu-researcher-profile-admin
+features[menu_custom][] = menu-researcher-role
+
+features[node][] = researcher_profile
+
+features[page_manager_handlers][] = myworkbench__panel_context_d9a962f8-61b0-4872-a5c3-d4c5c228ef28
+
+features[page_manager_pages][] = researcher_profile_workbench_tab
+
+features[paragraphs][] = find_researcher
+features[paragraphs][] = rp_academic_role
+features[paragraphs][] = rp_award
+features[paragraphs][] = rp_funding
+features[paragraphs][] = rp_industry_roles
+features[paragraphs][] = rp_keynote
+features[paragraphs][] = rp_media_appearance
+features[paragraphs][] = rp_membership
+features[paragraphs][] = rp_ota
+features[paragraphs][] = rp_publication
+features[paragraphs][] = rp_supervision
+
+features[rules_config][] = rules_vu_rp_researcher_profile_unpublished
+features[rules_config][] = rules_vu_rp_staff_profile_unpublished
+
+features[search_api_index][] = researcher_profiles
+
+features[taxonomy][] = membership_levels
+features[taxonomy][] = membership_organisations
+features[taxonomy][] = research_institutes
+
+features[user_permission][] = access researcher profile api log
+features[user_permission][] = administer membership_levels vocabulary terms
+features[user_permission][] = administer membership_organisations vocabulary terms
+features[user_permission][] = administer research_institutes vocabulary terms
+features[user_permission][] = administer researcher profile api configuration
+features[user_permission][] = administer researcher profile configuration
+features[user_permission][] = assign Researcher Profile Admin role
+features[user_permission][] = assign Researcher Profile Approver role
+features[user_permission][] = assign Researcher role
+features[user_permission][] = bypass maxlength
+features[user_permission][] = bypass researcher profile state transition validation
+features[user_permission][] = clear researcher profile api log
+features[user_permission][] = create field_rp_nid
+features[user_permission][] = create field_rp_optin
+features[user_permission][] = create field_rp_optout_timestamp
+features[user_permission][] = create researcher_profile content
+features[user_permission][] = delete any researcher_profile content
+features[user_permission][] = delete own researcher_profile content
+features[user_permission][] = delete researcher_profile unpublished
+features[user_permission][] = delete terms in research_institutes
+features[user_permission][] = ds_switch researcher_profile
+features[user_permission][] = edit any researcher_profile content
+features[user_permission][] = edit field_rp_nid
+features[user_permission][] = edit field_rp_optin
+features[user_permission][] = edit field_rp_optout_timestamp
+features[user_permission][] = edit own field_rp_nid
+features[user_permission][] = edit own field_rp_optin
+features[user_permission][] = edit own field_rp_optout_timestamp
+features[user_permission][] = edit own researcher_profile content
+features[user_permission][] = edit terms in research_institutes
+features[user_permission][] = manage researcher list
+features[user_permission][] = provision researcher profile demo content
+features[user_permission][] = use researcher profile workbench
+features[user_permission][] = use text format researcher
+features[user_permission][] = view any unpublished researcher_profile content
+features[user_permission][] = view field_rp_nid
+features[user_permission][] = view field_rp_optin
+features[user_permission][] = view field_rp_optout_timestamp
+features[user_permission][] = view own field_rp_nid
+features[user_permission][] = view own field_rp_optin
+features[user_permission][] = view own field_rp_optout_timestamp
+
+features[user_role][] = Researcher
+features[user_role][] = Researcher Profile Admin
+features[user_role][] = Researcher Profile Approver
+
+features[variable][] = auto_entitylabel_node_researcher_profile
+features[variable][] = auto_entitylabel_pattern_node_researcher_profile
+features[variable][] = auto_entitylabel_php_node_researcher_profile
+features[variable][] = better_formats_per_field_core
+features[variable][] = comment_anonymous_researcher_profile
+features[variable][] = comment_default_mode_researcher_profile
+features[variable][] = comment_default_per_page_researcher_profile
+features[variable][] = comment_form_location_researcher_profile
+features[variable][] = comment_preview_researcher_profile
+features[variable][] = comment_researcher_profile
+features[variable][] = comment_subject_field_researcher_profile
+features[variable][] = field_bundle_settings_node__researcher_profile
+features[variable][] = menu_options_researcher_profile
+features[variable][] = menu_parent_researcher_profile
+features[variable][] = metatag_enable_node__researcher_profile
+features[variable][] = metatag_enable_taxonomy_term__research_institutes
+features[variable][] = node_options_researcher_profile
+features[variable][] = node_preview_researcher_profile
+features[variable][] = node_submitted_researcher_profile
+features[variable][] = pathauto_node_researcher_profile_pattern
+features[variable][] = pathauto_taxonomy_term_membership_levels_pattern
+features[variable][] = pathauto_taxonomy_term_membership_organisations_pattern
+features[variable][] = pathauto_taxonomy_term_research_institutes_pattern
+features[variable][] = vu_rp_helpdesk_email
+features[variable][] = xmlsitemap_settings_node_researcher_profile
+
+features[views_view][] = researcher_profiles_summary
+features[views_view][] = researchers_profile_search
+features[views_view][] = researchers_profile_user_profile
+features[views_view][] = rp_institutes
+
+features[wysiwyg][] = researcher
+
+
+
+; Features exclude
+
+features_exclude[dependencies][vu_rp] = vu_rp
+features_exclude[dependencies][vu_rp_log] = vu_rp_log
+features_exclude[dependencies][vu_rp_api] = vu_rp_api
+features_exclude[dependencies][vu_rp_demo] = vu_rp_demo
+features_exclude[dependencies][vu_rp_list] = vu_rp_list
+features_exclude[dependencies][rules] = rules
+features_exclude[dependencies][workbench_moderation] = workbench_moderation
+
+
+
+; Files
+
+files[] = includes/modules/views/handlers/VuRpViewsInactiveHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsStatusFilterHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsStatusHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsJoin.inc
+files[] = includes/modules/views/handlers/VuRpViewsOptedOutHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsAmendedCountHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsDraftCountHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsPublishCountHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsReportStatusHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsReportStatusFilterHandler.inc
+files[] = includes/modules/views/handlers/VuRpViewsReviewCountHandler.inc

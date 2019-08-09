@@ -1,0 +1,241 @@
+@charset "UTF-8";
+.not-front .region-featured-content {
+  display: none;
+  width: 50%;
+  max-width: 464px;
+  position: absolute;
+  top: -155px;
+  z-index: 1;
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+  @include breakpoint(desktop) {
+    display: block;
+    right: -15px;
+  }
+}
+.region-featured-content .contact-us-any-questions {
+  position: absolute;
+  padding: 20px;
+  right: 5px;
+  top: 40px;
+  background-color: $light_blue;
+  box-shadow: 0 0px 12px rgba(0,0,0,0.5);
+  z-index: 1;
+  .chat-link-wrapper {
+    display: none;
+  }
+  &.open .chat-link-wrapper{
+    display: block;
+  }
+  .chat-link {
+    position:relative;
+    display:block;
+    color: $white;
+    font-size: 12px;
+    font-weight: bold;
+    height: 72px;
+    width: 124px;
+    text-align: center;
+    margin: 20px 0 20px 0;
+    padding: 20px 0 0 0;
+    white-space: normal;
+    background: transparent url(../images/chat-now-bg.png) 0 0 no-repeat;
+    &:hover, &:focus {
+      text-decoration: underline;
+      color: $white;
+      background-position: -125px 0;
+    }
+    &.ext:after {
+      color: $white;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+  }
+}
+.level-1-featured-content {
+  .level-1-featured-content-controller {
+    text-align: right;
+    padding-right: 35px;
+    .level-1-featured-content-controller-wrapper {
+      display: inline-block;
+      height: 20px;
+      line-height: 20px;
+      vertical-align: top;
+      margin-bottom: 15px;
+    }
+    .slick-dots {
+      padding: 0;
+      margin: 0;
+      li {
+        display: inline-block;
+        overflow: hidden;
+        margin-right: 8px;
+        button {
+          font-size: 9px;
+          line-height: 20px;
+          background: none;
+          border: none;
+          padding: 0px;
+          color: white;
+          opacity: 0.5;
+          outline: none;
+        }
+        &.slick-active {
+          button {
+            opacity: 1;
+          }
+        }
+      }
+    }
+    .pause-play {
+      button {
+        background: none;
+        border: none;
+        padding: 0px;
+        color: white;
+        opacity: 0.5;
+        font-size: 12px;
+        line-height: 20px;
+        outline: none;
+        &.active {
+          opacity: 1;
+        }
+      }
+      .pause-button {
+        margin-right: 8px;
+      }
+      .play-button {}
+    }
+  }
+  .slick-slider {
+    padding: 0px;
+    margin: 0px;
+    position: relative;
+    @include box-shadow(0 0 12px rgba(0, 0, 0, 0.5));
+    &:after {
+      background: transparent none repeat scroll 0 0;
+      border-right: 15px solid transparent;
+      border-top: 15px solid black;
+      bottom: auto;
+      content: " ";
+      display: block;
+      position: absolute;
+      right: 0;
+      width: 0;
+      z-index: -1;
+    }
+    figure {
+      position: relative;
+      img {
+        width: 100%;
+      }
+      figcaption {
+        background-image: url(../images/first-level-featured-content-bg.png);
+        color: white;
+        height: 170px;
+        width: 100%;
+        padding: 15px 25px 25px;
+        position: absolute;
+        bottom: -82px;
+        @include transition(bottom 0.3s ease-in-out 1s);
+        z-index: 15;
+        .field-name-body {
+          color: $grey2;
+          font-size: 12px;
+          line-height: 14px;
+          margin-bottom: 12px;
+          margin-top: 6px;
+          width: 80%;
+          float: left;
+        }
+        h2 {
+          color: white;
+          height: 72px;
+          line-height: 30px;
+          font-size: 24px;
+          margin-bottom: 10px;
+          margin-top: 0;
+          overflow: hidden;
+          padding: 0;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+        p {
+          width: 330px;
+        }
+        .btn.btn-primary {
+          padding: 4px 10px;
+          bottom: 35px;
+          right: 35px;
+          position: absolute;
+          color: $grey3;
+          @include font-helvetica-futurapt;
+          font-size: 18px;
+          line-height: 18px;
+          font-weight: 500;
+          @include text-shadow(none);
+          background-color: $yellow;
+          border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+          &:hover {
+            text-decoration: underline;
+            background-color: $yellow;
+            color: $grey3;
+            border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+          }
+        }
+      }
+    }
+    a {
+      position: relative;
+      z-index: 14;
+      display: block;
+      &:hover, &:focus {
+        figcaption {
+          bottom: 0;
+          @include transition(bottom 0.3s ease-in-out 0s);
+        }
+      }
+    }
+  }
+}
+
+.block-in-your-language {
+  position: relative;
+  margin-top: -32px;
+  right: 15px;
+  color: white;
+  padding: 15px 20px;
+  display: block;
+  background: black url(../images/vu-english-world-map.jpg);
+  -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+  -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
+  @include breakpoint(desktop_large){
+    height: 262px;
+  }
+  h2{
+    line-height: 36px !important;
+  }
+  ul {
+    padding: 0;
+    margin: 30px 0;
+    list-style: none;
+    font-size:14px !important;
+    line-height:18px !important;
+    li {
+      a, small {
+        color: white;
+      }
+      width: 200px;
+      margin-bottom: 10px;
+      &.col2 {
+        margin-left: 200px;
+        margin-top: -150px;
+      }
+      &.col2 ~ li {
+        margin-left: 200px;
+      }
+    }
+  }
+}

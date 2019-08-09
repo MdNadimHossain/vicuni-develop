@@ -1,0 +1,17 @@
+name = VU Main
+description = Generic Functions Related to the Victoria University Website
+package = VU
+version = "7.x-1.0"
+core = 7.x
+
+files[] = includes/vumain.inline_entity_form.inc
+files[] = includes/vumain_journey_planner/vumain.journey_planner.functions.php
+files[] = includes/vumain_google_maps/vumain.googlemaps.functions.php
+
+dependencies[] = drupagram
+dependencies[] = twitter_pull
+;dependencies[] = vu_course_search
+dependencies[] = vu_enquire_now
+dependencies[] = vu_midyear_intake
+;dependencies[] = vu_pathway
+

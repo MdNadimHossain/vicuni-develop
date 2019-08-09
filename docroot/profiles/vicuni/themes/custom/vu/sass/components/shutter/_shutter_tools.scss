@@ -1,0 +1,43 @@
+//
+// Tools block in shutter region.
+//
+
+.js-shutter {
+  #block-menu-block-main-menu-tools {
+    .menu-block-main-menu-tools {
+      ul {
+        display: flex;
+        margin: 0;
+        width: 100%;
+        padding-top: 40px;
+
+        li {
+          flex: 1 1 auto;
+          padding: 0 5px;
+          @extend %ext-arrow;
+
+          a {
+            background: $dark_blue11;
+            color: white !important;
+            font-size: $menuDropdownLinkFontSize;
+            height: 100%;
+            text-decoration: none !important;
+            @include transition(background-color 400ms, border 400ms, color 400ms);
+
+            &:hover,
+            &:focus {
+              background-color: $orange2 !important;
+              border-color: $orange2 !important;
+              color: $grey17 !important;
+            }
+
+            p {
+              font-size: $baseFontSizePx;
+              padding-top: 15px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

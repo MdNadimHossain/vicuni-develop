@@ -1,0 +1,45 @@
+@charset "UTF-8";
+.field-name-field-on-this-page {
+  border-bottom: 1px solid $grey7;
+  background: $lightestGreen;
+  margin: 10px 0 25px;
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+  .field-label {
+    color: $grey2;
+    font-size: 14px;
+    margin-bottom: 0;
+    margin-left: 25px;
+    line-height: 36px;
+    &:before {
+      background-image: url(../images/ots.png);
+      content: " ";
+      display: block;
+      float: left;
+      height: 8px;
+      margin-left: -16px;
+      margin-top: 14px;
+      width: 8px;
+    }
+  }
+  .field-items {
+    @include breakpoint(minitablet_DEPRECATED) {
+      @include column-count(2);
+    }
+    .field-item {
+      font-weight: 700;
+      background: transparent url(../images/ots.png) no-repeat scroll -8px 6px;
+      display: inline-block;
+      margin: 0 10px 10px 8px;
+      padding-left: 17px;
+      width: 100%;
+      a {
+        border: none;
+        &:visited, &:hover {
+          color: $blue;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

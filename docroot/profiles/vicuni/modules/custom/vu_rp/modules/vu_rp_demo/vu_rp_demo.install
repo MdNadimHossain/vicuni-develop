@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Install file for vu_rp_demo.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function vu_rp_demo_schema() {
+  $schema['vu_rp_demo'] = [
+    'description' => 'Stores references to demo content',
+    'fields' => [
+      'cid' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique content ID.',
+      ],
+      'entity_type' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The entity type',
+      ],
+      'bundle' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'description' => 'The entity bundle',
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'length' => 10,
+        'not null' => TRUE,
+        'description' => 'The entity id',
+      ],
+    ],
+    'primary key' => ['cid'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function vu_rp_demo_uninstall() {
+  drupal_load('module', 'vu_rp_demo');
+  vu_rp_demo_records_remove_all(TRUE);
+  db_drop_table('vu_rp_demo');
+}

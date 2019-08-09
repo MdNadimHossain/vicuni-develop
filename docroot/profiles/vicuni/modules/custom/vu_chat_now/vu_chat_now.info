@@ -1,0 +1,6 @@
+name = VU Chat Now
+description = Chat now functionality for VU
+package = VU
+core = 7.x
+
+files[] = tests/vu_chat_now.test

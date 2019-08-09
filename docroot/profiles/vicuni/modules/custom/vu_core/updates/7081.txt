@@ -1,0 +1,2 @@
+[PW-4624] Added token_filter module to give flexibility to the content team to add library hours for each campus for current date using token.
+Enables views block area module, adds custom search field to index and removes traces of previously removed modules.

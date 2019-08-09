@@ -1,0 +1,484 @@
+{
+    "name": "vicuni/vueduau",
+    "description": "Drupal 7 site for Victoria University",
+    "license": "proprietary",
+    "require": {
+        "composer/installers": "^1.2.0",
+        "cweagans/composer-patches": "^1.6.0",
+        "drupal-composer/preserve-paths": "^0.1.4",
+        "drupal/acquia_agent": "^3.4",
+        "drupal/acquia_connector": "^3.4",
+        "drupal/acquia_purge": "1.3",
+        "drupal/addressfield": "1.3",
+        "drupal/addressfield_staticmap": "1.0",
+        "drupal/admin_menu": "3.0-rc5",
+        "drupal/admin_menu_source": "^1.1",
+        "drupal/admin_views": "1.6",
+        "drupal/adminimal_admin_menu": "1.7",
+        "drupal/adminimal_theme": "1.24",
+        "drupal/adminrole": "^1.1",
+        "drupal/auditfiles": "dev-3.x#eac11ea",
+        "drupal/auto_entitylabel": "1.4",
+        "drupal/bean": "1.13",
+        "drupal/better_formats": "^1.0@beta",
+        "drupal/blockreference": "2.4",
+        "drupal/bootstrap": "3.23",
+        "drupal/breakpoints": "1.4",
+        "drupal/captcha": "1.5",
+        "drupal/captcha_webform": "1.2",
+        "drupal/cas": "1.5",
+        "drupal/cas_attributes": "1.0-rc3",
+        "drupal/chosen": "^2.1",
+        "drupal/coffee": "2.3",
+        "drupal/color_field": "1.8",
+        "drupal/colorbox": "2.13",
+        "drupal/conditional_fields": "^3.0@alpha",
+        "drupal/context": "3.10",
+        "drupal/context_condition_theme": "1.0",
+        "drupal/context_module": "dev-1.x#c575ac3",
+        "drupal/context_query_param": "1.3",
+        "drupal/context_var": "dev-1.x#9bdb041",
+        "drupal/cron_debug": "1.2",
+        "drupal/ctools": "1.12",
+        "drupal/custom_formatters": "dev-2.x#6a37b1f",
+        "drupal/custom_pub": "^1.4",
+        "drupal/date": "2.10",
+        "drupal/devel": "1.5",
+        "drupal/diff": "dev-3.x#3a03b6c",
+        "drupal/double_field": "^2.5",
+        "drupal/drafty": "1.0-beta4",
+        "drupal/draggableviews": "2.1",
+        "drupal/drupagram": "1.2",
+        "drupal/drupal": "7.67",
+        "drupal/drupal_helpers": "^1.2",
+        "drupal/ds": "^2.15",
+        "drupal/eck": "2.0-rc9",
+        "drupal/elysia_cron": "^2.6",
+        "drupal/email": "1.3",
+        "drupal/entity": "^1.9",
+        "drupal/entity_token": "^1.9",
+        "drupal/entitycache": "1.5",
+        "drupal/entityqueue": "^1.2",
+        "drupal/entityreference": "1.5",
+        "drupal/entityreference_autocomplete": "1.13",
+        "drupal/entityreference_autocreate": "^1.1",
+        "drupal/entityreference_backreference": "1.0-beta3",
+        "drupal/event_log": "^1.6",
+        "drupal/expire": "2.0-rc4",
+        "drupal/facebook_pull": "3.3",
+        "drupal/facetapi": "1.5",
+        "drupal/facetapi_bonus": "1.2",
+        "drupal/features": "2.10",
+        "drupal/features_banish": "1.1",
+        "drupal/features_extra": "1.0",
+        "drupal/feeds": "dev-2.x#b35a9fe",
+        "drupal/feeds_entity_processor": "dev-1.x#cc6c3d9",
+        "drupal/feeds_ex": "1.0-beta2",
+        "drupal/feeds_shared_source": "1.0",
+        "drupal/feeds_tamper": "1.1",
+        "drupal/feeds_tamper_string2id": "1.1",
+        "drupal/field_group": "1.5",
+        "drupal/field_permissions": "1.0",
+        "drupal/field_redirection": "2.6",
+        "drupal/fieldable_panels_panes": "1.11",
+        "drupal/file_entity": "2.4",
+        "drupal/focal_point": "1.2",
+        "drupal/fontyourface": "2.8",
+        "drupal/funnelback": "4.0.0-beta4",
+        "drupal/globalredirect": "1.5",
+        "drupal/google_analytics": "2.3",
+        "drupal/google_appliance": "1.14",
+        "drupal/google_appliance_suggest": "1.6",
+        "drupal/ife": "dev-2.x#6f467e8",
+        "drupal/inline_entity_form": "1.8",
+        "drupal/instapage_cms_plugin-instapage_cms_plugin": "^3.28",
+        "drupal/job_scheduler": "2.0-alpha3",
+        "drupal/jquery_update": "2.7",
+        "drupal/libraries": "2.3",
+        "drupal/link": "1.6",
+        "drupal/linkchecker": "1.2",
+        "drupal/linkit": "3.5",
+        "drupal/linkit_references": "1.0",
+        "drupal/list_predefined_options": "1.0",
+        "drupal/markup": "1.2",
+        "drupal/maxlength": "^3.2",
+        "drupal/media": "2.21",
+        "drupal/media_internet": "2.21",
+        "drupal/media_youtube": "dev-3.x#40dc4fe",
+        "drupal/memcache": "1.6",
+        "drupal/menu_attributes": "1.0",
+        "drupal/menu_block": "2.7",
+        "drupal/menu_node": "1.2",
+        "drupal/menu_position": "dev-1.x#db617d9",
+        "drupal/menu_view_unpublished": "1.0-beta3",
+        "drupal/metatag": "^1.25",
+        "drupal/mimemail": "^1.1",
+        "drupal/module_filter": "2.1",
+        "drupal/multiple_fields_remove_button": "1.5",
+        "drupal/node_clone": "1.0",
+        "drupal/node_edit_protection": "1.1",
+        "drupal/oauth": "3.4",
+        "drupal/page_url_qr_code_block": "1.2",
+        "drupal/pagepreview": "1.0-alpha1",
+        "drupal/panels": "3.9",
+        "drupal/paragraphs": "1.0-rc5",
+        "drupal/pathauto": "1.3",
+        "drupal/pathologic": "3.1",
+        "drupal/persistent_update": "1.0",
+        "drupal/phone": "1.0-beta1",
+        "drupal/picture": "2.13",
+        "drupal/queue_ui": "^2.0@RC",
+        "drupal/recaptcha": "2.3",
+        "drupal/redirect": "1.0-rc3",
+        "drupal/revisioning": "1.9",
+        "drupal/robotstxt": "^1.4",
+        "drupal/role_delegation": "1.1",
+        "drupal/rules": "2.10",
+        "drupal/search_api": "1.22",
+        "drupal/search_api_acquia": "2.4",
+        "drupal/search_api_autocomplete": "1.6",
+        "drupal/search_api_solr": "^1.14",
+        "drupal/search_api_spellcheck": "1.0",
+        "drupal/search_krumo": "1.6",
+        "drupal/shield": "1.3",
+        "drupal/site_map": "1.3",
+        "drupal/smart_ip": "^2.54",
+        "drupal/special_menu_items": "2.0",
+        "drupal/stage_file_proxy": "1.9",
+        "drupal/status_report": "^1.0@RC",
+        "drupal/strongarm": "2.0",
+        "drupal/styleguide": "dev-1.x#b8d51cf",
+        "drupal/text_noderef": "1.2",
+        "drupal/title": "1.0-alpha9",
+        "drupal/token": "1.7",
+        "drupal/token_filter": "^1.1",
+        "drupal/twitter": "5.11",
+        "drupal/twitter_pull": "2.0-alpha3",
+        "drupal/uuid": "1.3",
+        "drupal/uuid_features": "1.0-rc1",
+        "drupal/video_filter": "3.4",
+        "drupal/view_unpublished": "1.2",
+        "drupal/views": "3.22",
+        "drupal/views_arguments_extras": "1.0-beta1",
+        "drupal/views_block_area": "1.2",
+        "drupal/views_bulk_operations": "3.5",
+        "drupal/views_data_export": "3.2",
+        "drupal/views_php": "1.0-alpha3",
+        "drupal/vppr": "1.0",
+        "drupal/webform": "4.15",
+        "drupal/webform_ajax": "1.1",
+        "drupal/webform_validation": "1.15",
+        "drupal/workbench": "1.2",
+        "drupal/workbench_moderation": "3.0",
+        "drupal/wysiwyg": "2.5",
+        "drupal/xautoload": "4.5.0",
+        "drupal/xmlsitemap": "^2.6",
+        "library/CAS": "1.3.4",
+        "library/backbone": "1.3.3",
+        "library/bootstrap-sass": "3.3.7",
+        "library/bootstrap-select": "1.12.4",
+        "library/chosen": "^1.8",
+        "library/ckeditor": "3.6.6",
+        "library/colorbox": "1.6.4",
+        "library/jquery.ellipsis": "1.0.0",
+        "library/jquery.hoverintent": "1.8.1",
+        "library/jsonpath": "1.1.0",
+        "library/moment": "2.18.1",
+        "library/moment-timezone": "0.5.13",
+        "library/plupload": "1.5.8",
+        "library/slick": "1.6.0",
+        "library/underscore": "1.8.3",
+        "vlucas/phpdotenv": "^2.4",
+        "webflo/drupal-finder": "^1.0"
+    },
+    "require-dev": {
+        "behat/behat": "^3.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+        "dmore/behat-chrome-extension": "^1.1",
+        "drupal/coder": "^8.2.12",
+        "drupal/console": "^1.0",
+        "drupal/drupal-extension": "^v3.4",
+        "drush/drush": "^8.1",
+        "integratedexperts/behat-format-progress-fail": "^0.2",
+        "integratedexperts/behat-relativity": "^0.3.1",
+        "integratedexperts/behat-screenshot": "^0.7",
+        "integratedexperts/behat-steps": "^0.1.4",
+        "integratedexperts/robo-git-artefact": "^0.2.4",
+        "jakub-onderka/php-parallel-lint": "^1.0",
+        "phpunit/phpunit": "^5.7.19",
+        "symfony/filesystem": "^3.2.8",
+        "wimg/php-compatibility": "^8.1",
+        "zalas/behat-no-extension": "^1.1"
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/unit/"
+        ]
+    },
+    "config": {
+        "platform": {
+            "php": "7.1.16"
+        },
+        "process-timeout": 0,
+        "sort-packages": true
+    },
+    "conflict": {
+        "drupal/core": "8.*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": {
+        "drupal": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/7"
+        },
+        "library/backbone": {
+            "type": "package",
+            "package": {
+                "name": "library/backbone",
+                "version": "1.3.3",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/jashkenas/backbone/archive/1.3.3.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/bootstrap-sass": {
+            "type": "package",
+            "package": {
+                "name": "library/bootstrap-sass",
+                "version": "3.3.7",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/twbs/bootstrap-sass/archive/v3.3.7.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/bootstrap-select": {
+            "type": "package",
+            "package": {
+                "name": "library/bootstrap-select",
+                "version": "1.12.4",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/silviomoreto/bootstrap-select/archive/v1.12.4.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/CAS": {
+            "type": "package",
+            "package": {
+                "name": "library/CAS",
+                "version": "1.3.4",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/Jasig/phpCAS/archive/1.3.4.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/chosen": {
+            "type": "package",
+            "package": {
+                "name": "library/chosen",
+                "version": "1.8.7",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/harvesthq/chosen/releases/download/v1.8.7/chosen_v1.8.7.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/ckeditor": {
+            "type": "package",
+            "package": {
+                "name": "library/ckeditor",
+                "version": "3.6.6",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://download.cksource.com/CKEditor/CKEditor/CKEditor%203.6.6.2/ckeditor_3.6.6.2.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/colorbox": {
+            "type": "package",
+            "package": {
+                "name": "library/colorbox",
+                "version": "1.6.4",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/jackmoore/colorbox/archive/1.6.4.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/GeoIP2-phar": {
+            "type": "package",
+            "package": {
+                "name": "library/GeoIP2-phar",
+                "version": "2.9",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/maxmind/GeoIP2-php/releases/download/v2.9.0/geoip2.phar",
+                    "type": "file"
+                }
+            }
+        },
+        "library/jquery.ellipsis": {
+            "type": "package",
+            "package": {
+                "name": "library/jquery.ellipsis",
+                "version": "1.0.0",
+                "type": "drupal-library",
+                "source": {
+                    "url": "https://github.com/jjenzz/jquery.ellipsis.git",
+                    "type": "git",
+                    "reference": "7d928f4"
+                }
+            }
+        },
+        "library/jquery.hoverintent": {
+            "type": "package",
+            "package": {
+                "name": "library/jquery.hoverintent",
+                "version": "1.8.1",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/briancherne/jquery-hoverIntent/archive/v1.8.1.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/jsonpath": {
+            "type": "package",
+            "package": {
+                "name": "library/jsonpath",
+                "version": "1.1.0",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/Peekmo/JsonPath/archive/1.1.0.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/moment": {
+            "type": "package",
+            "package": {
+                "name": "library/moment",
+                "version": "2.18.1",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/moment/moment/archive/2.18.1.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/moment-timezone": {
+            "type": "package",
+            "package": {
+                "name": "library/moment-timezone",
+                "version": "0.5.13",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/moment/moment-timezone/archive/0.5.13.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/plupload": {
+            "type": "package",
+            "package": {
+                "name": "library/plupload",
+                "version": "1.5.8",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/moxiecode/plupload/archive/v1.5.8.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/slick": {
+            "type": "package",
+            "package": {
+                "name": "library/slick",
+                "version": "1.6.0",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/kenwheeler/slick/archive/1.6.0.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        "library/underscore": {
+            "type": "package",
+            "package": {
+                "name": "library/underscore",
+                "version": "1.8.3",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/jashkenas/underscore/archive/1.8.3.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
+            "Utilities\\composer\\DrupalSettings::create"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
+    },
+    "extra": {
+        "enable-patching": true,
+        "composer-exit-on-patch-failure": true,
+        "installer-paths": {
+            "docroot": [
+                "type:drupal-core"
+            ],
+            "docroot/profiles/vicuni/modules/contrib/{$name}": [
+                "type:drupal-module"
+            ],
+            "docroot/profiles/vicuni/themes/contrib/{$name}": [
+                "type:drupal-theme"
+            ],
+            "docroot/profiles/vicuni/libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "docroot/profiles/vicuni/drush/{$name}": [
+                "type:drupal-drush"
+            ]
+        },
+        "preserve-paths": [
+            "docroot/profiles/vicuni/vicuni.info",
+            "docroot/profiles/vicuni/vicuni.profile",
+            "docroot/profiles/vicuni/modules/custom",
+            "docroot/profiles/vicuni/themes/custom",
+            "docroot/profiles/vicuni/static",
+            "docroot/sites/default/settings.php",
+            "docroot/sites/default/settings.local.php",
+            "docroot/sites/default/default.settings.local.php",
+            "docroot/sites/default/files",
+            "docroot/robots.txt",
+            "docroot/.htaccess"
+        ],
+        "patches-file": "composer.patches.json"
+    }
+}

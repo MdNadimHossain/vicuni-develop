@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Install code for researcher profile researcher list.
+ */
+
+use Drupal\drupal_helpers\General;
+
+/**
+ * Implements hook_schema().
+ */
+function vu_rp_list_schema() {
+  $schema = [];
+
+  $schema['vu_rp_list_researchers'] = [
+    'description' => 'The list of researcher Staff IDs.',
+    'fields' => [
+      'id' => [
+        'description' => 'Primary Key: Identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'staff_id' => [
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function vu_rp_list_install() {
+  _vu_rp_list_install_import_researcher_list(drupal_get_path('module', 'vu_rp_list') . '/data/researchers_list.txt');
+}
+
+/**
+ * Import researchers list from a file.
+ */
+function _vu_rp_list_install_import_researcher_list($file) {
+  $content = file_get_contents($file);
+  if (!$content) {
+    throw new UpdaterException('Unable to open Researcher list file ' . $file);
+  }
+
+  vu_rp_list_record_remove_all();
+
+  $lines = explode("\n", $content);
+  $created = 0;
+  foreach ($lines as $staff_id) {
+    $staff_id = trim($staff_id);
+    if (!empty($staff_id)) {
+      vu_rp_list_record_save($staff_id);
+      $created++;
+    }
+  }
+
+  General::messageSet(sprintf('Created %s Staff ID records', $created));
+}

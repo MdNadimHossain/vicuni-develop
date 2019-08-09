@@ -1,0 +1,19 @@
+{
+  "name": "VU/VUCourseIndex",
+  "description": "Course index service for VU",
+  "require": {
+    "php": ">=5.3.3",
+    "zendframework/zendframework": "2.3.2",
+    "zendframework/zend-soap": "2.3.*@dev",
+    "doctrine/doctrine-orm-module": "0.8.0",
+    "doctrine/migrations": "1.0.*@dev",
+    "zendframework/zftool": "dev-master"
+  },
+  "require-dev": {
+    "zendframework/zend-developer-tools": "dev-master",
+    "phpunit/phpunit": "~3.7",
+    "vlucas/phpdotenv": "1.0.*",
+    "zfcampus/zf-deploy": "~1.0-dev"
+  },
+  "minimum-stability": "dev"
+}

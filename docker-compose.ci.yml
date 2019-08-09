@@ -1,0 +1,31 @@
+version: '2.3'
+
+x-volumes:
+  &default-volumes
+    volumes:
+      - .:/app/docroot/sites/default/files
+      - .:/app/tests/behat/fixtures
+
+x-php-environment:
+  &php-environment
+    XDEBUG_ENABLE: "false"
+    PHP_MEMORY_LIMIT: "1G"
+    PHP_APC_SHM_SIZE: "256M"
+    PHP_MAX_EXECUTION_TIME: -1
+    PHP_MAX_INPUT_VARS: 4000
+
+services:
+  cli:
+    environment:
+      << : *php-environment
+    << : *default-volumes
+  php:
+    environment:
+      << : *php-environment
+    << : *default-volumes
+  nginx:
+    << : *default-volumes
+  chrome:
+    image: selenium/standalone-chrome:3.141.59-oxygen
+    shm_size: '1gb'
+    << : *default-volumes

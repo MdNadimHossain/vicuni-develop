@@ -1,0 +1,121 @@
+//
+// Header layout
+//
+header[role="banner"] {
+  position: relative;
+  background: #ffffff;
+  // Show on top of sliders etc.
+  z-index: 201;
+  @include box-shadow(0 2px 6px 0 rgba(0, 0, 0, 0.04));
+
+  .header-menu-wrapper {
+    height: 50px;
+    @include breakpoint (desktop){
+      height: auto;
+    }
+
+    .logo {
+      display: inline-block;
+      height: 40px;
+      margin: 10px 0;
+      img {
+        max-height: 100%;
+      }
+
+      @include breakpoint(desktop) {
+        height: auto;
+        margin: 27px 0 25px 5px;
+      }
+    }
+
+    &.with-header-menu {
+      .container {
+        height: 50px;
+        @include breakpoint(desktop){
+        height: auto;
+        }
+        @include breakpoint(minitablet_DEPRECATED) {
+          position: relative;
+        }
+      }
+
+      @include breakpoint(desktop) {
+        .logo {
+          display: block;
+          position: absolute;
+          z-index: 100;
+          margin-left: $gridGutterWidth / 2;
+        }
+      }
+    }
+  }
+}
+
+// Make header fixed on mobile and tablet.
+header[role="banner"] {
+  &.fixed-mobile-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+
+    @include breakpoint (desktop) {
+      position: relative;
+    }
+  }
+}
+
+body.with-fixed-mobile-header {
+  // Add vertical spacing for body for the height of mobile header.
+  padding-top: 50px;
+  @include breakpoint (desktop) {
+    padding-top: 0;
+  }
+}
+
+#logo {
+  display: block;
+
+  height: 50px;
+  overflow: hidden;
+  width: 30px;
+  @include breakpoint (desktop) {
+    width: auto;
+  }
+
+  svg#logo-element {
+    height: 48px;
+    padding-bottom: 5px;
+    @include breakpoint(desktop) {
+      height: 50px;
+      width: 140px;
+      padding-bottom: 0px;
+    }
+  }
+
+  svg#logo-element *:not(#diamond) {
+    visibility: hidden;
+    pointer-events: none;
+    cursor: pointer;
+  }
+  svg#logo-element #diamond * {
+    visibility: visible;
+  }
+
+  @include breakpoint (desktop) {
+    svg#logo-element *:not(#diamond) {
+      visibility: visible;
+    }
+    svg#logo-element #diamond * {
+      visibility: visible;
+    }
+  }
+
+  &.diamond-only {
+    svg#logo-element *:not(#diamond) {
+      visibility: hidden;
+    }
+    svg#logo-element #diamond * {
+      visibility: visible;
+    }
+  }
+}

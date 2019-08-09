@@ -1,0 +1,10 @@
+name = VU Pathway
+description = Victoria University course pathways
+core = 7.x
+package = VU
+
+; Dependencies
+dependencies[] = feeds
+dependencies[] = field
+dependencies[] = vu_core
+

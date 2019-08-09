@@ -1,0 +1,28 @@
+//
+// Social Media Links block.
+//
+
+.social-media-links {
+  @include horizontal-list(false);
+  li {
+    margin-right: 38px;
+    @include breakpoint(minitablet_DEPRECATED) {
+      margin-bottom: 20px;
+    }
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .fa {
+    span {
+      @include sr-only();
+    }
+  }
+
+  &.vu-sydney-footer-media {
+    @include breakpoint(mobile_only) {
+      display: inline-flex;
+    }
+  }
+}

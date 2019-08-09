@@ -1,0 +1,21 @@
+//
+// Header layout - search trigger.
+//
+#page-header {
+  &.with-header-content {
+    .logo-wrapper {
+      // Search trigger inside of the logo wrapper (not the one in the primary menu).
+      [data-shutter-item-target="#block-vu-core-vu-funnelback-search"] {
+        @include breakpoint($breakpoint-md-up) {
+          display: none;
+        }
+        color: $color-blue-elephant;
+        font-size: 2em;
+        line-height: 18px;
+        position: absolute;
+        right: 65px;
+        top: 8px;
+      }
+    }
+  }
+}

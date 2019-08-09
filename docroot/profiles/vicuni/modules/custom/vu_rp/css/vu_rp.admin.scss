@@ -1,0 +1,55 @@
+//
+// Styles for administration UI overrides.
+//
+
+// sass-lint:disable no-color-literals
+.view-researcher-profiles-summary {
+  table {
+    th {
+      width: 30%;
+    }
+
+    &.rp_report_count_status_col { // sass-lint:disable-line class-name-format
+      border: 0;
+
+      td {
+        border-right: 0 !important; // sass-lint:disable-line no-important
+      }
+
+      tr {
+        &:nth-child(even) {
+          background-color: #f3f4ee;
+        }
+      }
+    }
+  }
+
+  td {
+    &.views-field-nothing,
+    &.views-field-nothing-1,
+    &.views-field-nothing-2 {
+      padding: 8px 0;
+    }
+  }
+}
+
+.view-rp-researchers-list {
+  table {
+    th {
+      width: 30%;
+    }
+  }
+}
+
+.frame-success {
+  border: 1px solid #0078c1;
+  max-width: 1024 * .5;
+  padding: 30px;
+}
+
+.frame-warning {
+  border: 1px solid #8c2e0b;
+  max-width: 1024 * .5;
+  padding: 30px;
+}
+

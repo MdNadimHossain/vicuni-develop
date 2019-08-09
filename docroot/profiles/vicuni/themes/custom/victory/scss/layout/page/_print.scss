@@ -1,0 +1,242 @@
+.print-friendly {
+  @media print {
+    // h1 {
+    //   font-size: 20px !important;
+    // }
+    // h2 {
+    //   font-size: 16px !important;
+    // }
+    // h3,
+    // body,
+    // p,
+    // li,
+    // div,
+    // .field-label,
+    // .paragraph--lead {
+    //   font-size: 10px !important;
+    // }
+    &.with-fixed-mobile-header {
+      padding-top: 0px;
+    }
+    header {
+      &.fixed-mobile-header {
+        @include breakpoint ($breakpoint-md-down) {
+          height: auto;
+          position: relative !important;
+        }
+      }
+      #page-header {
+        .primary,
+        .secondary {
+          display: none;
+        }
+        &.header-wrapper {
+          &.with-header-content {
+            .logo-wrapper {
+              border-bottom: 2px solid;
+              .logo {
+                position: relative !important;
+                margin-left: 0px;
+                left: 0px;
+
+                @include breakpoint ($breakpoint-md-down) {
+                  width: 140px;
+                  height: 50px;
+                  margin: 25px 0;
+                  svg#logo-element {
+                    height: 50px;
+                    width: 140px;
+                    padding-bottom: 0px;
+                  }
+                  svg#logo-element *:not(#diamond) {
+                    visibility: visible;
+                  }
+              
+                  svg#logo-element #diamond * {
+                    visibility: visible;
+                  }
+                }
+              }
+              .search,
+              .js-offcanvas-trigger {
+                display: none;
+              }
+            }
+          }
+          .page-title {
+            &.hidden-md,
+            &.hidden-lg {
+              display: block !important;
+              margin: 35px;
+              font-size: 18px;
+            }
+          }
+        }
+      }
+    }
+    .main-container {
+      a[href]:not([href^='#']) {
+        &:after {
+          content: " (" attr(href) ")" !important;
+          color: $color-blue-astral;
+        }
+      }
+      #title-box {
+        #block-ds-extras-title-area-course-information {
+          @include make-xs-column(7);
+          padding-left: 0px;
+        }
+        .title-box__feature,
+        .title-box__breadcrumb {
+          display: none;
+        }
+        .title-box__title {
+          margin: 40px 0px 0px;
+          height: auto;
+        }
+        .title-box__logo--top {
+          .cls-1 {
+            fill: black;
+          }
+          position: absolute;
+          top: 6px;
+          right: 4px;
+        }
+        .left-angled-shape,
+        .right-angled-shape {
+          border: none !important;
+        }
+      }
+      .international-switcher-icon {
+        display: none !important;
+      }
+      #enquire-now {
+        form {
+          display: none;
+        }
+      }
+      .tabs--primary,
+      .action-links,
+      #block-workbench-block {
+        display: none;
+      }
+      .field-course-essentials {
+        &.col-sm-6 {
+          @include make-xs-column(6)
+        }
+      }
+      .apply-block {
+        a[href] {
+          text-align: left;
+          padding-left: 0;
+        }
+      }
+      .enquire-now-info-block,
+      .field-name-course-fee-calculator-link-dom,
+      .fee-calculator-link,
+      .paragraphs-item-wysiwyg .field-name-field-body,
+      #whats-a-unit,
+      .field-name-course-nationally-recognised-blo,
+      .field-name-courses-related-courses,
+      .field-name-courses-tafe-resources {
+        padding-left: 0px !important;
+      }
+      .fee-calculator-link {
+        padding: 0px;
+        a {
+          padding: 0px;
+          margin: 0px;
+        }
+      }
+      .qr-code-container {
+        display: block !important;
+        .page-url-qr-code {
+          display: inline-block !important;
+          margin-bottom: 20px;
+          vertical-align: middle;
+          padding-right: 10px;
+          img {
+            border: 8px solid $color-black;
+          }
+          .page-url-qr-code-caption {
+            border: 1px solid;
+            margin-top: 20px;
+            border-radius: 5px;
+            color: $color-black !important;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            position: relative;
+            &::before {
+              content: "";
+              position: absolute;
+              width: 0;
+              height: 0;
+              border-style: solid;
+              border-width: 18px 18px 0 0;
+              border-color: $color-black transparent;
+              border-width: 0px 16px 16px 16px;
+              top: -16px;
+              margin-left: auto;
+              margin-right: auto;
+              left: 0;
+              right: 0;
+            }
+            &::after {
+              content: "";
+              border-color: $color-black transparent;
+              border-width: 0px 16px 16px 16px;
+            }
+            .fa-mobile {
+              &::before {
+                font-size: 26px;
+                padding-right: 4px;
+                vertical-align: middle;
+              }
+            }
+            span {
+              vertical-align: middle;
+            }
+          }
+        }
+        .qr-code-info {
+          vertical-align: middle;
+          display: inline-block;
+          width: 50%;
+        }
+      }
+    }
+    .sticky-header,
+    .sticky-btt,
+    .sticky-cta {
+      display: none !important;
+    }
+    #block-vu-core-vu-on-page-nav {
+      display: none !important;
+      &.sticky-on-page-nav {
+        display: none !important;
+      }
+    }
+    #block-ds-extras-course-essentials {
+      padding-left: 0px;
+    }
+    .accordion-inner {
+      position: relative;
+      .accordion-title-icon {
+        transform: rotate(45deg);
+      }
+      .accordion-content {
+        display: block;
+      }
+    }
+    .enquire-now-info-block {
+      background-color: transparent !important;
+    }
+    #block-vumain-vumain-acknowledgement-country,
+    #block-panels-mini-vu-block-upper-footer,
+    #block-panels-mini-vu-block-lower-footer .middle,
+    .pane-menu-menu-footer {
+      display: none;
+    }
+  }
+}

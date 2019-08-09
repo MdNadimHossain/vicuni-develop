@@ -1,0 +1,2 @@
+PW-5747 - Delete researcher profile logs.
+PW-5444 - Add custom field to search index.

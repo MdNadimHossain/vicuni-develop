@@ -1,0 +1,50 @@
+name = VU
+description = VU theme based on bootstrap 3.
+core = 7.x
+base theme = bootstrap
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Regions
+;;;;;;;;;;;;;;;;;;;;;
+
+regions[shutter] = Shutter
+regions[navigation] = Navigation
+regions[header] = Header
+regions[header_menu] = Header menu
+regions[highlighted] = Highlighted
+regions[help] = Help
+regions[homepage_slideshow] = Homepage Slideshow
+regions[home_col_left] = Homepage Left Column
+regions[home_col_right] = Homepage Right Column
+regions[home_social_media] = Homepage Social Media
+regions[inner_content_top] = Inner content, above the body
+regions[inner_content] = Inner content, below the body
+regions[content] = Content
+regions[featured_content] = Featured Content
+regions[sidebar_first] = Sidebar First
+regions[footer] = Footer
+regions[page_top] = Page top
+regions[page_bottom] = Page bottom
+regions[homepage_content_top] = Homepage Content Top (Full width)
+regions[homepage_bean_tiles] = Homepage Beans Tiles
+regions[homepage_bean_banners] = Homepage Beans Banners
+regions[subsite_landing_rhs] = Subsite Landing Right Hand Side
+regions[subsite_landing_above_tiles] = Subsite Landing Above Tiles
+regions[subsite_landing_below_tiles] = Subsite Landing Below Tiles
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Stylesheets
+;;;;;;;;;;;;;;;;;;;;;
+stylesheets[all][] = build/css/vu.min.css
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Scripts
+;;;;;;;;;;;;;;;;;;;;;
+scripts[] = build/js/vu.min.js
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Plugins
+;;;;;;;;;;;;;;;;;;;;;
+plugins[panels][layouts] = panels/layouts

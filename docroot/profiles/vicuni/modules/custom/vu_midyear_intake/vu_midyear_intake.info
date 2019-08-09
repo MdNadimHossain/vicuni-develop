@@ -1,0 +1,10 @@
+name = VU Mid-year Intake
+description = Manage Mid-Year intake period
+core = 7.x
+package = VU
+version = 7.x-1.0
+
+files[] = vu_midyear_intake.admin.inc
+
+dependencies[] = search_api
+dependencies[] = views

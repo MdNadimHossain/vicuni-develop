@@ -1,0 +1,1 @@
+PW-5345 - Enabling captcha modules and enabling captcha for webforms only.

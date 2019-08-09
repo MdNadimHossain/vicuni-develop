@@ -1,0 +1,11 @@
+[composer.{json,lock}]
+indent_size = 4
+
+[composer.patches.json]
+indent_size = 4
+
+[phpcs.xml]
+indent_size = 4
+
+[phpunit.xml]
+indent_size = 4

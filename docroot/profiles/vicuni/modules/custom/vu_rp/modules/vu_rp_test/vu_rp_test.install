@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * @file
+ * Install functions for Researcher Profile Test module.
+ */
+
+use Drupal\drupal_helpers\General;
+use Drupal\vu_rp_api\Client\RestInterface;
+
+/**
+ * Implements hook_schema().
+ */
+function vu_rp_test_schema() {
+  $schema['vu_rp_test_rest_responses'] = [
+    'description' => 'Stores test server records',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique record ID',
+      ],
+      'request_path' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'size' => 'normal',
+      ],
+      'request_method' => [
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => RestInterface::METHOD_GET,
+      ],
+      'response_content' => [
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ],
+      'comment' => [
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'pm' => ['request_path', 'request_method'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function vu_rp_test_install() {
+  $role = _vu_rp_test_install_create_test_role('Researcher Profile Admin');
+  if ($role) {
+    vu_core_create_role_test_users(2, [$role->rid => $role->name]);
+  }
+}
+
+/**
+ * Create new tole based on provided parent role.
+ */
+function _vu_rp_test_install_create_test_role($parent_role_name) {
+  $role_name = 'Researcher Profile Tester';
+  $parent_role = user_role_load_by_name($parent_role_name);
+  if (!$parent_role) {
+    General::messageSet('Unable to find role ' . $parent_role_name);
+
+    return NULL;
+  }
+
+  $admin_perms = user_role_permissions([$parent_role->rid => $parent_role->name]);
+  $test_perms = $admin_perms[$parent_role->rid];
+
+  // Check if role exists.
+  $test_role = user_role_load_by_name($role_name);
+  if (!$test_role) {
+    $test_role = (object) [
+      'name' => $role_name,
+    ];
+  }
+
+  $saved = user_role_save($test_role);
+  if (!$saved) {
+    throw new Exception('Unable to create new role ' . $role_name);
+  }
+
+  $test_perms['modify researcher profile api fields'] = TRUE;
+  $test_perms['administer test rest server'] = TRUE;
+  $test_perms['administer researcher profile configuration'] = TRUE;
+  $test_perms['clear researcher profile api log'] = TRUE;
+  $test_perms['access site reports'] = TRUE;
+  $test_perms['admin queue_ui'] = TRUE;
+  $test_perms['access content overview'] = TRUE;
+  $test_perms['view the administration theme'] = TRUE;
+  $test_perms['create researcher_profile content'] = TRUE;
+  $test_perms['access integration status report'] = TRUE;
+
+  if (module_exists('vu_rp_api')) {
+    $test_perms['administer researcher profile api configuration'] = TRUE;
+  }
+  if (module_exists('vu_rp_log')) {
+    $test_perms['access researcher profile api log'] = TRUE;
+  }
+  if (module_exists('vu_rp_demo')) {
+    $test_perms['provision researcher profile demo content'] = TRUE;
+  }
+  if (module_exists('elysia_cron')) {
+    $test_perms['view elysia_cron'] = TRUE;
+    $test_perms['execute elysia_cron'] = TRUE;
+  }
+  if (module_exists('queue_ui')) {
+    $test_perms['admin queue_ui'] = TRUE;
+  }
+
+  user_role_grant_permissions($test_role->rid, array_keys($test_perms));
+
+  General::messageSet('Created role ' . $test_role->name);
+
+  return $test_role;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function vu_rp_test_uninstall() {
+  user_role_delete('Researcher Profile Tester');
+}

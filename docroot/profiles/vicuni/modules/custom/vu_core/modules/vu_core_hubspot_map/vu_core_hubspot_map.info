@@ -1,0 +1,4 @@
+name = VU Core Hubspot Master Map
+description = List of fields that can be sent to hubspot.
+core = 7.x
+package = VU

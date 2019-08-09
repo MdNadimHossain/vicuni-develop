@@ -1,0 +1,171 @@
+//
+// Funnelback search form block in shutter region.
+//
+
+.js-shutter {
+  $local-color-white-opaque: rgba($color-white, 0.6);
+
+  #block-vu-core-vu-funnelback-search {
+    .block-title {
+      display: none;
+    }
+
+    // Restore BS row behavior.
+    .row {
+      @include make-row();
+    }
+
+    #vu-core-funnelback-search-form {
+      position: relative;
+
+      // Restore BS row behavior.
+      .row {
+        @include make-row();
+      }
+
+      .block-header {
+        display: none;
+      }
+
+      .form-item-query {
+        position: relative;
+        .input-group-addon {
+          display: none !important;
+        }
+        .dropdown {
+          position: absolute;
+          left: 0;
+          right: 0;
+          margin: 0 15px;
+
+          @include breakpoint($breakpoint-md) {
+            margin-left: $spacing-horizontal-header-gutter-md + $grid-gutter-width / 2;
+          }
+
+          @include breakpoint($breakpoint-lg-up) {
+            margin-left: $spacing-horizontal-header-gutter-lg + $grid-gutter-width / 2;
+          }
+          .dropdown-menu {
+            position: absolute;
+            width: 100%;
+            top: 0%;
+            left: 0%;
+            right: 0%;
+          }
+        }
+      }
+
+      input {
+        @include font(18px, 'futura', 500);
+
+        background: transparent;
+        color: $color-grey-dove;
+
+        &:focus,
+        &.focus {
+          color: black;
+          border: 1px solid $color-grey-dove;
+          width: 100%;
+          @include box-shadow(none);
+        }
+
+        &.form-control {
+          border-top: 0;
+          border-right: 0;
+          border-left: 0;
+          border-bottom: solid 2px $local-color-white-opaque;
+          border-radius: 0;
+          color: $color-white;
+          font-size: 18px;
+          height: 50px;
+          padding-left: 0;
+        }
+
+        @include placeholder($local-color-white-opaque);
+      }
+
+      .form-actions {
+        display: block;
+        margin: 0;
+
+        @include breakpoint($breakpoint-md) {
+          padding-right: $spacing-horizontal-header-gutter-md + $grid-gutter-width / 2;
+        }
+
+        @include breakpoint($breakpoint-lg-up) {
+          padding-right: $spacing-horizontal-header-gutter-lg + $grid-gutter-width / 2;
+        }
+
+        @include breakpoint($breakpoint-md-up) {
+          clear: none;
+        }
+
+        button {
+          @include font(18px, 'futura');
+          @include transition(background-color 400ms, border 400ms, color 400ms);
+
+          background: transparent;
+          border-radius: 4px;
+          border: solid 2px $color-white !important;
+          color: $color-white !important;
+          height: 50px;
+          text-decoration: none !important;
+          width: 100%;
+          margin: 2px 0 0 0;
+          min-width: auto;
+          line-height: 0.9;
+
+          &:hover,
+          &:focus {
+            background-color: $color-yellow-grandis !important;
+            border-color: $color-yellow-grandis !important;
+            color: $color-grey-tundora !important;
+          }
+        }
+      }
+
+      .form-item {
+        &.form-item-query {
+          display: block;
+          margin: 2px 0 0 0;
+
+          @include breakpoint($breakpoint-md) {
+            padding-left: $spacing-horizontal-header-gutter-md + $grid-gutter-width / 2;
+          }
+
+          @include breakpoint($breakpoint-lg-up) {
+            padding-left: $spacing-horizontal-header-gutter-lg + $grid-gutter-width / 2;
+          }
+
+          &.form-group {
+            margin-top: 0;
+            padding-left: 0;
+          }
+        }
+      }
+
+      input,
+      button {
+        line-height: 1.56;
+      }
+
+      label {
+        @extend .accessibility;
+      }
+
+      span.field-suffix {
+        color: $local-color-white-opaque;
+        display: block;
+        margin-top: $spacing-vertical-top-xs;
+        text-align: left;
+
+        @include breakpoint($breakpoint-xs) {
+          margin-bottom: $spacing-vertical-bottom-xs;
+        }
+        @include breakpoint($breakpoint-sm) {
+          margin-bottom: $spacing-vertical-bottom-xs;
+        }
+      }
+    }
+  }
+}

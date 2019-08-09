@@ -1,0 +1,27 @@
+$font-path: '../fonts';
+
+@font-face {
+  font-family: 'DINEngschriftStd';
+  src: url('#{$font-path}/2F403F_0_0.eot');
+  src: url('#{$font-path}/2F403F_0_0.eot?#iefix') format('embedded-opentype'), url('#{$font-path}/2F403F_0_0.woff2') format('woff2'), url('#{$font-path}/2F403F_0_0.woff') format('woff'), url('#{$font-path}/2F403F_0_0.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Engschrift';
+  src: url('#{$font-path}/TGL_0-1451Eng.ttf');
+}
+
+@font-face {
+  font-family: 'Tajawal';
+  src: url('#{$font-path}/Tajawal-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'tajawalMedium';
+  src: url('#{$font-path}/Tajawal-Medium.ttf');
+}
+
+@font-face {
+  font-family: 'tajawalLight';
+  src: url('#{$font-path}/Tajawal-Light.ttf');
+}

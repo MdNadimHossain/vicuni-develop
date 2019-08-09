@@ -1,0 +1,95 @@
+//
+// Sticky header component.
+//
+
+.sticky-header {
+  $local-header-height: 50px;
+  $local-logo-diamond-height: 40px;
+
+  @include box-shadow(0 2px 6px 0 rgba(0, 0, 0, 0.04));
+  @include transition(top 0.1s cubic-bezier(0.215, 0.610, 0.355, 1.000));
+
+  background: $color-white;
+  display: none;
+  height: $local-header-height;
+  left: 0;
+  padding: ($local-header-height - $local-logo-diamond-height) / 2 0;
+  right: 0;
+  top: 0;
+  z-index: $zindex-sticky-header;
+
+  @include breakpoint($breakpoint-md-up) {
+    display: block;
+  }
+
+  &.affix-top {
+    position: fixed;
+    top: -100%;
+  }
+
+  #logo {
+    height: $local-logo-diamond-height;
+  }
+
+  .logo-container {
+    float: left;
+    padding-top: 2px;
+    overflow: hidden;
+    width: 55px;
+  }
+
+  .page-title {
+    @include font(16px, 'futura');
+
+    display: table;
+    height: $local-logo-diamond-height;
+    line-height: $local-logo-diamond-height / 2;
+    vertical-align: top;
+
+    span {
+      display: table-cell;
+      vertical-align: middle;
+    }
+  }
+
+  .search-container {
+    line-height: $local-logo-diamond-height;
+    text-align: right;
+
+    a.search {
+      @include link-colors($color-grey-tundora);
+
+      font-size: 18px;
+
+      &:hover,
+      &:focus {
+        i {
+          font-size: 18px * 1.25;
+          @include transition(font-size 500ms ease-in-out);
+        }
+      }
+    }
+
+    .sticky-cta {
+      &.affix-top {
+        display: none;
+      }
+    }
+  }
+}
+
+.sticky-header--hidden {
+  top: -100px;
+}
+
+// Integration with top adminimal-menu.
+// Using custom breakpoint set in adminimal-menu.
+@media only screen and (min-width: 1024px) {
+  .adminimal-menu {
+    .sticky-header {
+      &.affix {
+        top: 28px;
+      }
+    }
+  }
+}

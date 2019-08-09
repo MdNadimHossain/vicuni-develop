@@ -1,0 +1,15 @@
+.pre-style {
+  overflow-y: scroll;
+  max-height: 100px;
+  font-size: .8em;
+}
+
+.views-widget-filter-event .form-item-event select {
+  min-width: 125px;
+  width: 100%;
+}
+
+.views-widget-filter-severity .form-item-severity select {
+  min-width: 125px;
+  width: 100%;
+}

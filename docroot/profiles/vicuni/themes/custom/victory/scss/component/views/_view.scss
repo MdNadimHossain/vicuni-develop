@@ -1,0 +1,47 @@
+.panel-pane.pane-fieldable-panels-pane {
+  .block-views {
+    h2.block-title {
+      @include font(20px, 'futura', 500);
+
+      color: $color-grey-tundora;
+      background: $color-white;
+      border: {
+        bottom: solid;
+        width: 2px;
+        color: $color-grey-wild_sand;
+      }
+      display: block;
+      letter-spacing: 0.5px;
+      margin: 0;
+      padding: 12px 15px;
+    }
+
+    .more-link {
+      @include font(18px, 'futura', 400);
+      @include border-radius(4px);
+
+      background-color: $color-yellow-grandis;
+      float: right;
+      margin-top: 12px;
+
+      a {
+        @include border-radius(4px);
+
+        color: $color-black-mine_shaft;
+        display: block;
+        padding: 12px 19px;
+        text-decoration: none;
+        width: 100%;
+
+        &:hover {
+          background-color: $color-blue-lochmara;
+          color: white;
+        }
+      }
+
+      @include breakpoint($breakpoint-xs) {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

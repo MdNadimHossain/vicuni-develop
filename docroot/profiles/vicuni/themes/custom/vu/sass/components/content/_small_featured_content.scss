@@ -1,0 +1,182 @@
+.not-front {
+  .region-featured-content .library-ask-a-librarian {
+    position: absolute;
+    padding: 20px;
+    right: 5px;
+    top: 0;
+    width: 395px;
+    background-color: $light_blue;
+    box-shadow: 0 0px 12px rgba(0,0,0,0.5);
+    z-index: 1;
+    .chat-with-librarian {
+      margin-bottom: 5px;
+    }
+    .btn-chat {
+      float: left;
+      margin-right: 10px;
+    }
+    .chat-times {
+      margin-left: 100px;
+      line-height: 18px;
+      margin-top: -3px;
+    }
+
+  }
+  .featured-content.slideshow {
+    position: relative;
+    .small-featured-content {
+      float: right;
+      position: relative;
+      margin-top: 35px;
+      margin-right: 50px;
+      width: 325px;
+      text-shadow: none;
+      .slideshow-slides {
+        height: 84px;
+        margin: 0;
+        overflow: hidden;
+        margin-left: 1px;
+        width: 325px;
+        a {
+          background-color: white;
+          display: block;
+          padding-left: 15px;
+          padding-right: 15px;
+          padding-top: 15px;
+          padding-bottom: 15px;
+          font-size: 13px;
+          font-weight: 500;
+          width: 257px;
+          margin-right: 0;
+        }
+        img {
+          width: 100px;
+          height: 56px;
+          vertical-align: middle;
+          float: left;
+          padding-right: 15px;
+        }
+        .caption-text {
+          height: 54px;
+          line-height: 18px;
+          overflow: hidden;
+        }
+      }
+      .slick-list {
+        float: left;
+        width: 257px;
+      }
+      .slick-arrow {
+        position: relative;
+        float: left;
+        height: auto;
+        width: auto;
+        text-indent: 0;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #36576f;
+        font-size: 0;
+        line-height: 0;
+        outline: none;
+        &:hover, &:focus {
+          background-color: #05c1ff;
+        }
+        &.slick-disabled {
+          cursor: default;
+          background-color: $grey14;
+        }
+      }
+      .slick-prev {
+        margin-right: 1px;
+        margin-left: 1px;
+        -webkit-filter: 0;
+        filter: 0;
+        width: 32px;
+        height: 84px;
+        background-color: #00b1eb;
+        color: white !important;
+        padding: 0;
+        opacity: 1;
+        border-radius: 2px 0 0 2px;
+        filter: alpha(opacity=100);
+        &:before {
+          display: inline-block;
+          font: normal normal normal 14px/1 FontAwesome;
+          line-height: 1;
+          font-size: 13px;
+          text-rendering: auto;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          content: '\f04a';
+          vertical-align: middle;
+        }
+      }
+      .slick-next {
+        margin-right: 1px;
+        margin-left: 1px;
+        -webkit-filter: 0;
+        filter: 0;
+        width: 32px;
+        height: 84px;
+        background-color: #00b1eb;
+        color: white !important;
+        padding: 0;
+        opacity: 1;
+        border-radius: 0 2px 2px 0;
+        filter: alpha(opacity=100);
+        &:before {
+          display: inline-block;
+          font: normal normal normal 14px/1 FontAwesome;
+          line-height: 1;
+          font-size: 13px;
+          text-rendering: auto;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          content: '\f04e';
+          vertical-align: middle;
+        }
+      }
+      .featured-content-controller {
+        position: absolute;
+        top: -25px;
+        right: 0;
+        text-align: right;
+        width: auto;
+        z-index: 100;
+        .featured-content-controller-wrapper {
+          display: inline-block;
+          height: 20px;
+          line-height: 20px;
+          vertical-align: top;
+          margin-bottom: 15px;
+        }
+        .slick-dots {
+          padding: 0;
+          margin: 0;
+          li {
+            display: inline-block;
+            overflow: hidden;
+            margin-left: 8px;
+            button {
+              font-size: 9px;
+              line-height: 20px;
+              background: none;
+              border: none;
+              padding: 0px;
+              color: white;
+              opacity: 0.5;
+              outline: none;
+            }
+            &.slick-active, &:hover {
+              button {
+                opacity: 1;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

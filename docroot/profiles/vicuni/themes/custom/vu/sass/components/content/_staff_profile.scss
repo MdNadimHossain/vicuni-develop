@@ -1,0 +1,66 @@
+@charset "UTF-8";
+.node-type-staff-profile {
+  .container.main-container {
+    .main-content-wrapper {
+      @include breakpoint(minitablet_DEPRECATED) {
+        padding-left: 0px;
+      }
+    }
+  }
+}
+
+.node-staff-profile {
+  .staff-wrapper {
+    margin-bottom: 15px;
+    @include breakpoint(minitablet_DEPRECATED) {
+      margin-bottom: 0px;
+    }
+  }
+  .field-name-field-credentials, .field-name-field-post-nominals {
+    font-style: italic;
+  }
+  .field-name-field-staff-email .field-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  h1 {
+    margin-bottom: 28px;
+    font-size: 36px;
+    font-weight: 500;
+    -webkit-font-smoothing: auto;
+  }
+  h2 {
+    padding-top: 20px;
+    margin-top: 25px;
+    border-top: 1px dotted $grey7;
+    &.job-title {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 22px;
+    }
+  }
+  .field-name-field-staff-picture {
+    margin-bottom: 20px;
+  }
+  .field-name-field-staff-assistant-name {
+    font-weight: bold;
+  }
+  .field-name-field-staff-assistant-other {
+    margin-top: 20px;
+  }
+  .field-name-field-staff-phone, .field-name-field-staff-fax, .field-name-field-staff-fax {
+    margin-top: 7px;
+    margin-bottom: 7px;
+  }
+  .staff-contact-details {
+    .fa {
+      color: $dark_blue2;
+      margin-right: 6px;
+    }
+  }
+}

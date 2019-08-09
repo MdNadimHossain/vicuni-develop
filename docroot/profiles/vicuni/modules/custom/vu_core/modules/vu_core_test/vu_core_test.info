@@ -1,0 +1,4 @@
+name = VU Core Test
+description = Victoria Universiy automated test helpers
+core = 7.x
+package = VU

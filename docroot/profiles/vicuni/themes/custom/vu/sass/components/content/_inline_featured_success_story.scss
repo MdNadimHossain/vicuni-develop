@@ -1,0 +1,57 @@
+@charset "UTF-8";
+.featured-inline-sucess-stories.entity-bean, .bean-featured-success-stories-block.entity-bean, .inline-entities-featured-success-story {
+  .field-name-field-success-story-entity > .field-items > .field-item{
+    width: 250px;
+    margin-bottom: 20px;
+    @include breakpoint(minitablet_DEPRECATED) {
+      float: left;
+      margin-bottom: 0;
+    }
+    &.odd {
+      @include breakpoint(minitablet_DEPRECATED) {
+        margin-left: 20px;
+      }
+      @include breakpoint(tablet) {
+        margin-left: 60px;
+      }
+    }
+    &.even {
+      @include breakpoint(minitablet_DEPRECATED) {
+        clear: left;
+      }
+    }
+  }
+  .field-name-field-excerpt {
+    background: $light_blue7;
+    color: #333333;
+    line-height: 20px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    margin-top: 0;
+    height: 140px;
+    @include breakpoint(minitablet_DEPRECATED) {
+      clear: left;
+    }
+    .field-item {
+      padding: 15px 10px;
+      font-style: italic;
+      font-size: 16px !important;
+      font-weight: 300;
+      line-height: 22.5px;
+      color: #333333;
+      &:before {
+        content: '"';
+      }
+      &:after {
+        content: '"';
+      }
+    }
+  }
+}
+
+.inline-entities-featured-success-story {
+  width: 250px;
+  float: left;
+  margin-right: 40px;
+}
+

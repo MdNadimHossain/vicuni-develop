@@ -1,0 +1,8 @@
+--- src/Funnelback.class.php	2018-07-18 09:00:54.000000000 +1000
++++ src/Funnelback.class.php	2018-12-12 17:03:02.000000000 +1100
+@@ -358,4 +358,4 @@
+ 
+     return TRUE;
+   }
+-
++}

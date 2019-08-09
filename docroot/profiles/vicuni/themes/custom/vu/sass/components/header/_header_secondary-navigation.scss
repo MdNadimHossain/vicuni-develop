@@ -1,0 +1,713 @@
+//
+// Secondary navigation (Main menu Level 2).
+//
+
+//
+// HOW IT ALL WORKS
+//
+// Dropdown is built using Bootstrap's dropdown JS component to trigger state
+// of the dropdown trigger (link in the horizontal menu), assign appropriate
+// open/close classes and handle keyboard input (esc, enter etc.).
+//
+// All open/close transiions are done through CSS transitions based on the
+// currently assigned open/close class.
+//
+// Close transition is setup to be faster then open transition to acommodate
+// faster switching between dropdowns.
+//
+// Structurally, each menu consists of menu wrapper (.menu-wrapper) and
+// menu (ul) inside; each meanu consists of menu items (li) with links (a) and other
+// menus inside.
+// div.menu-wrapper>ul.menu>li>a+(div.menu-wrapper...)
+//
+// First menu is a horizontal menu. First menu wrapper of each menu item of this
+// menu is an actuall droopdown positioned absolutely below the horizontal menu.
+// This dropdown takes 100% of the screen width.
+//
+// All children menus of the first menu of the dropdown are positioned
+// absolutely, so the dropdown height cannot be recalculated to these menus
+// heights by a browser. For this, we use JS to track currently hovered menu
+// items and active trail items.
+//
+// Technically, dropdown has it's min-height updated (and animated using CSS
+// transitions) based on the highest currently visibile menu. To calculate the
+// heights of each of the menus, they all are rendered with visibility set to
+// 'hidden'. Activating visibile state (hovering or active trail) changes
+// visibility to 'visibile'.
+//
+// Active trail has special handling, as it requires any currently hovered items
+// to override dropdown height on mouseover, but then restore the height based
+// on active trail item on mouseleave.
+// IMPORTANT: because of how visibility is calculated, all chidren menu
+// wrappers (except for dropdown itself) of the current active trail links
+// are shown/hidden using transition with the same parameters as dropdown
+// transitions. This is done to avoid dropdown height jumping because children
+// menus (menus on the active trail) will be pushing the height to the ma before
+// a transition has finished.
+
+// Width of the main menu container (Horizontal bar of Level 2 links).
+$menuMainWidth: $max_width;
+$menuMainItemFontSize: 20px;
+$menuMainItemVerticalSpacing: 39px;
+$menuMainItemHorizontalSpacing: 40px;
+$mainMenuItemColor: #444444;
+$mainMenuItemHoverColor: $vuBlue;
+$mainMenuItemActiveColor: $mainMenuItemHoverColor;
+// Width of the logo, placed on top of the menu.
+$menuMainLogoWidth: 250px;
+
+// Width of the dropdown inner container.
+$menuDropdownWidth: $max_width;
+$menuDropdownOpenSpeed: 720ms;
+$menuDropdownCloseSpeed: 200ms;
+// Number of columns in the menu.
+$columnCount: 3;
+$menuDropdownColumnVerticalPadding: 40px;
+
+$menuDropdownBgColor: #f9f9f9;
+$menuDropdownLinkFontSize: 18px;
+$menuDropdownLinkColor: $mainMenuItemColor;
+$menuDropdownLinkColorHover: $mainMenuItemHoverColor;
+$menuDropdownLinkColorActive: $menuDropdownLinkColorHover;
+$menuDropdownLinkVerticalPadding: 10px;
+$menuDropdownLinkHorizontalPadding: 20px;
+$menuDropdownLinkArrowUrl: '../images/menu-dropdown-arrow.svg';
+$menuDropdownLinkArrowHoverUrl: '../images/menu-dropdown-arrow-hover.svg';
+$menuDropdownLinkArrowActiveUrl: $menuDropdownLinkArrowHoverUrl;
+$menuDropdownLinkArrowWidth: 45px;
+$menuDropdownLinkArrowActiveWidth: 65px;
+$menuDropdownLinkArrowHeight: 20px;
+
+// The width of the left-side section in the dropdown menu.
+$menuDropdownSectionWidth: 200px;
+$menuDropdownSectionBg: #0d3955;
+
+// Enable visual debug for menu containers.
+$menuDebug: false;
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Internal - do not change.
+$menuDropdownOpenCloseEasingMenuMaxHeight: 1000px;
+$debugContainer: $menuDebug;
+$menuDropdownColumnPadding: $menuDropdownSectionWidth + $menuDropdownLinkHorizontalPadding;
+$menuDropdownColumnsWidth: $menuDropdownWidth - $menuDropdownColumnPadding;
+$menuDropdownColumnWidth: $menuDropdownColumnsWidth/$columnCount;
+$menuDropdownZIndexContainer: 1000;
+$menuDropdownZIndexActiveTrail: 1001;
+$menuDropdownZIndexHover: 1002;
+$menuDropdownZIndexClose: 1003;
+//
+// Mixin to add dropdown behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-dropdown() {
+  > .menu-wrapper {
+    position: absolute;
+    left: 0;
+    margin: 0;
+    z-index: $menuDropdownZIndexContainer;
+    // Animate min-height change driven by menu height from JS.
+    @include transition(min-height $menuDropdownCloseSpeed cubic-bezier(0.645, 0.045, 0.355, 1) 0s);
+    display: block;
+
+    // Here and below, these selectors are used for any elements that are
+    // positioned absolutely within dropdown and require to be opened/closed
+    // together with the dropdown (absolutely positioned elements within
+    // non-relatively positioned parent, as in our case, are taking out of the
+    // elements flow and cannot be collapsed by the parent).
+    > .menu,
+    .collapsible {
+      display: block;
+
+      max-height: 0;
+      min-height: 0;
+      // Collapsing speed is set to a lower value to allow smooth transition
+      // when switching between dropdowns.
+      // Make sure that min-height is transitioning at the same speed as
+      // max-height to prevent vertical jumps.
+      @include transition(max-height $menuDropdownCloseSpeed cubic-bezier(0.645, 0.045, 0.355, 1) 0s, min-height $menuDropdownCloseSpeed cubic-bezier(0.645, 0.045, 0.355, 1) 0s);
+      overflow: hidden;
+    }
+  }
+
+  &.open {
+    > .menu-wrapper {
+      display: block;
+      visibility: visible;
+
+      > .menu,
+      .collapsible {
+        max-height: $menuDropdownOpenCloseEasingMenuMaxHeight;
+        // Make sure that min-height is transitioning faster that max-height.
+        @include transition(max-height $menuDropdownOpenSpeed cubic-bezier(0.645, 0.045, 0.355, 1) 0s, min-height $menuDropdownOpenSpeed/2 cubic-bezier(0.645, 0.045, 0.355, 1) 0s);
+      }
+    }
+  }
+
+  &:hover {
+    > .menu-wrapper {
+      > .menu,
+      .collapsible {
+        max-height: $menuDropdownOpenCloseEasingMenuMaxHeight;
+      }
+    }
+  }
+  .js & {
+    &:hover {
+      > .menu-wrapper {
+        > .menu,
+        .collapsible {
+          max-height: 0;
+        }
+      }
+    }
+    &.open:hover {
+      > .menu-wrapper {
+        > .menu,
+        .collapsible {
+          max-height: $menuDropdownOpenCloseEasingMenuMaxHeight;
+        }
+      }
+    }
+  }
+}
+
+//
+//  Mixin to add column default behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-column($columnIndex) {
+  @if ($columnIndex > 1) {
+    > .menu-wrapper {
+      position: absolute;
+      visibility: hidden;
+      height: 100%;
+      @if ($columnIndex != 2) {
+        top: 0;
+      }
+      width: $menuDropdownColumnWidth * ($columnCount - $columnIndex + 1);
+    }
+  }
+}
+
+//
+//  Mixin to add no-js column-hover behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-column-hover-no-js() {
+  &:hover,
+  &.active-trail {
+    .menu-wrapper {
+      display: block;
+      visibility: visible;
+      background: $menuDropdownBgColor;
+      z-index: $menuDropdownZIndexActiveTrail;
+    }
+  }
+  &:hover {
+    .menu-wrapper {
+      z-index: $menuDropdownZIndexHover;
+    }
+  }
+
+  &.active-trail {
+    //> a {
+    //  @include menu-link($menuDropdownLinkColor, $menuDropdownLinkColorHover, $menuDropdownLinkColor, $menuDropdownLinkColorActive);
+    //  font-weight: 700;
+    //}
+  }
+
+  // Hover, active and active trail arrow, but only for expanded items.
+  &.expanded {
+    &:hover {
+      > a {
+        &:after {
+          background-image: url($menuDropdownLinkArrowHoverUrl);
+        }
+      }
+    }
+    &.active,
+    &.active-trail {
+      > a {
+        &:after {
+          background-image: url($menuDropdownLinkArrowActiveUrl);
+        }
+      }
+    }
+  }
+}
+
+//
+//  Mixin to add JS column-hover behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-column-hover-js() {
+  &.js-mouse-over,
+  &.js-mouse-over-start {
+    > .menu-wrapper {
+      display: block;
+      visibility: visible;
+      background: $menuDropdownBgColor;
+      z-index: $menuDropdownZIndexActiveTrail;
+    }
+  }
+
+  &.js-mouse-over,
+  &.js-mouse-over-start {
+    > .menu-wrapper {
+      z-index: $menuDropdownZIndexHover;
+    }
+  }
+
+  &.js-mouse-over-start {
+    > a {
+      @include menu-link($menuDropdownLinkColorActive, $menuDropdownLinkColorActive, $menuDropdownLinkColorActive, $menuDropdownLinkColorActive);
+    }
+  }
+
+  // Hover, active and active trail arrow, but only for expanded items.
+  &.expanded {
+    &.js-mouse-over,
+    &.js-mouse-over-start {
+      > a {
+        &:after {
+          background-image: url($menuDropdownLinkArrowHoverUrl);
+        }
+      }
+    }
+
+    &.js-mouse-over-start {
+      > a {
+        &:after {
+          background-image: url($menuDropdownLinkArrowActiveUrl);
+        }
+      }
+    }
+  }
+}
+
+//
+// Common menu link style.
+//
+@mixin menu-link($link, $hover, $visited, $active) {
+  color: $link;
+  @include futura();
+  cursor: pointer;
+  &:hover,
+  &:focus {
+    color: $hover;
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: $visited;
+
+    &:hover {
+      color: $hover;
+    }
+
+    &:focus {
+      color: $active;
+      &:hover {
+        color: $hover;
+      }
+    }
+  }
+}
+
+// @todo:
+// - add JS delays
+.region-header-menu .menu-level-2 {
+  display: none;
+  @include breakpoint (desktop) {
+    display: block;
+  }
+
+  // Reset all menu elements.
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+  .expanded,
+  .leaf {
+    margin: 0;
+    padding: 0;
+  }
+
+  // Level 2 - main horizontal menu.
+  > .menu-wrapper {
+    @include debug-container();
+
+    > .menu {
+      margin: 0 auto;
+      width: $menuMainWidth;
+      display: flex;
+
+      // Parent item for a dropdown menu.
+      > .level-2 {
+        @include menu-item-behaviour-dropdown();
+        @include menu-item-behaviour-column(1);
+        display: block;
+        flex: 1;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding-top: $menuMainItemVerticalSpacing;
+        padding-bottom: $menuMainItemVerticalSpacing;
+        padding-left: $menuMainItemHorizontalSpacing/2;
+        padding-right: $menuMainItemHorizontalSpacing/2;
+
+        &:first-child {
+          border-left: solid $menuMainLogoWidth transparent;
+        }
+
+        > a {
+          @include menu-link($mainMenuItemColor, $mainMenuItemHoverColor, $mainMenuItemColor, $mainMenuItemActiveColor);
+          font-size: $menuMainItemFontSize;
+          display: inline-block;
+          margin: 0 auto;
+
+          &.active,
+          &.active-trail {
+            color: $mainMenuItemActiveColor;
+            &:visited,
+            &:visited:hover {
+              color: $mainMenuItemActiveColor;
+            }
+          }
+        }
+
+        &.expanded {
+          // Add expanding arrow to Level2 expanded closed and open link.
+          > a {
+            @include fa-after("\f107");
+            &:after {
+              position: absolute;
+              top: 0;
+              right: 0;
+            }
+            padding-right: 1em;
+            &.has-top {
+              padding-right: 0;
+              &:after {display: none;}
+              span.top {
+                @include fa-after("\f107");
+              }
+            }
+          }
+
+          &.open > a {
+            @include fa-after("\f106");
+            &.has-top {
+              &:after {display: none;}
+              span.top {
+                @include fa-after("\f106");
+              }
+            }
+          }
+
+          // Level 3 - first-level dropdown and a container - closed.
+          > .menu-wrapper {
+            background: $menuDropdownBgColor;
+            // Make dropdown wrapper to be 100% width of the page.
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            // Move dropdown below Level 2 links block, but only on JS-enabled
+            // page. This is to allow hovering on JS-disabled pages where the
+            // dropdown must start right below the trigger item to maintain hover
+            // state to keep dropdown open while moving towards it.
+            .js & {
+              margin-top: $menuMainItemVerticalSpacing;
+            }
+
+            > .menu {
+              // Center dropdown links container.
+              margin: 0 auto;
+              width: $menuDropdownWidth;
+              // Give space for a section (see below).
+              padding-left: $menuDropdownColumnPadding;
+
+              @include debug-container();
+
+              // Section of the menu placed on left of the links.
+              .section {
+                position: absolute;
+                width: 100%;
+                left: 0;
+                top: 0;
+                height: 100%;
+
+                a {
+                  height: 100%;
+                  position: absolute;
+                  background: $menuDropdownSectionBg;
+                  width: 100%;
+                  right: 50%;
+                  margin-right: $menuDropdownWidth/2 - $menuDropdownSectionWidth;
+
+                  .inner {
+                    padding: 40px 40px 40px 20px;
+                    width: $menuDropdownSectionWidth;
+                    right: 0;
+                    position: absolute;
+
+                    h2.title {
+                      @include futura;
+                      font-size: 20px;
+                      line-height: 150%;
+                      color: #ffffff;
+                      margin-bottom: 30px;
+                    }
+
+                    .summary {
+                      display: inline-block;
+                      color: #ffffff;
+                      margin-bottom: 30px;
+                    }
+
+                    .button {
+                      @include border-radius(4px);
+                      display: inline-block;
+                      background-color: $vuBlue;
+                      border: solid 2px $vuBlue;
+                      font-size: 18px;
+                      text-align: center;
+                      color: #ffffff;
+                      padding: 8px;
+                      @include futura;
+                      white-space: nowrap;
+
+                      &:hover {
+                        color: #000000;
+                        border-color: #000000;
+                        background: none;
+                        cursor: pointer;
+                      }
+                    }
+                  }
+
+                  &:hover {
+                    background: #fed383;
+                    h2.title,
+                    .summary {
+                      color: #000000;
+                    }
+                  }
+
+                  &:focus {
+                    outline: 0;
+                  }
+                }
+              }
+
+              .leaf,
+              .expanded {
+                // All links in the dropdown columns.
+                a {
+                  @include menu-link($menuDropdownLinkColor, $menuDropdownLinkColorHover, $menuDropdownLinkColor, $menuDropdownLinkColorActive);
+                  position: relative;
+                  display: block;
+                  padding: $menuDropdownLinkVerticalPadding $menuDropdownLinkHorizontalPadding;
+                  // Leave space for arrow for all links.
+                  padding-right: $menuDropdownLinkArrowActiveWidth + $menuDropdownLinkHorizontalPadding;
+                  width: $menuDropdownColumnWidth;
+                  color: $menuDropdownLinkColor;
+                  font-size: $menuDropdownLinkFontSize;
+                }
+              }
+
+              // Add arrows to expanded items.
+              .expanded {
+                > a {
+                  &:after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    // Set the space to the maximum arrow width to allow it to
+                    // grow without reflowing links.
+                    width: $menuDropdownLinkArrowActiveWidth;
+                    height: $menuDropdownLinkArrowHeight;
+                    // Make arrow start at the top of the first line of the menu
+                    // link - add margin same as padding of the link.
+                    margin-top: $menuDropdownLinkVerticalPadding;
+                    background: url($menuDropdownLinkArrowUrl) no-repeat center left;
+                    @include transition(background-image 0.2s cubic-bezier(0.645, 0.045, 0.355, 1));
+                  }
+                }
+              }
+
+              > .level-3 {
+                @include menu-item-behaviour-column(2);
+
+                &.first {
+                  margin-top: $menuDropdownColumnVerticalPadding;
+                }
+
+                &.last {
+                  margin-bottom: $menuDropdownColumnVerticalPadding;
+                }
+
+                > .menu-wrapper {
+                  margin: 0;
+                  // This is positioned within grandfather.
+                  margin-left: $menuDropdownColumnWidth;
+                  top: $menuDropdownColumnVerticalPadding;
+                  @include debug-container();
+
+                  > .menu {
+                    position: relative;
+                    margin: 0;
+
+                    > .level-4 {
+                      @include menu-item-behaviour-column(3);
+
+                      // Add double vertical spacing due to the absolute
+                      // positioning of current menu container at this level.
+                      // Resulting height will be overflowing the container,
+                      // but will be hidden by it.
+                      &:last-child {
+                        padding-bottom: $menuDropdownColumnVerticalPadding * 2;
+                      }
+
+                      > .menu-wrapper {
+                        margin: 0;
+                        // This sits within previous level.
+                        margin-left: $menuDropdownColumnWidth;
+                        @include debug-container();
+                        > .menu {
+                          position: relative;
+                          margin: 0;
+
+                          > .level-5 {
+                            // Add double vertical spacing due to the absolute
+                            // positioning of current menu container at this level.
+                            // Resulting height will be overflowing the container,
+                            // but will be hidden by it.
+                            &:last-child {
+                              padding-bottom: $menuDropdownColumnVerticalPadding * 2;
+                            }
+
+                            // Reset right spacing for arrow in the last
+                            // column.
+                            &.leaf,
+                            &.expanded {
+                              a {
+                                // Leave space for arrow for all links.
+                                padding-right: $menuDropdownLinkHorizontalPadding;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            // Close button - added via JS.
+            .close {
+              @extend %close;
+              position: absolute;
+              bottom: 40px;
+              right: 40px;
+              //display: none;
+              @include transparent;
+              //@include transition(opacity, 2s ease-out);
+              //opacity: 0;
+              @include transition(opacity $menuDropdownCloseSpeed/2 linear 0);
+              z-index: $menuDropdownZIndexClose;
+            }
+          }
+
+          // No-JS version for dropdown.
+          .no-js & {
+            &:hover {
+              > .menu-wrapper {
+                > .menu {
+                  > .level-3 {
+                    @include menu-item-behaviour-column-hover-no-js();
+                    > .menu-wrapper {
+                      > .menu {
+                        > .level-4 {
+                          @include menu-item-behaviour-column-hover-no-js();
+                          > .menu-wrapper {
+                            > .menu {
+                              > .level-5 {
+                                @include menu-item-behaviour-column-hover-no-js();
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              .close {
+                //display: block;
+                // Default value for close button from Bootstrap.
+                opacity: .2;
+                @include transition(opacity $menuDropdownOpenSpeed/2 linear $menuDropdownOpenSpeed/2);
+              }
+            }
+          }
+
+          // JS-based version for dropdown.
+          &.open {
+            > .menu-wrapper {
+              > .menu {
+                > .level-3 {
+                  @include menu-item-behaviour-column-hover-js();
+                  > .menu-wrapper {
+                    > .menu {
+                      > .level-4 {
+                        @include menu-item-behaviour-column-hover-js();
+                        > .menu-wrapper {
+                          > .menu {
+                            > .level-5 {
+                              @include menu-item-behaviour-column-hover-js();
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            .close {
+              //display: block;
+              // Default value for close button from Bootstrap.
+              opacity: .2;
+              @include transition(opacity $menuDropdownOpenSpeed/2 linear $menuDropdownOpenSpeed/2);
+            }
+          }
+        }
+      }
+    }
+
+    // Debug last menu item in the list.
+    .menu {
+      li {
+        &:last-child {
+          @include debug-container(#1e6394);
+        }
+      }
+    }
+  }
+}
+
+// Responsive handling of overlay behavior.
+#mainMenuOverlay {
+  display: none !important;
+}
+
+@include breakpoint (desktop) {
+  #mainMenuOverlay {
+    display: block !important;
+  }
+}

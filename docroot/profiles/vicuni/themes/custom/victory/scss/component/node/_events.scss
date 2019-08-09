@@ -1,0 +1,282 @@
+.node-type-events {
+  .title-box__feature {
+    @include breakpoint($breakpoint-xs) {
+      display: none;
+    }
+    .img-responsive {
+      @include breakpoint($breakpoint-sm) {
+        height: 100% !important;
+      }
+      @include breakpoint($breakpoint-md) {
+        height: 100% !important;
+      }
+    }
+  }
+  .node-events {
+    &.view-mode-victory {
+      padding-top: 40px;
+      margin-top: 100px;
+    }
+    #event-essentials-block {
+      position: absolute;
+      top: 290px;
+      width: 100%;
+      @include breakpoint($breakpoint-xs) {
+        top: 190px;
+      }
+      @include breakpoint($breakpoint-lg) {
+        width: calc((100% - 1200px) / 2 + 1200px);
+      }
+      @include breakpoint($breakpoint-xl) {
+        width: calc((100% - 1200px) / 1.666 + 1200px);
+      }
+      .container {
+        @include breakpoint($breakpoint-md) {
+          padding: 0px;
+        }
+      }
+      .group-event-essentials {
+        display: flex;
+        @include breakpoint($breakpoint-xs) {
+          flex-direction: column;
+        }
+        .event-essential {
+          background-color: $color-white;
+          padding: 0px;
+          width: 31.555555%;
+          margin-right: 33px;
+          @include breakpoint($breakpoint-xs) {
+            width: 100%;
+            margin-bottom: 10px;
+          }
+          @include breakpoint($breakpoint-md) {
+            margin-left: 15px;
+            margin-right: 0px !important;
+            width: 30.111111%;
+            &:nth-child(2) {
+              margin-left: 31px;
+            }
+            &:last-child {
+              margin-left: 33px;
+            }
+          }
+          &:nth-child(2) {
+            margin-right: 29px;
+          }
+          &:last-child {
+            margin-right: 0px;
+          }
+          i {
+            color: $color-grey-tundora;
+            font-size: 20px;	
+            font-weight: 500;	
+            line-height: 26px;
+            padding: 24px 11px 0px 11px;
+            .header {
+              padding-left: 25px;
+              font-family: $font-futura;
+            }
+          }
+          p {
+            padding: 0px 10px 10px 55px;
+          }
+          ul {
+            padding-left: 48px;
+            list-style-type: none;
+            margin: 0px;
+            padding: 0px 10px 10px 55px;
+          }
+          a {
+            font-weight: bold;
+            border-bottom: solid 4px $color-yellow-grandis;
+            &:hover {
+              background-color: $color-yellow-grandis;
+              text-decoration: none;
+            }
+          }
+          #event_essential_locations {
+            padding: 0px 10px 10px 47px;
+          }
+          .field-event-cost {
+            padding: 0px 10px 10px 47px;
+          }
+        }
+      } 
+    }
+    #event-cta-button {
+      width: 370px;
+      float: right;
+      margin: 10px 0px 0px 0px;
+      @include breakpoint($breakpoint-xs){
+        width: 100%;
+        margin-top: 0px;
+      }
+      @include breakpoint($breakpoint-sm){
+        width: 215px;
+      }
+      @include breakpoint($breakpoint-md){
+        width: 293px;
+        margin-right: 14px;
+      }
+      a {
+        &.ext {
+          @include fa-suffix('\f08e', 12px);
+          &.ext::after {
+            background-image: none;
+          }
+        }
+      }
+    }
+    #event-content {
+      .event-content-left {
+        .event-body-text, .paragraphs-item-feature-link, .paragraphs-item-quick-facts, .paragraphs-item-video {
+          margin-bottom: 15px;
+        }
+        .paragraphs-item-feature-link {
+          @include breakpoint($breakpoint-md-up) {
+            .featured-entity__image {
+              height: 325px;
+            }
+            .featured-entity__title h3 {
+              margin-bottom: 20px;
+            }
+          }
+        }
+        .event-body-text {
+          a {
+            @include default-link;
+          }
+          @include breakpoint($breakpoint-xs){ margin-top: 15px; }
+        }
+        .field-name-multiple-event-dates {
+          @include breakpoint($breakpoint-sm-up) {
+            width: 100%;
+            float: left;
+          }
+        }
+        .accordion {
+          .accordion-inner--active {
+            overflow: hidden;
+          }
+        }
+        p.news-media-see-all {
+          color: #000000;	
+          font-family: $fonts-default;	
+          font-size: 14px;	
+          font-weight: bold;	
+          line-height: 22px;
+          margin-top: 13px;
+          @include breakpoint($breakpoint-sm-up) {
+            width: 100%;
+            float: left;
+          }
+          a {
+            border-bottom: solid 4px $color-yellow-grandis;
+            &:hover {
+              background-color: $color-yellow-grandis;
+              text-decoration: none;
+            }
+          }
+        }
+        .field-name-multiple-event-dates #all-event-dates-content {
+          margin-top: 36px;
+          color: $color-grey-tundora;
+          font-family: $fonts-default;
+          font-size: 14px;
+          line-height: 25px;
+          .event-dates-title {
+            h3 i {
+              padding-right: 10px;
+            }
+          }
+          ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+          }
+        }
+        .field-name-multiple-event-dates #cta_link_content {
+          margin-top: 20px;
+          color: $color-black;
+          font-family: $fonts-default;	
+          font-size: 14px;	
+          font-weight: bold;	
+          line-height: 22px;
+          margin-top: 13px;
+          a {
+            border-bottom: solid 4px $color-yellow-grandis;
+            &:hover {
+              background-color: $color-yellow-grandis;
+              text-decoration: none;
+            }
+            &.ext {
+              @include fa-suffix('\f08e', 12px);
+              &.ext::after {
+                background-image: none;
+              }
+            }
+          }
+        }
+      }
+      .event-content-right {
+        @include breakpoint($breakpoint-xs) {
+          margin-top: 10px;
+        }
+        .events-contact-us-info {
+          font-family: $fonts-default;
+          background-color: $color-blue-cello;
+          padding: 28px;
+          color: $color-white;
+          margin-bottom: 20px;
+          .entity-contact-information {
+            padding-bottom: 26px;
+          }
+          .entity-contact-information:last-child {
+            padding-bottom: 0px;
+          }
+          a {
+            color: $color-white;
+            @include default-link;
+          }
+          h3 {
+            margin-top: 0px;
+          }
+          .field-name-field-contact-phone,
+          .field-name-field-contact-email {
+            .label-inline {
+              display: inline;
+            }
+          }
+          .field-name-field-contact-email {
+            word-break: break-all;
+          }
+          .field-name-field-contact-title {
+            margin-bottom: 12px;
+          }
+          .entity-title,
+          .field-name-field-contact-area {
+            font-weight: 500;
+          }
+        }
+        .event-social-media-links {
+          margin-top: 15px;
+          display: flex;
+          @include breakpoint($breakpoint-sm) {
+            flex-direction: column;
+          }
+          @include breakpoint($breakpoint-md) {
+            flex-direction: column;
+          }
+          .share-media-text {
+            color: $color-charcoal;
+            font-family: $font-futura;
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 25px;
+            margin-right: 20px;
+          }
+        }
+      }
+    }
+  }
+}

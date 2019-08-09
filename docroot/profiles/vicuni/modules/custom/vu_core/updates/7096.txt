@@ -1,0 +1,1 @@
+PW-5304 - Log user events in CMS for the past 31 days.

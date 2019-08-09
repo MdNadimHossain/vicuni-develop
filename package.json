@@ -1,0 +1,34 @@
+{
+  "name": "vueduau",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NPM dependencies for Victoria University project",
+  "devDependencies": {
+    "autoprefixer": "^8.6.2",
+    "bootstrap-sass": "^3.3.7",
+    "breakpoint-sass": "^2.7.1",
+    "eslint": "5.0.1",
+    "grunt": "^1.0.3",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-uglify": "^3.3.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-exec": "^3.0.0",
+    "grunt-postcss": "^0.9.0",
+    "grunt-sass": "^2.1.0",
+    "grunt-sass-globbing": "^1.5.1",
+    "grunt-sass-lint": "^0.2.4",
+    "gruntify-eslint": "5.0.0",
+    "node-sass": "^4.12.0",
+    "patch-package": "^5.1.1",
+    "sass-lint": "^1.12.1"
+  },
+  "scripts": {
+    "build": "grunt",
+    "build-dev": "grunt dev",
+    "lint": "grunt lint",
+    "watch": "grunt watch",
+    "postinstall": "node_modules/.bin/patch-package"
+  }
+}

@@ -1,0 +1,161 @@
+default:
+  autoload: [ %paths.base%/tests/behat/bootstrap ]
+  gherkin:
+    filters:
+      # Allow skipping tests by tagging them with "@skipped".
+      tags: "~@skipped"
+    cache: ~
+  suites:
+    default:
+      paths: [ %paths.base%/tests/behat/features ]
+      contexts:
+        - Drupal\DrupalExtension\Context\BatchContext
+        - Drupal\DrupalExtension\Context\DrushContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+        - IntegratedExperts\BehatRelativityExtension\Context\RelativityContext
+        - VUDrupalContext
+        - VUMinkContext
+
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://nginx:8080
+      browser_name: chrome
+      files_path: %paths.base%/tests/behat/fixtures
+      goutte:
+        guzzle_parameters:
+          verify: false
+      selenium2:
+        browser: chrome
+        wd_host: "http://chrome:4444/wd/hub"
+        capabilities:
+          chrome:
+            switches:
+              - "--headless"
+              - "--disable-gpu"
+              - "--test-type=webdriver"
+              - "--window-size=1920,1080"
+              - "--high-dpi-support=1"
+              - "--force-device-scale-factor=1"
+              - "--remote-debugging-address=0.0.0.0"
+              - "--hide-scrollbars"
+            binary: /usr/bin/google-chrome-stable
+      javascript_session: selenium2
+    Drupal\DrupalExtension:
+      api_driver: drupal
+      drush_driver: drush
+      drupal:
+        drupal_root: docroot
+      drush:
+        root: docroot
+      region_map:
+        content: ".region-content"
+        admin theme content: "#content"
+        title box: "#title-box"
+    IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
+    # Allows to capture HTML and JPG screenshots (based on the driver used).
+    IntegratedExperts\BehatScreenshotExtension:
+      dir: %paths.base%/screenshots
+      fail: true
+      purge: false
+    # NoExtension allows parameter overrides without having to create another custom extension for that purpose.
+    Zalas\Behat\NoExtension:
+      parameters:
+        drupal.driver.drupal.class: VicUni\Driver\DrupalDriver
+        drupal.driver.cores.7.class: VicUni\Driver\Cores\Drupal7
+    # BehatRelativityExtension allows to assert elements position relative to each other.
+    IntegratedExperts\BehatRelativityExtension:
+      breakpoints:
+        mobile:
+          width: 320
+          height: 480
+        tablet:
+          width: 768
+          height: 1024
+        desktop:
+          width: 992
+          height: 1024
+          default: true
+        desktop_large:
+          width: 1200
+          height: 900
+
+        # Separate breakpoints for Victory theme.
+        # @todo: Remove old breakpoints in favour of these ones once VU theme is deprecated.
+        extra_small:
+          width: 320
+          height: 480
+        small:
+          width: 768
+          height: 900
+        medium:
+          width: 1000
+          height: 900
+        large:
+          width: 1260
+          height: 900
+        extra_large:
+          width: 1260
+          height: 900
+      # Vertical offset due to the height of the sticky nav.
+      offset: 150
+      components:
+        # Generic/re-usable components.
+        'page': "#page"
+        'accessibility strip': "#skip-link"
+        'accessibility link': "#skip-link .skip-to-main-content"
+        'accessibility information': "#skip-link .accessibility-information"
+        'accessibility strip close button': "#skip-link .close"
+        'article date': ".node .date-display-single"
+        'breadcrumbs': ".breadcrumb"
+        'media release article date': ".node .date"
+        'body': ".main-container .field-name-body"
+        'campus facilities': ".campuses-related-blocks-block-1"
+        'campus image': ".field-name-field-campus-image img"
+        'campus introduction': ".node-type-campus .field-name-field-introduction"
+        'campus journey planner': ".node-type-campus .journey-planner"
+        'campus list': ".campuses_sidebar_menu"
+        'campus map': ".node-type-campus .googlemaps"
+        'campus video': ".field-name-field-campus-video .campus-thumb-wrapper img"
+        'contact information': ".contact-info"
+        'content': ".main-container"
+        'content feature image': ".node .column-image img"
+        'event information': ".event-information"
+        'featured content': ".featured-content"
+        'featured content small': ".small-featured-content"
+        'footer': "body>footer"
+        'header': "header[role=banner]"
+        'introduction field': ".field-name-field-page-introduction"
+        'logo': "#logo"
+        'left nav main menu': ".main-menu-left-nav"
+        'left nav subsites': ".menu-subsites-left-nav"
+        'left nav collapse trigger': ".collapse-trigger"
+        'left nav collapse text': ".collapse-trigger-text"
+        'left nav list': "#left-nav-collapse"
+        'legacy title box': ".title-block"
+        'overlay': ".modal-backdrop.in"
+        'page title': ".node-title"
+        'primary navigation': "#block-menu-block-main-menu-level1"
+        'related links': ".event-related-links"
+        'search box': "#search-box"
+        'see all link': "p.see-all"
+        'staff profile contact information': ".staff-contact-details"
+        'staff profile photo': ".field-name-field-staff-picture"
+        'sticky header': ".sticky-header"
+        'secondary navigation': "#block-menu-block-main-menu-level2"
+        'title box': ".title-box"
+        'tiles container': ".tiles-wrapper"
+        'tools menu block': "#block-menu-block-main-menu-tools"
+        'tools menu mobile block': "#menu-nav-tools-collapse"
+        'search input': '.region-shutter input[name="query"]'
+        'search submit': '.region-shutter button[type="submit"]'
+
+# Parallel execution profiles.
+p0:
+  gherkin:
+    filters:
+      tags: "@p0&&~@skipped"
+p1:
+  gherkin:
+    filters:
+      tags: "@p1&&~@skipped"

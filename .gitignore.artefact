@@ -1,0 +1,45 @@
+# Replaces standard gitignore when artefact is built.
+
+# Ignore everywhere.
+*.jar
+*.out
+*.log
+.sass-cache
+*.css.map
+settings.generated.php
+default.settings.local.php
+
+# Ignore for this project.
+/.circleci/config.yml
+/.data
+/.dev/*
+/.dockerignore
+/.env
+/.eslintrc.json
+/.gitignore.artefact
+/.sass-lint.yml
+/behat.yml
+/composer.json
+/composer.lock
+/composer.patches.json
+/dependencies.yml
+/docker-compose*
+/docker/*
+/Dockerfile.*
+/Gruntfile.js
+/Makefile
+/node_modules
+/package-lock.json
+/package.json
+/patches
+/phpcs.xml
+/phpunit.xml
+/screenshots
+/scripts/behat-content.sh
+/scripts/ci/*
+/scripts/composer
+/scripts/acquia-download-backup.sh
+/scripts/drush
+/scripts/xdebug.sh
+/tests
+/vendor

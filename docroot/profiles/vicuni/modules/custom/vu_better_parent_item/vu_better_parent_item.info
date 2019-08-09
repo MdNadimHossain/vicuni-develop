@@ -1,0 +1,5 @@
+; $Id$
+name = VU Better Parent Item
+description = Alters the parent item select box to be browsable
+core = 7.x
+package = "VU"

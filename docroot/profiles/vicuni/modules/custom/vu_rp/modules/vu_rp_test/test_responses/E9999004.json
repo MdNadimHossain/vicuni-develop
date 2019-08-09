@@ -1,0 +1,1512 @@
+{
+  "ResearcherProfile": {
+    "staffID": "E9999004",
+    "title": "Prof",
+    "firstName": "TestFirstname4",
+    "lastName": "TestLastname4",
+    "preferredName": "TestPrefferedname4",
+    "orcID": 9809087666565,
+    "scorpusID": null,
+    "researcherID": null,
+    "secondName": "TestSecondname4",
+    "classification": "VISPR",
+    "email": "testFirstname4.testLastname4@vu.edu.au",
+    "managerId": null,
+    "jobTitle": "Professor",
+    "actContractEnd": "2049-12-31 00:00:00.0",
+    "supervisionAccreditationLevel": null,
+    "fieldsOfResearch": [
+      {
+        "FoRCode": "200502",
+        "FoRTitle": "Australian Literature (Excl. Aboriginal and Torres Strait Islander Literature)"
+      }
+    ],
+    "publications": [
+      {
+        "type": "Book",
+        "title": "Fear and loathing in the South China seas: the challenge of nationalism in Australia and Southeast Asia",
+        "references": [
+          "12937"
+        ],
+        "publicationDate": 19970101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15450",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Victoria University of Technology",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Fear and loathing in the South China seas: the challenge of nationalism in Australia and Southeast Asia",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book",
+        "title": "Free Radicals",
+        "references": [
+          "12942"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15455",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Australian Scholarly Publishing",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Free Radicals",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book",
+        "title": "Journey Without Arrival: The Life and Writing of Vincent Buckley",
+        "references": [
+          "12967"
+        ],
+        "publicationDate": 20090101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15480",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Australian Scholarly Publishing",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Journey Without Arrival: The Life and Writing of Vincent Buckley",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book",
+        "title": "Melbourne: City of Words",
+        "references": [
+          "12980"
+        ],
+        "publicationDate": 20130101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15493",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Australia Scholarly Publishing Pty Ltd",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Melbourne: City of Words",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book",
+        "title": "Multicultural Australia - fact, fiction or aspiration?",
+        "references": [
+          "12986"
+        ],
+        "publicationDate": 19850101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15499",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Footscray Institute of Technology, Department of Humanities",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Multicultural Australia - fact, fiction or aspiration?",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book",
+        "title": "States of Imagination: Nationalism, Citizenship and Multiculturalism in Writings From Australia and Southern Asia.",
+        "references": [
+          "13067"
+        ],
+        "publicationDate": 20010101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15585",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Australian Scholarly Publishing",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "States of Imagination: Nationalism, Citizenship and Multiculturalism in Writings From Australia and Southern Asia.",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Bad-tempered Democrats, Biased Australians: Socialist Realism, Overland and the Australian Legend",
+        "references": [
+          "13328"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15846",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "53",
+        "paginationEnd": "69",
+        "location": null,
+        "publisher": "The Vulgar Press",
+        "bookTitle": "Frank Hardy and the Literature of Commitment",
+        "DOI": null,
+        "titleOfPaper": "Bad-tempered Democrats, Biased Australians: Socialist Realism, Overland and the Australian Legend",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Case-study: Andrew Fabinyi and Cheshire",
+        "references": [
+          "13363"
+        ],
+        "publicationDate": 20060101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15881",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "19",
+        "paginationEnd": "21",
+        "location": null,
+        "publisher": "University of Queensland Press",
+        "bookTitle": "Paper Empires: A History of the Book in Australia, 1946 - 2005",
+        "DOI": null,
+        "titleOfPaper": "Case-study: Andrew Fabinyi and Cheshire",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Dialect of the Diaspora - Sourceland, Empire and Homelands.",
+        "references": [
+          "13477"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "15995",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": "1",
+        "issue": null,
+        "paginationBegin": "36",
+        "paginationEnd": "43",
+        "location": null,
+        "publisher": "Lythrum Press",
+        "bookTitle": "The Regenerative Spirit",
+        "DOI": null,
+        "titleOfPaper": "Dialect of the Diaspora - Sourceland, Empire and Homelands.",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Elements of Hope: Politics in the Later Novels of F. Sionil Jos�",
+        "references": [
+          "13512"
+        ],
+        "publicationDate": 20050101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16030",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "133",
+        "paginationEnd": "142",
+        "location": null,
+        "publisher": "Marshell Cavendish Academic",
+        "bookTitle": "Frankie Sionil José: A Tribute",
+        "DOI": null,
+        "titleOfPaper": "Elements of Hope: Politics in the Later Novels of F. Sionil Jos�",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Ian Turner as historian",
+        "references": [
+          "13688"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16219",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Australian Scholarly Publishing",
+        "bookTitle": "Free radicals of the left in postwar Melbourne",
+        "DOI": null,
+        "titleOfPaper": "Ian Turner as historian",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Images of Malays in Malaysian and Singapore Writing in English",
+        "references": [
+          "13703"
+        ],
+        "publicationDate": 20100101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16234",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "1",
+        "paginationEnd": "14",
+        "location": null,
+        "publisher": "Wakefield Press",
+        "bookTitle": "Reading the Malay World",
+        "DOI": null,
+        "titleOfPaper": "Images of Malays in Malaysian and Singapore Writing in English",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "In Search of the Celtic Sunrise",
+        "references": [
+          "13715"
+        ],
+        "publicationDate": 20100101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16246",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "37",
+        "paginationEnd": "46",
+        "location": null,
+        "publisher": "Wakefield Press",
+        "bookTitle": "Journeying and Journalling: Creative and Critical Mediations on Travel Writing",
+        "DOI": null,
+        "titleOfPaper": "In Search of the Celtic Sunrise",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Ken Gott: the fashioning of an activist",
+        "references": [
+          "13815"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16356",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Australian Scholarly Publishing",
+        "bookTitle": "Free radicals of the left in postwar Melbourne",
+        "DOI": null,
+        "titleOfPaper": "Ken Gott: the fashioning of an activist",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Kingdom of Neptune: seas, bays, estuaries and the danger of reading skua poetry (it may be embed in your skull)",
+        "references": [
+          "13816"
+        ],
+        "publicationDate": 20090101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16357",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "161",
+        "paginationEnd": "171",
+        "location": null,
+        "publisher": "Wakefield Press",
+        "bookTitle": "Something Rich and Strange: Sea Changes, Beaches and the Littoral in the Antipodes",
+        "DOI": null,
+        "titleOfPaper": "Kingdom of Neptune: seas, bays, estuaries and the danger of reading skua poetry (it may be embed in your skull)",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Nationalism and Imperialism",
+        "references": [
+          "13909"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16450",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "53",
+        "paginationEnd": "63",
+        "location": null,
+        "publisher": "Peter Lang",
+        "bookTitle": "Complicities: Connections and Divisions",
+        "DOI": null,
+        "titleOfPaper": "Nationalism and Imperialism",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "'This is Serious': From the Backblocks to the City",
+        "references": [
+          "14375"
+        ],
+        "publicationDate": 20090101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16942",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "48",
+        "paginationEnd": "59",
+        "location": null,
+        "publisher": "University Of Queensland Press",
+        "bookTitle": "Serious Frolic: Essays on Australian Humour",
+        "DOI": null,
+        "titleOfPaper": "'This is Serious': From the Backblocks to the City",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Unsettling the Southland: Myths of Possibility and Origin",
+        "references": [
+          "14428"
+        ],
+        "publicationDate": 20090101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "16995",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "195",
+        "paginationEnd": "205",
+        "location": null,
+        "publisher": "Forum Edizioni",
+        "bookTitle": "Bernard Hickey: A Roving Cultural Ambassador: Essays in his Memory",
+        "DOI": null,
+        "titleOfPaper": "Unsettling the Southland: Myths of Possibility and Origin",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Book Chapter",
+        "title": "Vincent Buckley: the turn to Ireland",
+        "references": [
+          "14452"
+        ],
+        "publicationDate": 20120101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "17019",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "109",
+        "paginationEnd": "116",
+        "location": null,
+        "publisher": "Melbourne University Custom Book Centre for Newman College, University of Melbourne and Melbourne Irish Studies Seminar Series",
+        "bookTitle": "Ireland Down Under",
+        "DOI": null,
+        "titleOfPaper": "Vincent Buckley: the turn to Ireland",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Composition",
+        "title": "Not in Tranquillity: a Memoir",
+        "references": [
+          "14653"
+        ],
+        "publicationDate": 20050101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "17236",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Not in Tranquillity: a Memoir",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Conference Paper",
+        "title": "Nationalism and imperialism - Australia's ambivalent relationship to Papua New Guinea and the Pacific islands",
+        "references": [
+          "16830"
+        ],
+        "publicationDate": 19990101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "19599",
+        "favouritePublication": false,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": "Singapore",
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Nationalism and imperialism - Australia's ambivalent relationship to Papua New Guinea and the Pacific islands",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Conference Paper",
+        "title": "The Monarchy and Australia",
+        "references": [
+          "17720"
+        ],
+        "publicationDate": 19940101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "20546",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": "Sir Robert Menzies Centre for Australian Studies",
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "The Monarchy and Australia",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Conference Paper",
+        "title": "Westminster abroad : fictions of power and authority in contemporary democracies",
+        "references": [
+          "18070"
+        ],
+        "publicationDate": 20160101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "20896",
+        "favouritePublication": true,
+        "journalTitle": null,
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "1",
+        "paginationEnd": "13",
+        "location": "University of Stirling",
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Westminster abroad : fictions of power and authority in contemporary democracies",
+        "titleOfConf": null,
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Enhanced abrasion resistant PVDF/nanoclay hollow fibre composite membranes for water treatment",
+        "references": [
+          "20488"
+        ],
+        "publicationDate": 20130701,
+        "authors": [
+          "Lai CY",
+          "Groth A",
+          "Gray S",
+          "Duke M"
+        ],
+        "url": null,
+        "recordID": "64523",
+        "favouritePublication": false,
+        "journalTitle": "Journal of Membrane Science",
+        "volume": "449",
+        "issue": null,
+        "paginationBegin": "146",
+        "paginationEnd": "157",
+        "location": null,
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": "10.1016/j.memsci.2013.07.062",
+        "titleOfPaper": "Enhanced abrasion resistant PVDF/nanoclay hollow fibre composite membranes for water treatment",
+        "titleOfConf": "Journal of Membrane Science",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "\"Leave the bloody writers alone\": the social responsibility of writers",
+        "references": [
+          "18175"
+        ],
+        "publicationDate": 19890101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "21001",
+        "favouritePublication": false,
+        "journalTitle": "Island magazine",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "33",
+        "paginationEnd": "37",
+        "location": null,
+        "publisher": "Island magazine",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "\"Leave the bloody writers alone\": the social responsibility of writers",
+        "titleOfConf": "Island magazine",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "A Haunted Land",
+        "references": [
+          "18353"
+        ],
+        "publicationDate": 20070101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "21187",
+        "favouritePublication": true,
+        "journalTitle": "Australian Studies",
+        "volume": "20",
+        "issue": "1&2",
+        "paginationBegin": "139",
+        "paginationEnd": "153",
+        "location": null,
+        "publisher": "British Australian Studies Association",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "A Haunted Land",
+        "titleOfConf": "Australian Studies",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "A true conservative: John Bray",
+        "references": [
+          "18588"
+        ],
+        "publicationDate": 19890101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "21424",
+        "favouritePublication": false,
+        "journalTitle": "Overland",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "32",
+        "paginationEnd": "34",
+        "location": null,
+        "publisher": "OL Society",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "A true conservative: John Bray",
+        "titleOfConf": "Overland",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Alan Marshall: Trapped in his Own Image",
+        "references": [
+          "18767"
+        ],
+        "publicationDate": 20040101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "21609",
+        "favouritePublication": true,
+        "journalTitle": "Life Writing",
+        "volume": "I",
+        "issue": "2",
+        "paginationBegin": "85",
+        "paginationEnd": "99",
+        "location": null,
+        "publisher": "Australian Public Intellectual Network, Australian Research Institute, Curtin University of Technology",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Alan Marshall: Trapped in his Own Image",
+        "titleOfConf": "Life Writing",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Australia's Pacific identity",
+        "references": [
+          "19161"
+        ],
+        "publicationDate": 19930101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "22010",
+        "favouritePublication": false,
+        "journalTitle": "Antipodes: A North American Journal of Australian Literature",
+        "volume": "7",
+        "issue": null,
+        "paginationBegin": "45",
+        "paginationEnd": "50",
+        "location": null,
+        "publisher": "American Association of Australian Literary Studies",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Australia's Pacific identity",
+        "titleOfConf": "Antipodes: A North American Journal of Australian Literature",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Beyond all law : Ian Wedde's New Zealand settlers",
+        "references": [
+          "19238"
+        ],
+        "publicationDate": 19920101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "22087",
+        "favouritePublication": false,
+        "journalTitle": "Australian and New Zealand Studies in Canada",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "119",
+        "paginationEnd": "125",
+        "location": null,
+        "publisher": "Westerly Centre",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Beyond all law : Ian Wedde's New Zealand settlers",
+        "titleOfConf": "Australian and New Zealand Studies in Canada",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Colonial mythmakers : the development of the realist tradition in Australian literature",
+        "references": [
+          "19577"
+        ],
+        "publicationDate": 19800101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "22428",
+        "favouritePublication": false,
+        "journalTitle": "Westerly",
+        "volume": "25",
+        "issue": null,
+        "paginationBegin": "43",
+        "paginationEnd": "50",
+        "location": null,
+        "publisher": "Westerly Centre",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Colonial mythmakers : the development of the realist tradition in Australian literature",
+        "titleOfConf": "Westerly",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Consuming passions : education - liberal, vocational and technical",
+        "references": [
+          "19701"
+        ],
+        "publicationDate": 19890101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "22552",
+        "favouritePublication": false,
+        "journalTitle": "Social Alternatives",
+        "volume": "7",
+        "issue": null,
+        "paginationBegin": "13",
+        "paginationEnd": "15",
+        "location": null,
+        "publisher": "Social Alternatives",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Consuming passions : education - liberal, vocational and technical",
+        "titleOfConf": "Social Alternatives",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Division and connection : Raymond Williams and the literature of displacement",
+        "references": [
+          "20107"
+        ],
+        "publicationDate": 19890101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "22965",
+        "favouritePublication": false,
+        "journalTitle": "Southern review (Baton Rouge)",
+        "volume": "22",
+        "issue": null,
+        "paginationBegin": "97",
+        "paginationEnd": "103",
+        "location": null,
+        "publisher": "Louisiana State University",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Division and connection : Raymond Williams and the literature of displacement",
+        "titleOfConf": "Southern review (Baton Rouge)",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Iris Milutinovic - between two worlds",
+        "references": [
+          "21596"
+        ],
+        "publicationDate": 19880101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "24470",
+        "favouritePublication": false,
+        "journalTitle": "The Library chronicle of the University of Texas at Austin",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "142",
+        "paginationEnd": "159",
+        "location": null,
+        "publisher": "Henry Ransom Humanities Research Center and University of Texas Library",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Iris Milutinovic - between two worlds",
+        "titleOfConf": "The Library chronicle of the University of Texas at Austin",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "John Meredith: Real Folk",
+        "references": [
+          "21669"
+        ],
+        "publicationDate": 19950101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "24546",
+        "favouritePublication": false,
+        "journalTitle": "Meanjin",
+        "volume": "54",
+        "issue": null,
+        "paginationBegin": "641",
+        "paginationEnd": "643",
+        "location": null,
+        "publisher": "Meanjin Company Ltd",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "John Meredith: Real Folk",
+        "titleOfConf": "Meanjin",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "John Milton - the poet as god",
+        "references": [
+          "21670"
+        ],
+        "publicationDate": 19800101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "24547",
+        "favouritePublication": false,
+        "journalTitle": "The Critical Review (JCU)",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Critical Review",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "John Milton - the poet as god",
+        "titleOfConf": "The Critical Review (JCU)",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Liberals and Conservatives",
+        "references": [
+          "21785"
+        ],
+        "publicationDate": 19900101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "24664",
+        "favouritePublication": false,
+        "journalTitle": "Journal of Australian Studies",
+        "volume": "14",
+        "issue": null,
+        "paginationBegin": "94",
+        "paginationEnd": "99",
+        "location": null,
+        "publisher": "Taylor & Francis",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Liberals and Conservatives",
+        "titleOfConf": "Journal of Australian Studies",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "New Issues, Old Issues: The Australian Tradition Revisited",
+        "references": [
+          "22233"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "25113",
+        "favouritePublication": false,
+        "journalTitle": "Overland",
+        "volume": "170",
+        "issue": null,
+        "paginationBegin": "49",
+        "paginationEnd": "56",
+        "location": null,
+        "publisher": "OL Society Ltd",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "New Issues, Old Issues: The Australian Tradition Revisited",
+        "titleOfConf": "Overland",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Peace Wars: The 1959 ANZ Peace Congress",
+        "references": [
+          "22596"
+        ],
+        "publicationDate": 20020101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "25477",
+        "favouritePublication": false,
+        "journalTitle": "Labour History: a journal of labour and social history",
+        "volume": "82",
+        "issue": "May",
+        "paginationBegin": "97",
+        "paginationEnd": "108",
+        "location": null,
+        "publisher": "Australian Society for th eStudy of Labour History",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Peace Wars: The 1959 ANZ Peace Congress",
+        "titleOfConf": "Labour History: a journal of labour and social history",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Poets versus novelists in Australia, 1949-1960 : Frank Hardy and James McAuley",
+        "references": [
+          "22734"
+        ],
+        "publicationDate": 19880101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "25615",
+        "favouritePublication": false,
+        "journalTitle": "journal of australian studies",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": "83",
+        "paginationEnd": "93",
+        "location": null,
+        "publisher": "Routledge",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Poets versus novelists in Australia, 1949-1960 : Frank Hardy and James McAuley",
+        "titleOfConf": "journal of australian studies",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Radical nationalism and socialist realism in Alan Marshall's autobiographical writing",
+        "references": [
+          "22994"
+        ],
+        "publicationDate": 20120601,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "52473",
+        "favouritePublication": true,
+        "journalTitle": "Journal of Australian Studies",
+        "volume": "36",
+        "issue": "2",
+        "paginationBegin": "229",
+        "paginationEnd": "244",
+        "location": null,
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": "10.1080/14443058.2012.673501",
+        "titleOfPaper": "Radical nationalism and socialist realism in Alan Marshall's autobiographical writing",
+        "titleOfConf": "Journal of Australian Studies",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Stephen Murray-Smith: his legacy",
+        "references": [
+          "23772"
+        ],
+        "publicationDate": 20080101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "26660",
+        "favouritePublication": true,
+        "journalTitle": "The La Trobe Journal",
+        "volume": null,
+        "issue": "82",
+        "paginationBegin": "19",
+        "paginationEnd": "26",
+        "location": null,
+        "publisher": "SLV Foundation",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Stephen Murray-Smith: his legacy",
+        "titleOfConf": "The La Trobe Journal",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "The British Tradition in John Morrison's Radical Nationalism",
+        "references": [
+          "24026"
+        ],
+        "publicationDate": 20020101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "26916",
+        "favouritePublication": true,
+        "journalTitle": "Australian Literary Studies",
+        "volume": "20",
+        "issue": "1",
+        "paginationBegin": "215",
+        "paginationEnd": "224",
+        "location": null,
+        "publisher": "University of Queensland Press",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "The British Tradition in John Morrison's Radical Nationalism",
+        "titleOfConf": "Australian Literary Studies",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "The End of an Affair: Intellectuals and the Communist Party 1956 - 1959",
+        "references": [
+          "24225"
+        ],
+        "publicationDate": 20030101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "27119",
+        "favouritePublication": true,
+        "journalTitle": "Journal of Australian Studies",
+        "volume": "27",
+        "issue": "78",
+        "paginationBegin": "71",
+        "paginationEnd": "82",
+        "location": null,
+        "publisher": "University of Queensland Press",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "The End of an Affair: Intellectuals and the Communist Party 1956 - 1959",
+        "titleOfConf": "Journal of Australian Studies",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "THE FOREST AND ITS UNDERGROWTH",
+        "references": [
+          "24262"
+        ],
+        "publicationDate": 20100101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "46609",
+        "favouritePublication": false,
+        "journalTitle": "OVERLAND",
+        "volume": null,
+        "issue": "199",
+        "paginationBegin": "80",
+        "paginationEnd": "85",
+        "location": null,
+        "publisher": null,
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "THE FOREST AND ITS UNDERGROWTH",
+        "titleOfConf": "OVERLAND",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "The power of the word : Salman Rushdie's The Satanic Verses",
+        "references": [
+          "24480"
+        ],
+        "publicationDate": 19900101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "27374",
+        "favouritePublication": false,
+        "journalTitle": "Westerly",
+        "volume": "35",
+        "issue": null,
+        "paginationBegin": "61",
+        "paginationEnd": "65",
+        "location": null,
+        "publisher": "Westerly Centre",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "The power of the word : Salman Rushdie's The Satanic Verses",
+        "titleOfConf": "Westerly",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "The Scandal of Ulysses",
+        "references": [
+          "24588"
+        ],
+        "publicationDate": 20000101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "27486",
+        "favouritePublication": false,
+        "journalTitle": "Tirra-Lirra",
+        "volume": "11",
+        "issue": "1",
+        "paginationBegin": "18",
+        "paginationEnd": "23",
+        "location": null,
+        "publisher": "Phoebe Publishing",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "The Scandal of Ulysses",
+        "titleOfConf": "Tirra-Lirra",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "'Vincent Buckley: Shaping the Biography'",
+        "references": [
+          "25023"
+        ],
+        "publicationDate": 20100101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "27926",
+        "favouritePublication": false,
+        "journalTitle": "Journal of the Association for the Study of Australian Literature",
+        "volume": null,
+        "issue": "SPEC. ISSUE",
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "ASAL",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "'Vincent Buckley: Shaping the Biography'",
+        "titleOfConf": "Journal of the Association for the Study of Australian Literature",
+        "editor": null,
+        "edition": null
+      },
+      {
+        "type": "Journal article",
+        "title": "Vincent Buckley: shaping the book",
+        "references": [
+          "25024"
+        ],
+        "publicationDate": 20100101,
+        "authors": [
+          "McLaren J"
+        ],
+        "url": null,
+        "recordID": "27927",
+        "favouritePublication": false,
+        "journalTitle": "Journal of the Association for the Study of Australian Literature",
+        "volume": null,
+        "issue": null,
+        "paginationBegin": null,
+        "paginationEnd": null,
+        "location": null,
+        "publisher": "Association for the Study of Australian Literature",
+        "bookTitle": null,
+        "DOI": null,
+        "titleOfPaper": "Vincent Buckley: shaping the book",
+        "titleOfConf": "Journal of the Association for the Study of Australian Literature",
+        "editor": null,
+        "edition": null
+      }
+    ],
+    "grantDetails": [
+
+    ],
+    "HDRDetails": [
+      {
+        "studentName": "MR George Elias",
+        "yearOfCompletion": "2013-05-02 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "The Effects of Water Immersion on Recovery in Australian Football",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Emma Gallaher",
+        "yearOfCompletion": "2013-08-30 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Recovering from repeat sprint activity and elite Australian football training and competition: Do compression garments help?",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Mathew Inness",
+        "yearOfCompletion": "2017-07-06 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Altitude and Team-Sport Athlete Physical Performance: Relevance and Time Course for Adaptation",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Michael Chiovitti",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Simulated Altitude and Physical Performance: A Practical Approach for Team Sports",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Denise Jennings",
+        "yearOfCompletion": "2013-08-30 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "GPS analysis of elite level hockey",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MISS Emily Walker",
+        "yearOfCompletion": "2017-06-19 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Energy Requirements and Body Composition of Professional Team-Sport Athletes",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Amber Rowell",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The Impact of Training and Competition Load on Fatigue, Performance and Injury in Elite Australian Football",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Kristal Hammond",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Combining Altitude and Heat:  The Effects of Intermittent Hypoxic Training in the Heat on Cycling Performance",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Brendan Lazarus",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The acute and longitudinal effects of pre-season training on strength and power, performance and anthropometrics in elite Australian footballers",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Alexandra (Alex) Bauer",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Training Response Based on the Energetic Profile:  Maximizing Individual Adaptation",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Scott Graham",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Effects of Training Load and Relationship to Position-Specific Match Performance in Netball",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Alireza Esmaeili",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Effects of injury and rehabilitation process on performance and injury recurrence rate in elite Australian footballers",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MR James McMahon",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Introductory Statistics and Exploratory Data Analysis Using SPSS",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Evan Coventry",
+        "yearOfCompletion": "2015-11-24 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Biomechanical Considerations of the Effect of Fatigue on Kicking in Australian Rules Football",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MR Ramon Rodriguez-Anderson",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The Role of Ventilation Acclimatisation to Hypoxia in Repeated-sprint Exercise",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Samuel (Sam) Howe",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Monitoring Training Load to Understand Fitness, Fatigue & Performance in Professional Rugby Union Athletes",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MR Michele Lo",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Effects of Travel on Professional Rugby Union Players",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Alice Sweeting",
+        "yearOfCompletion": "2017-06-19 00:00:00.0",
+        "HDRType": "PhD",
+        "titleOfResearch": "Discovering the Movement Sequences of Elite and Junior Elite Netball Athletes",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Nicholas (Nick) Flyger",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "Fatigue in Elite Track Sprint Cyclists",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MR Metodija Kjertakov",
+        "yearOfCompletion": null,
+        "HDRType": "Masters",
+        "titleOfResearch": "The Role of Heat as a Conditioning Stimulus in Endurance Athletes",
+        "supervisionRole": "Associate"
+      },
+      {
+        "studentName": "MS Ana Holt",
+        "yearOfCompletion": null,
+        "HDRType": "PhD",
+        "titleOfResearch": "The Reliability, Validity and Application of Power Meters in Rowing",
+        "supervisionRole": "Principal"
+      },
+      {
+        "studentName": "MS Susanne Ellens",
+        "yearOfCompletion": null,
+        "HDRType": "Masters",
+        "titleOfResearch": "Use of IMUs in Australian Football to Identify a Kick and its Corresponding Limb Velocity",
+        "supervisionRole": "Associate"
+      }
+    ]
+  }
+}

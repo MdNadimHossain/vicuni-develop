@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file
+ * VU Pathway module.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function vu_pathway_field_info() {
+  $field_info = [];
+  $field_info['vu_pathway'] = [
+    'label' => t('VU Pathway'),
+    'description' => t('This is a multi-value field for storing imported pathway data.'),
+    'settings' => [],
+    'instance_settings' => [],
+    'default_widget' => 'vu_pathway',
+    'default_formatter' => 'vu_pathway',
+  ];
+  return $field_info;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function vu_pathway_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function vu_pathway_field_widget_info() {
+  $widget_info = [];
+  $widget_info['vu_pathway'] = [
+    'label' => t('VU Pathway'),
+    'field types' => ['vu_pathway'],
+    'behaviors' => [
+      'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+      'default value' => FIELD_BEHAVIOR_NONE,
+    ],
+  ];
+  return $widget_info;
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function vu_pathway_field_formatter_info() {
+  $formatter = [];
+  $formatter['vu_pathway'] = [
+    'label' => t('vu_pathway'),
+    'field types' => ['vu_pathway'],
+  ];
+  return $formatter;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function vu_pathway_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // @TODO: This might be the place to filter or link for display.
+  return [];
+}
+
+/**
+ * Implements hook_feeds_processor_targets().
+ */
+function vu_pathway_feeds_processor_targets($entity_type, $bundle) {
+  $targets = [];
+  if ($entity_type == 'node' && $bundle == 'courses') {
+    $targets['field_pathways_cams'] = [
+      'name' => 'Pathways (CAMS)',
+      'description' => 'CAMS imported pathway data.',
+      'callback' => '_vu_pathway_set_pathways_target',
+    ];
+  }
+  return $targets;
+}
+
+function vu_pathway_field_is_empty($item, $field) {
+  return empty($item['code']);
+}
+
+/**
+ * Implements hook_set_field_target().
+ */
+function _vu_pathway_set_pathways_target(FeedsSource $source, $entity, $target, array $values, array $mapping) {
+  $yes_to_int = function ($value) {
+    if (empty($value)) {
+      return NULL;
+    }
+    return strtolower($value) === 'yes' ? 1 : 0;
+  };
+  // Define differences in field name / xml tag name.
+  $map = [
+    'type' => ['field' => 'type'],
+    'code' => ['field' => 'code'],
+    'title' => ['field' => 'title'],
+    'institution' => ['field' => 'institution'],
+    'country' => ['field' => 'country'],
+    'creditpoints' => ['field' => 'credit_points'],
+    'guaranteedentry' => [
+      'field' => 'guaranteed_entry',
+      'callback' => $yes_to_int,
+    ],
+  ];
+
+  foreach ($values as $delta => $value) {
+    $value = trim($value);
+    if (empty($value)) {
+      continue;
+    }
+    $xmlDoc = new DOMDocument();
+    $xmlDoc->loadXML($value);
+    $pathway_element = $xmlDoc->documentElement;
+    foreach ($pathway_element->childNodes as $pathway) {
+      if (!isset($map[$pathway->nodeName])) {
+        continue;
+      }
+      $value = $pathway->nodeValue;
+      if (isset($map[$pathway->nodeName]['callback'])) {
+        $value = $map[$pathway->nodeName]['callback']($value);
+      }
+      $entity->{$target}[$entity->language][$delta][$map[$pathway->nodeName]['field']] = $value;
+    }
+  }
+}

@@ -1,0 +1,183 @@
+<?php
+/**
+ * @file
+ * VU Enquire Now module.
+ */
+
+include_once 'vu_enquire_now.admin.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function vu_enquire_now_menu() {
+  $items = [
+    'boomi' => [
+      'type' => MENU_CALLBACK,
+      'access callback' => TRUE,
+      'page callback' => 'vu_enquire_now_boomi_xml',
+      'file' => 'vu_enquire_now.boomi.inc',
+      'file path' => drupal_get_path('module', 'vu_enquire_now'),
+    ],
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function vu_enquire_now_theme($existing, $type, $theme, $path) {
+  $items['vu_enquire_now'] = [
+    'variables' => [
+      'form' => NULL,
+      'info' => NULL,
+    ],
+    'template' => 'vu-enquire-now',
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter()
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function vu_enquire_now_form_node_type_form_alter(&$form, &$form_state, $form_id) {
+  _vu_enquire_now_form_node_type_form_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function vu_enquire_now_preprocess_node(&$vars) {
+  if (!variable_get('vu_enquire_now_webform', TRUE)) {
+    return;
+  }
+
+
+  $node = &$vars['node'];
+  if ($node->type == 'courses' && $node->status) {
+    // Only display on full node page.
+    if (arg(2) && arg(2) !== "tester") {
+      return;
+    }
+
+    // Only display on Domestic courses.
+    if (vu_courses_is_international_course_url()) {
+      return;
+    }
+
+    $enquire_now = variable_get('vu_enquire_now_webform_nid', NULL);
+    if (!empty($enquire_now['entity_id'])) {
+      $webform = node_load($enquire_now['entity_id']);
+
+      if (!$webform) {
+        return;
+      }
+
+      if (!node_access('view', $webform)) {
+        return;
+      }
+
+      $block_id = 'client-block-' . $enquire_now['entity_id'];
+      $enquire_now_block = block_load('webform', $block_id);
+      $enquire_now_info_block = block_load('vu_core', 'enquire_now_info');
+
+      $course_enquiry_form = _block_get_renderable_array(_block_render_blocks([$enquire_now_block]));
+      $course_enquiry_info = _block_get_renderable_array(_block_render_blocks([$enquire_now_info_block]));
+
+      if (!empty($course_enquiry_form['webform_' . $block_id]['#markup'])) {
+        $course_enquiry_form['webform_' . $block_id]['#markup'] = theme('vu_enquire_now', [
+          'form' => $course_enquiry_form['webform_' . $block_id]['#markup'],
+          'info' => $course_enquiry_info['vu_core_enquire_now_info']['#markup']
+        ]);
+      }
+
+      // Shiv in an anchor link.
+      $course_enquiry_form['#prefix'] = '<div id="goto-enquire-now"></div>';
+
+      $vars['course_partials']['enquire_now'] = render($course_enquiry_form);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter()
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param string $form_id
+ */
+function vu_enquire_now_form_alter(&$form, &$form_state, $form_id) {
+  $enquire_now = variable_get('vu_enquire_now_webform_nid', NULL);
+  if (!empty($enquire_now['entity_id'])) {
+    $enquire_now_form_id = 'webform_client_form_' . $enquire_now['entity_id'];
+    // Prefill course code and college name.
+    if ($form_id == $enquire_now_form_id) {
+      if ($course = node_load(arg(1))) {
+        $course_code = field_get_items('node', $course, 'field_unit_code');
+        if (!empty($course_code[0]['value'])) {
+          $form['submitted']['course']['#default_value'] = $course_code[0]['value'];
+        }
+        $course_college = field_get_items('node', $course, 'field_college');
+        if (!empty($course_college[0]['title'])) {
+          $form['submitted']['school']['#default_value'] = $course_college[0]['title'];
+        }
+      }
+    }
+  }
+
+  _vu_enquire_now_form_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_webform_submission_insert().
+ *
+ * @param object $node
+ * @param object $submission
+ */
+function vu_enquire_now_webform_submission_insert($node, $submission) {
+  module_load_include('inc', 'vu_enquire_now', 'vu_enquire_now.boomi');
+  _vu_enquire_now_webform_submission_insert($node, $submission);
+}
+
+/**
+ * Prepare for theming of the webform submission confirmation.
+ *
+ * @param array $variables
+ *
+ * @see template_preprocess_webform_confirmation()
+ */
+function vu_enquire_now_preprocess_webform_confirmation(&$variables) {
+  $enquire_now = variable_get('vu_enquire_now_webform_nid', NULL);
+  if (!empty($enquire_now['entity_id'])) {
+    $node = $variables['node'];
+
+    if ($node->nid != $enquire_now['entity_id']) {
+      return;
+    }
+
+    module_load_include('inc', 'webform', 'includes/webform.submissions');
+    $submission = webform_get_submission($node->nid, $variables['sid']);
+
+    // Find the course from submitted course code.
+    if (!empty($submission->data[7][0])) {
+      $course_code = $submission->data[7][0];
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle', 'courses')
+        ->fieldCondition('field_unit_code', 'value', $course_code)
+        ->range(0, 1);
+      $result = $query->execute();
+      if (!empty($result['node']) && count($result['node'])) {
+        $course_nid = key($result['node']);
+        // URL back to course.
+        $variables['url'] = empty($node->webform_block)
+          ? url('node/' . $course_nid)
+          : url(current_path(), ['query' => drupal_get_query_parameters()]);
+      }
+    }
+  }
+}

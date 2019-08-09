@@ -1,0 +1,92 @@
+#skip-link {
+  $barHeight: 50px;
+  $linkColor: $grey3;
+  $linkColorHover: #fed184;
+
+  background: $grey10;
+
+  .sr-only-focused {
+    @include sr-only-focused();
+  }
+
+  @include breakpoint(minitablet_DEPRECATED) {
+    .container {
+      // Remove padding for tablets (for desktop it is already removed by
+      // bootstrap).
+      padding-left: 0;
+      padding-right: 0;
+
+      .column-left {
+        float: left;
+      }
+      .column-right {
+        float: right;
+      }
+    }
+  }
+
+  a {
+    display: inline-block;
+    color: $linkColor;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 6px;
+    border-bottom: solid 4px $linkColorHover;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+      background: $linkColorHover;
+    }
+
+    // Copy martgins/settings from above to override values from sr-only-focused
+    // mixin.
+    &.sr-only-focused {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding-top: 6px;
+      &:focus {
+        outline: $linkColorHover auto 5px;
+      }
+    }
+
+    &.accessibility-information {
+      margin-right: 20px;
+    }
+  }
+
+  .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-right: 20px;
+    opacity: 1;
+    &:focus {
+      outline: 0;
+      span {
+        outline: $linkColorHover auto 5px;
+        opacity: .5;
+      }
+    }
+
+    span {
+      display: inline-block;
+      font-size: 34px;
+      font-weight: normal;
+      margin-top: -4px;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      opacity: .2;
+    }
+
+    @include breakpoint(minitablet_DEPRECATED) {
+      position: relative;
+      display: inline-block;
+      border-left: solid 1px #ababab;
+      padding-left: 20px;
+      &.sr-only-focused {
+        margin-top: 8px;
+      }
+    }
+  }
+}

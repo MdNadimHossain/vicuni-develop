@@ -1,0 +1,106 @@
+.paragraphs-item-component-section,
+.paragraphs-item-page-intro,
+.paragraphs-item-section,
+.paragraphs-items-field-rhs-components {
+  .paragraphs-items-field-paragraphs-left {
+    .paragraphs-item-wysiwyg {
+      background-color: transparent;
+      padding: 0px;
+      .field-name-field-body {
+        h3 {
+          margin-top: 22px;
+          margin-bottom: 12px;
+        }
+        p {
+          margin: 0 0 11px;
+        }
+      }
+    }
+  }
+  .field-name-field-paragraphs-right {
+    .paragraphs-item-wysiwyg {
+      @include breakpoint($breakpoint-xs) {
+        overflow: hidden; 
+      }
+    }
+    table.hours-today {
+      display: none;
+    }
+  }
+  .paragraphs-item-wysiwyg {
+    background-color: #f9f9f9;
+    padding: 30px;
+    .field-name-field-body {
+      padding-right: 0px !important;
+      padding-bottom: 0px !important;
+
+      h3 {
+        margin-top :0px;
+        margin-bottom: 20px;
+      }
+
+      p:last-child {
+        margin-bottom: 0px;
+    }
+      
+    }
+
+    .button {
+      width: 220.67px;
+      font-size: 20px;
+      line-height: 28px;
+      border-radius: 4px;
+      display: inline-block;
+      background-color: #ffd281;
+      border: solid 2px #ffd281;
+      text-align: center;
+      padding: 15px 32px;
+      font-family: "futura-pt", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-weight: 500;
+      white-space: nowrap;
+      height: 60px;
+      @include breakpoint($breakpoint-sm) {
+        width: 100%;
+        padding: 15px 3px;
+      }
+      @include breakpoint($breakpoint-xs) {
+        width: 100%;
+      }
+    }
+    .button:hover {
+      color: #ffffff;
+      background-color:#0078c1 !important;
+      border-color: transparent;
+      cursor: pointer;
+      box-shadow: none;
+      text-decoration: none;
+    }
+    .ask-a-librarian {		
+      color: #123955;	
+      font-family: "futura-pt", "Helvetica Neue", Helvetica, Arial, sans-serif;	
+      font-size: 20px;	
+      font-weight: 500;	
+    }
+
+  }
+
+  table.hours-today {
+    border-right: 1px solid #88b8e0;
+    width: 54%;
+  }
+}
+
+.paragraphs-item-component-section {
+  table.hours-today {
+    display: none;
+  }
+  .container .row .col-sm-12 {
+    .paragraphs-items-field-component-section-content-full.paragraphs-items-full {
+      .paragraphs-item-wysiwyg.full-width-custom-style {
+        background-color: $color-white;
+        padding: 0px;
+        @include padding-right-one-column;
+      }
+    }
+  }
+}

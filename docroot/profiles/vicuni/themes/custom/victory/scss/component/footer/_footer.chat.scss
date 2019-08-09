@@ -1,0 +1,94 @@
+//
+// Chat footer component.
+//
+.footer {
+  #block-panels-mini-vu-block-lower-footer {
+    .vu-chat-footer {
+      // Chat bubble with triangle.
+      .bubble {
+        $local-bubble-border-width: 2px;
+        $local-triangle-width: 18px;
+        $local-triangle-height: 18px;
+        $local-triangle-left: 16px;
+        $local-triangle-color: $color-blue-elephant;
+        $local-triangle-border-color: $color-white;
+
+        @include font(18px, 'futura');
+        @include link-color($color-white, $color-white, $color-white, $color-white);
+        display: block;
+        position: relative;
+        border: solid $local-bubble-border-width $color-white;
+        text-align: center;
+        padding: 10px 15px;
+        outline: 0;
+        margin-bottom: $local-triangle-height + $spacing-vertical-bottom-sm - $local-bubble-border-width;
+        width: 100%;
+        max-width: 170px;
+        @include center-block;
+
+        @include breakpoint($breakpoint-sm-up) {
+          margin-left: 0;
+        }
+
+        @include breakpoint($breakpoint-lg-up) {
+          margin-left: 0;
+          margin-right: 0;
+          margin-bottom: $local-triangle-height + $spacing-vertical-bottom-xs - $local-bubble-border-width;
+        }
+
+        &:before,
+        &:after {
+          content: "";
+          position: absolute;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: $local-triangle-width $local-triangle-height 0 0;
+          bottom: -$local-triangle-height;
+          left: $local-triangle-left;
+        }
+
+        &:before {
+          border-color: $local-triangle-border-color transparent transparent transparent;
+          bottom: -$local-triangle-height;
+          border-width: $local-triangle-width $local-triangle-height 0 0;
+        }
+
+        &:after {
+          border-color: $local-triangle-color transparent transparent transparent;
+          border-width: ($local-triangle-width - 2) ($local-triangle-height - 2) 0 0;
+          bottom: -$local-triangle-height + 5;
+          left: $local-triangle-left + 2;
+        }
+      }
+
+      h3 {
+        font-weight: bold;
+        margin-bottom: $spacing-vertical-bottom-xs;
+      }
+
+      .hours-title {
+        // Special case of fonts being resized on specific breakpoints and then
+        // reverted back on larger breakpoints.
+        @include breakpoint($breakpoint-sm) {
+          font-size: $font-size-small;
+        }
+
+        @include breakpoint($breakpoint-md) {
+          font-size: $font-size-small;
+        }
+      }
+      .hours-values {
+        // Special case of fonts being resized on specific breakpoints and then
+        // reverted back on larger breakpoints.
+        @include breakpoint($breakpoint-sm) {
+          font-size: $font-size-small;
+        }
+
+        @include breakpoint($breakpoint-md) {
+          font-size: $font-size-small;
+        }
+      }
+    }
+  }
+}

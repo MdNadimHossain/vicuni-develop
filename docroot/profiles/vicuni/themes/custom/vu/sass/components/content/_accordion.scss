@@ -1,0 +1,245 @@
+@charset "UTF-8";
+
+/* In content accordions */
+
+.accordion {
+  margin-bottom: 20px;
+}
+
+.accordion-inner {
+  border: 1px solid $dark_blue2;
+  border-top: 0;
+  background-color: $light_blue;
+  padding: 10px;
+  p {
+    font-weight: normal !important;
+  }
+}
+
+.collapse {
+  position: relative;
+  overflow: hidden;
+  height: 0;
+  &.in {
+    display: block;
+    height: auto;
+  }
+}
+
+.accordion-heading {
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+  background-color: $light_blue5;
+  border-bottom: 1px solid $grey2;
+  font-weight: 300;
+  line-height: 35px;
+  padding-left: 10px;
+  padding-right: 75px;
+  .course-structure & {
+    padding-right: 0;
+  }
+  margin-top: 15px;
+  cursor: pointer;
+  color: $blue;
+  transition-property: background;
+  transition-duration: 0.15s;
+  transition-timing-function: ease-out;
+  transition-delay: 0;
+  position: relative;
+  &:hover, &:focus {
+    background-color: $light_blue8;
+    color: $blue2;
+  }
+  &:before {
+    content: "\f055";
+    @include font-FontAwesome;
+    padding-right: 5px;
+  }
+  .course-structure &:before {
+    font-size: 24px;
+    color: $blue7;
+  }
+  &.open {
+    background-color: $dark_blue2;
+    color: #ffffff;
+    border-bottom-color: $dark_blue2;
+    &:before {
+      content: "\f056";
+    }
+    a {
+      color: #ffffff;
+      &:hover {
+        color: #ffffff;
+      }
+    }
+  }
+  a {
+    border: none;
+    color: $blue;
+    &:hover {
+      color: $blue;
+    }
+  }
+  img.img-responsive {
+    display: inline;
+  }
+}
+
+
+/* Existing course view */
+
+.view-browse-courses, .accordion-container {
+  :not(.unit-linetext)> h3:not(.section-title) {
+    @extend .accordion-heading;
+  }
+  .view-group, .accordion-content {
+    @extend .accordion-inner;
+    display: none;
+    margin-bottom: 15px;
+  }
+  .views-row, .info-block {
+    padding: 10px;
+    padding-bottom: 15px;
+    background-color: $light_blue;
+    border-bottom: 1px solid #ffffff;
+  }
+}
+
+/* Generic accordion item. */
+.entity-accordion-item {
+  > h2 {
+    @extend .accordion-heading;
+    font-size: 18px;
+  }
+  > .content {
+    margin-bottom: 15px;
+  }
+}
+
+/* Entity fields: accordion. */
+.inline-entities-accordion-section {
+  margin-top: 15px;
+  > h2{
+    @extend .h2-heading-dotted;
+  }
+  > .content {
+    margin-bottom: 15px;
+  }
+  .entity-accordion-item {
+    > .content {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* Course Structure */
+.field-name-field-imp-structure {
+  .accordion-heading {
+    font-size: 16px;
+    border-bottom: none;
+    background-color: $light_blue;
+    .toggle {
+      border-bottom: 1px solid;
+      &:hover {
+        color: $blue2;
+        border-bottom-color: $blue2;
+      }
+    }
+    .show-structure {
+      display: inline;
+    }
+    .hide-structure {
+      display: none;
+    }
+    &:before {
+      float: right;
+      margin-right: 5px;
+    }
+    &.open {
+      color: $blue;
+      background-color: $light_blue;
+      .show-structure {
+        display: none;
+      }
+      .hide-structure {
+        display: inline;
+      }
+      &:before {
+        float: right;
+        margin-right: 5px;
+      }
+    }
+  }
+  .accordion-container {
+    .accordion.view-group {
+      background-color: $grey15;
+      &.well {
+        min-height: 20px;
+        padding: 19px;
+        margin-bottom: 20px;
+        background-color: $grey15;
+        border: 1px solid #eeeeee;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+        padding-top: 0;
+        padding-bottom: 30px;
+      }
+      &> p {
+        margin: 15px 0;
+      }
+      h3.section-title, .unit-linetext> h3 {
+        margin-top: 20px;
+        margin-bottom: 5px;
+      }
+      .units-and-electives-close {
+        margin-top: 10px;
+        .close-link {
+          cursor: pointer;
+          font-size: small;
+          float: right;
+        }
+      }
+      ul {
+        margin: 0;
+        padding: 0;
+        li.unit-title {
+          list-style: none;
+          margin: 15px 0;
+          a {
+            font-size: 15px;
+            font-weight: bold;
+            &:after {
+              content: '\0020\25B8';
+            }
+          }
+          dl {
+            display: block;
+            font-size: 12px;
+            margin: 0;
+            dd {
+              display: inline;
+              margin: 0;
+              padding: 0;
+            }
+            dt {
+              display: inline;
+              margin: 0;
+              padding: 0;
+              &:after {
+                content: ": ";
+              }
+            }
+            dt.dt-credits {
+              border-left: 2px solid $grey9;
+              padding-left: 5px;
+            }
+            dd.dd-code {
+              padding-right: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

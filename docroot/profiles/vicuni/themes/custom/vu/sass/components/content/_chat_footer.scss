@@ -1,0 +1,58 @@
+//
+// Chat footer component.
+//
+
+.vu-chat-footer {
+  // Chat bubble with triangle.
+  .bubble {
+    $triangleWidth: 18px;
+    $triangleHeight: 18px;
+    $triangleLeft: 16px;
+    $triangleColor: $dark_blue10;
+    $triangleBorderColor: $white;
+
+    display: block;
+    position: relative;
+    border: solid 1px $white;
+    text-align: center;
+    padding: 15px;
+    outline: 0;
+    margin-bottom: $triangleHeight * 1.5;
+    width: 100%;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: $triangleWidth $triangleHeight 0 0;
+      bottom: -$triangleHeight;
+      left: $triangleLeft;
+    }
+
+    &:before {
+      border-color: $triangleBorderColor transparent transparent transparent;
+      bottom: -$triangleHeight;
+      border-width: $triangleWidth $triangleHeight 0 0;
+    }
+
+    &:after {
+      border-color: $triangleColor transparent transparent transparent;
+      border-width: ($triangleWidth - 2) ($triangleHeight - 2) 0 0;
+      bottom: -$triangleHeight + 3;
+      left: $triangleLeft + 1;
+    }
+  }
+
+  strong p {
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 27px;
+    margin-bottom: 10px;
+  }
+}

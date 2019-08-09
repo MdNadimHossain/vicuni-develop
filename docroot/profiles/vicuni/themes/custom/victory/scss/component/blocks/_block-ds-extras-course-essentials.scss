@@ -1,0 +1,182 @@
+#block-ds-extras-course-essentials {
+  left: 0 !important;
+  right: 0 !important;
+  .row {
+    margin: 0 0;
+    @include border-radius(4px);
+    @include box-shadow(0 1px 4px 0 rgba($color-black, 0.2));
+    @include breakpoint($breakpoint-xs) {
+      width: auto;
+    }
+    width: 100%;
+    background-color: $color-white;
+    line-height: 18px;
+
+    > .field-course-essentials {
+      min-height: 86px;
+      padding: 0px;
+      @include breakpoint($breakpoint-sm) {
+        min-height: unset;
+        float: unset;
+      }
+      @include breakpoint($breakpoint-xs) {
+        min-height: unset;
+      }
+      @include breakpoint($breakpoint-md-up) {
+        float: none;
+      }
+      .course-essential-block {
+        margin: 10px 15px;
+        .off-campus-text {
+          font-size: 86%;
+          line-height: 16px;
+        }
+      }
+
+      strong {
+        display: block;
+      }
+
+      .apply-block__message {
+        strong {
+          display: inline-block;
+        }
+      }
+
+      .field-items {
+        .field-item {
+          display: inline-block;
+
+          &:after {
+            content: ', ';
+            margin-right: 0.3em;
+          }
+
+          &:last-child:after {
+            content: '';
+          }
+        }
+      }
+    }
+  }
+
+  padding-bottom: $spacing-vertical-bottom-sm;
+  @include breakpoint($breakpoint-xs) {
+    padding-bottom: 9px;  
+  }
+
+  // >= SM breakpoint.
+  @include breakpoint($breakpoint-sm-up) {
+    left: calc((100% - 738px) / 2);
+    padding: 0 15px;
+    position: absolute;
+
+    .row {
+      min-height: auto;
+
+      > .field-course-essentials {
+        display: inline-block;
+        vertical-align: top;
+      }
+    }
+
+    // Adjustments when there are 4 fields.
+    &.fields-4 {
+      @include breakpoint($breakpoint-sm) {
+        left: calc((104% - 738px) / 2);
+      }
+      @include breakpoint($breakpoint-md) {
+        right: calc((97% - #{$container-md}) / 2);
+      }
+      .row {
+        width: 100%;
+      }
+    }
+    // Adjustments when there are 3 fields.
+    &.fields-3 {
+      padding: 0 20px;
+      @include breakpoint($breakpoint-sm) {
+        padding: 0 15px;
+      }
+      .row {
+        width: 75%;
+        float: right;
+        @include breakpoint($breakpoint-md-up) {
+          margin: 0 -5px !important;
+        }
+        @include breakpoint($breakpoint-sm) {
+          width: 100%;
+        }
+        > .field-course-essentials {
+          @include breakpoint($breakpoint-md-up) {
+            width: 33.33%;
+          }
+        }
+      }
+    }
+    // Adjustments when there are 2 fields.
+    &.fields-2 {
+      padding: 0 30px;
+      @include breakpoint($breakpoint-sm) {
+        padding: 0 15px;
+      }
+      .row {
+        width: 50%;
+        float: right;
+        @include breakpoint($breakpoint-md-up) {
+          margin: 0 -15px !important;
+        }
+        @include breakpoint($breakpoint-sm) {
+          width: 100%;
+        }
+        > .field-course-essentials {
+          @include breakpoint($breakpoint-md-up) {
+            width: 50%;
+          }
+        }
+      }
+    }
+    // Adjustments when there are 1 fields.
+    &.fields-1 {
+      padding: 0 15px;
+      @include breakpoint($breakpoint-sm) {
+        padding: 0 15px;
+      }
+      .row {
+        width: 23%;
+        float: right;
+        @include breakpoint($breakpoint-sm) {
+          width: 48%;
+        }
+        > .field-course-essentials {
+          @include breakpoint($breakpoint-md-up) {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  // >= MD breakpoint.
+  @include breakpoint($breakpoint-sm-up) {
+    top: -40px;
+    left: inherit;
+  }
+
+  // MD breakpoint.
+  @include breakpoint($breakpoint-md) {
+    right: calc((100% - #{$container-md}) / 2 + #{$grid-gutter-width} / 2);
+  }
+
+  // >= LG breakpoint.
+  @include breakpoint($breakpoint-lg-up) {
+    right: calc((97.5% - #{$container-lg}) / 2 + #{$grid-gutter-width} / 2);
+  }
+
+  &.container {
+    @include breakpoint($breakpoint-xs) {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+  }
+}

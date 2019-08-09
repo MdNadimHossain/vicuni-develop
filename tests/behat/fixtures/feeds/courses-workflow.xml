@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<courses>
+    <course>
+        <coursecode>TEST-WORKFLOW-NEW</coursecode>
+    </course>
+    <course>
+        <coursecode>TEST-WORKFLOW-EXISTS-1</coursecode>
+    </course>
+    <course>
+        <coursecode>TEST-WORKFLOW-EXISTS-2</coursecode>
+        <handbookinclude>N</handbookinclude>
+        <courseoffered>N</courseoffered>
+        <continuingstudent>Y</continuingstudent>
+    </course>
+    <course>
+        <coursecode>TEST-WORKFLOW-EXISTS-3</coursecode>
+        <handbookinclude>Y</handbookinclude>
+        <courseoffered>Y</courseoffered>
+        <continuingstudent>N</continuingstudent>
+    </course>
+</courses>

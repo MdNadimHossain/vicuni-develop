@@ -1,0 +1,2 @@
+[PW-2554] - Remove old course title image field.
+[PW-3327] Add hero title box items to the hero_title_box entityqueue

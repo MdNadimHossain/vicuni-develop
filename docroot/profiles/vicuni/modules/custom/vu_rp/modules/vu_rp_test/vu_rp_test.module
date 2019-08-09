@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * @file
+ * VU Researcher Profile Researchers test module.
+ *
+ * Provides additional functionality to test Researcher Profiles:
+ * - 'Researcher Profile Tester' role with permissions to do what
+ *   'Researcher Profile Admin' role does + access to test pages.
+ * - Alteration to researcher profile form to show/hide API fields based on
+ *   permissions.
+ * - REST server to manage and serve test responses (see vu_rp_test.rest.inc).
+ * - Support for unit and functional testing by altering queries and entities
+ *   (see vu_rp_test.rest.inc).
+ *
+ * This module should never be enabled in production.
+ */
+
+require_once 'vu_rp_test.test.inc';
+
+/**
+ * Defines URL prefix for test REST records.
+ */
+define('VU_RP_TEST_REST_URL_PREFIX', 'vu-rest');
+
+/**
+ * Implements hook_permission().
+ */
+function vu_rp_test_permission() {
+  return [
+    'modify researcher profile api fields' => [
+      'title' => t('Modify API fields on Researcher profile'),
+      'description' => t('Allow to modify API fields on Researcher profile form'),
+    ],
+    'administer test rest server' => [
+      'title' => t('Manage test REST server records'),
+      'description' => t('Allow to manage responses from test  REST server'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vu_rp_test_menu() {
+  $items['admin/config/researcher-profile/rest-server'] = [
+    'title' => 'REST server',
+    'description' => 'List REST server records',
+    'page callback' => 'vu_rp_test_rest_server_list_callback',
+    'access arguments' => ['administer test rest server'],
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'vu_rp_test.rest.inc',
+    'weight' => 90,
+  ];
+
+  $items['admin/config/researcher-profile/rest-server/add'] = [
+    'title' => 'Add record',
+    'description' => 'Add REST server record',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_test_rest_server_record_add_form'],
+    'access arguments' => ['administer test rest server'],
+    'type' => MENU_CALLBACK,
+    'file' => 'vu_rp_test.rest.inc',
+  ];
+
+  $items['admin/config/researcher-profile/rest-server/%/edit'] = [
+    'title' => 'Edit record',
+    'description' => 'Edit REST server record',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_test_rest_server_record_add_form', 4],
+    'access arguments' => ['administer test rest server'],
+    'type' => MENU_CALLBACK,
+    'file' => 'vu_rp_test.rest.inc',
+  ];
+
+  $items['admin/config/researcher-profile/rest-server/%/delete'] = [
+    'title' => 'Delete record',
+    'description' => 'Delete REST server record',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_test_rest_server_record_delete_form', 4],
+    'access arguments' => ['administer test rest server'],
+    'type' => MENU_CALLBACK,
+    'file' => 'vu_rp_test.rest.inc',
+  ];
+
+  $items[VU_RP_TEST_REST_URL_PREFIX . '/%'] = [
+    'title' => 'REST server',
+    'description' => 'Configure test REST server',
+    'page callback' => 'vu_rp_test_rest_callback',
+    // Allow access to this test server's data.
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'vu_rp_test.rest.inc',
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_features_banish_alter().
+ */
+function vu_rp_test_features_banish_alter(&$banished_items) {
+  $additional_items = [
+    'user_permission' => [
+      'modify researcher profile api fields',
+      'administer test rest server',
+    ],
+    'user_role' => [
+      'Researcher Profile Tester',
+    ],
+  ];
+
+  $banished_items = array_merge($banished_items, $additional_items);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function vu_rp_test_form_researcher_profile_node_form_alter(&$form, &$form_state, $form_id) {
+  _vu_rp_test_process_rp_fields($form);
+}
+
+/**
+ * Recursively process form fields to show/hide API fields..
+ */
+function _vu_rp_test_process_rp_fields(&$form) {
+  foreach (element_children($form) as $field) {
+    if (strpos($field, 'field_rpa_') === 0 || strpos($field, 'field_rpc_') === 0) {
+      if (user_access('modify researcher profile api fields')) {
+        $form[$field]['#attributes']['class'][] = 'vu-rp-test-api-field';
+        $form[$field]['#disabled'] = !user_access('modify researcher profile api fields');
+      }
+      if (isset($form[$field]['#access']) && $form[$field]['#access'] == FALSE) {
+        $form[$field]['#access'] = user_access('modify researcher profile api fields');
+      }
+    }
+
+    if (count(element_children($form[$field])) > 0) {
+      _vu_rp_test_process_rp_fields($form[$field]);
+    }
+  }
+}

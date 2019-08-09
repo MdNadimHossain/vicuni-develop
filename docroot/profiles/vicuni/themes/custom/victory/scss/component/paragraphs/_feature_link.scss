@@ -1,0 +1,99 @@
+.paragraphs-item-component-section,
+.paragraphs-item-page-intro,
+.paragraphs-item-section {
+
+  .paragraphs-item-feature-link {
+
+    @include breakpoint($breakpoint-sm-down) {
+      .featured-entity__title h3 {
+        margin-bottom: 20px;
+      }
+    }
+
+    @include breakpoint($breakpoint-lg-up) {
+      .featured-entity__title h3 {
+        margin-bottom: 15px;
+      }
+    }
+  }
+  
+  & .row-6-6 {
+    & > .field-items {
+      & > .field-item {
+        .paragraphs-item-feature-link {
+
+          @include breakpoint($breakpoint-md) {
+            .featured-entity__title h3 {
+              margin-bottom: 15px;
+            }
+          }
+
+          @include breakpoint($breakpoint-md-up) {
+            .featured-entity__image {
+              height: 250px;
+            }
+          }
+
+          @include breakpoint($breakpoint-lg-up) {
+            .featured-entity__title h3 {
+              margin-bottom: 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  & .row-8-4 {
+    & > .field-items {
+      & > .field-item {
+        &:first-child {
+          .paragraphs-item-feature-link {
+            @include breakpoint($breakpoint-md-up) {
+              .featured-entity__image {
+                height: 325px;
+              }
+              .featured-entity__title h3 {
+                margin-bottom: 20px;
+              }
+           }
+          }
+        }          
+      }
+    }
+  }
+
+  & .row-4-8 {
+    & > .field-items {
+      & > .field-item {
+        &:nth-child(2) {
+          .paragraphs-item-feature-link {
+            @include breakpoint($breakpoint-md-up) {
+              .featured-entity__image {
+                height: 325px;
+              }
+              .featured-entity__title h3 {
+                margin-bottom: 20px;
+              }
+           }
+          }
+        }
+      }
+    }
+  }
+}
+
+.paragraphs-item-page-intro,
+.field-name-field-paragraphs-right,
+.paragraphs-items-field-rhs-components,
+.paragraphs-items-field-lhs-components {
+  .paragraphs-item-feature-link {
+    .featured-entity__link {
+      position: relative;
+      bottom: 0;
+    }
+    .featured-entity--choose-vu {
+      padding-bottom: 30px;
+    }
+  }
+}

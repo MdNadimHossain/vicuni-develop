@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ * Provides integration for sending Drupal webform submissions to RightNow.
+ */
+
+define('VU_RIGHTNOW_FORMS_FEED_PATH', 'formsubmissions/feed');
+define('VU_RIGHTNOW_FORMS_KEEP_IN_TOUCH_TITLE', 'Keep in touch');
+define('VU_RIGHTNOW_FORMS_SERVICECLOUD_EMAIL_REGEX', '/^((([-_!#$%&\'*+\/=?^~`{|}\w]+([.][-_!#$%&\'*+\/=?^~`{|}\w]*)*)|("[^"]+"))@[0-9A-Za-z]+([\-]+[0-9A-Za-z]+)*(\.[0-9A-Za-z]+([\-]+[0-9A-Za-z]+)*)+[;, ]*)+$/');
+define('VU_RIGHTNOW_FORMS_SERVICECLOUD_PHONE_REGEX', '|^[][+0-9a-zA-Z[:blank:].,()#-/]*$|');
+
+/**
+ * Implements hook_form_menu().
+ */
+function vu_rightnow_forms_menu() {
+  return [
+    VU_RIGHTNOW_FORMS_FEED_PATH => [
+      'title' => 'Export',
+      'page callback' => 'vu_rightnow_forms_feed',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+    ]
+  ];
+}
+
+/**
+ * Implements hook_init().
+ */
+function vu_rightnow_forms_init() {
+  if (VU_RIGHTNOW_FORMS_FEED_PATH === current_path()) {
+    drupal_page_is_cacheable(FALSE);
+  }
+}
+
+/**
+ * Send the XML feed for RightNow as response.
+ */
+function vu_rightnow_forms_feed() {
+  vu_rightnow_forms_authenticate();
+  drupal_add_http_header('Content-Type', 'text/xml; charset=utf-8');
+  print vu_rightnow_forms_generate_xml();
+}
+
+/**
+ * HTTP basic authentication for the XML endpoint.
+ */
+function vu_rightnow_forms_authenticate() {
+  if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    header('WWW-Authenticate: Basic realm="My Realm"');
+    header('HTTP/1.0 401 Unauthorized');
+    die('401 Unauthorized');
+  }
+  else {
+    $users = [
+      'boomi' => '$2y$10$XGwizjSNWWiLYTWlp/W17.NHUxl0T0sZf9xxQNDSA8gEsinQqdZRS',
+    ];
+    if (!password_verify($_SERVER['PHP_AUTH_PW'], $users[$_SERVER['PHP_AUTH_USER']])) {
+      drupal_access_denied();
+      drupal_exit();
+    }
+  }
+}
+
+/**
+ * Generate XML feed for RightNow.
+ */
+function vu_rightnow_forms_generate_xml() {
+  $domtree = new DOMDocument('1.0', 'UTF-8');
+  $xml_root = $domtree->appendChild($domtree->createElement("form-submissions"));
+
+  $webform_submissions_query = db_select('webform', 'w');
+  $webform_submissions_query->innerJoin('webform_submissions', 'ws', 'w.nid = ws.nid');
+  $webform_submissions_query->innerJoin('node', 'n', 'w.nid = n.nid');
+  $webform_submissions_query
+    ->fields('w', ['nid'])
+    ->fields('ws', ['sid'])
+    ->fields('n', ['title'])
+    ->condition('w.rn_enabled', 1)
+    ->isNull('ws.rn_processed_date');
+  $webform_submission_rows = $webform_submissions_query->execute();
+
+  while ($webform_submission = $webform_submission_rows->fetchAssoc()) {
+    $is_keep_in_touch_form = $webform_submission['title'] === VU_RIGHTNOW_FORMS_KEEP_IN_TOUCH_TITLE;
+
+    $current_submission = $domtree->createElement("form-submission");
+    $current_submission = $xml_root->appendChild($current_submission);
+    $current_submission->appendChild($domtree->createElement('form-id', $webform_submission['nid']));
+    $current_submission->appendChild($domtree->createElement('form-name', substr($webform_submission['title'], 0, 50)));
+    $current_submission->appendChild($domtree->createElement('submission-id', $webform_submission['sid']));
+
+    $submission_data_query = db_select('vu_rightnow_webform_map', 'm');
+    $submission_data_query->innerJoin('webform_submitted_data', 'd', 'm.nid = d.nid AND m.webform_component_cid = d.cid');
+    $submission_data_query->innerJoin('webform_component', 'wc', 'wc.nid = m.nid AND m.webform_component_cid = wc.cid');
+    $submission_data_query->addField('m', 'rightnow_field_fid', 'fid');
+    $submission_data_query->fields('d', ['data'])
+      ->fields('wc', ['name'])
+      ->condition('m.nid', $webform_submission['nid'])
+      ->condition('d.sid', $webform_submission['sid']);
+    $submission_data = $submission_data_query->execute();
+
+    $areas_of_interest = $domtree->createElement("areas-of-interest");
+    $areas_of_interest = $xml_root->appendChild($areas_of_interest);
+
+    $additional_data = $domtree->createElement("additional-data");
+    $additional_data = $xml_root->appendChild($additional_data);
+
+    while ($submission_field = $submission_data->fetchAssoc()) {
+      $bad_email = ($submission_field['fid'] === 'email' && preg_match(VU_RIGHTNOW_FORMS_SERVICECLOUD_EMAIL_REGEX, $submission_field['data']) === 0);
+      $bad_phone = ($submission_field['fid'] === 'phone' && preg_match(VU_RIGHTNOW_FORMS_SERVICECLOUD_PHONE_REGEX, $submission_field['data']) === 0);
+      if ($bad_email || $bad_phone) {
+        // Invalid email/phone.
+        $current_submission->parentNode->removeChild($current_submission);
+        continue 2;
+      }
+
+      $name_attribute = $domtree->createAttribute('name');
+      $name_attribute->value = htmlspecialchars($submission_field['name'], ENT_QUOTES);
+      if ($submission_field['fid'] == 'area-of-interest') {
+        $element = $domtree->createElement($submission_field['fid'], $submission_field['data']);
+        $element->appendChild($name_attribute);
+        $areas_of_interest->appendChild($element);
+      }
+      elseif ($is_keep_in_touch_form && $submission_field['fid'] == 'additional-data' && !empty($submission_field['data'])) {
+        // If it's the keep in touch form, add the "response-required" field
+        // and set it accordingly.
+        $element = $domtree->createElement('data', $submission_field['data']);
+        $element->appendChild($name_attribute);
+
+        $additional_data->appendChild($element);
+      }
+      else {
+        if ($submission_field['fid'] === 'postcode') {
+          $submission_field['data'] = substr($submission_field['data'], 0, 10);
+        }
+        $element = $domtree->createElement($submission_field['fid'], $submission_field['data']);
+        $element->appendChild($name_attribute);
+
+        $current_submission->appendChild($element);
+      }
+    }
+
+    $current_submission->appendChild($areas_of_interest);
+    $current_submission->appendChild($additional_data);
+
+    if (!isset($_GET['ro']) && !isset($_GET['RO'])) {
+      // We have to use raw db_query() for these because NOW() doesn't work
+      // in db_update or db_insert. https://www.drupal.org/node/215821
+      $query_args = [':sid' => $webform_submission['sid']];
+      db_query(
+        'UPDATE webform_submissions SET rn_processed_date = NOW() WHERE sid = :sid',
+        $query_args
+      );
+      db_query(
+        'INSERT INTO vu_rightnow_webform_submissions (sid, rightnow_processed) VALUES (:sid, NOW())',
+        $query_args
+      );
+    }
+  }
+  return $domtree->saveXML();
+}

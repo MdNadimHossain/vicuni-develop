@@ -1,0 +1,4 @@
+name = Victoria University
+description = The Victoria University default profile.
+core = 7.x
+dependencies[] = vu_core

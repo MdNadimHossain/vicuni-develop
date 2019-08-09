@@ -1,0 +1,351 @@
+<?php
+
+/**
+ * @file
+ * Chat now functionality for the Victoria University Website.
+ */
+
+define('VU_CHAT_NOW_TIME_FORMAT', 'g:i a');
+
+/**
+ * Implements hook_menu().
+ */
+function vu_chat_now_menu() {
+  return [
+    'admin/vu/chat-now/settings' => [
+      'title' => 'Chat now',
+      'description' => 'Update times and dates for Chat Now',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => ['vu_chat_now_admin_form'],
+      'access arguments' => ['administer chat now'],
+      'file' => 'vu_chat_now.admin.inc',
+      'file path' => drupal_get_path('module', 'vu_chat_now') . '/includes',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function vu_chat_now_block_info() {
+  $blocks['vu_chat_now'] = [
+    'info' => t('VU Chat Now'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  ];
+
+  $blocks['vu_contact_us_any_questions'] = [
+    'info' => t('VU Contact: Any Questions'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  ];
+
+  $blocks['vu_chat_footer'] = [
+    'info' => t('VU Chat Footer'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  ];
+
+  $blocks['vu_chat_landing'] = [
+    'info' => t('VU Chat: Landing Pages'),
+    'cache' => DRUPAL_CACHE_PER_ROLE,
+  ];
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function vu_chat_now_block_view($delta = '') {
+  $block = [];
+
+  switch ($delta) {
+    case 'vu_chat_now':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vu_chat_now_times');
+      break;
+
+    case 'vu_contact_us_any_questions':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vu_any_question_block');
+      break;
+
+    case 'vu_chat_footer':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vu_chat_footer');
+      break;
+
+    case 'vu_chat_landing':
+      $block['subject'] = NULL;
+      $block['content'] = theme('vu_chat_box_landing_pages');
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function vu_chat_now_permission() {
+  return [
+    'administer chat now' => [
+      'title' => 'Administer chat now',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_theme().
+ */
+function vu_chat_now_theme() {
+  $template_path = drupal_get_path('module', 'vu_chat_now') . '/theme';
+  $file = 'vu_chat_now.theme.inc';
+
+  return [
+    'vu_chat_now_admin_table' => [
+      'render element' => 'element',
+    ],
+    'vu_chat_now_times' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-chat-now-times',
+      'arguments' => ['contact_us_page' => FALSE],
+    ],
+    'vu_any_question_block' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-any-questions-block',
+      'arguments' => ['contact_us_page' => FALSE],
+    ],
+    'vu_chat_footer' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-chat-footer',
+    ],
+    'vu_chat_box_landing_pages' => [
+      'path' => $template_path,
+      'file' => $file,
+      'template' => 'vu-chat-box-landing-pages',
+    ],
+  ];
+}
+
+/**
+ * Theme function: vu_chat_now_admin_table.
+ */
+function theme_vu_chat_now_admin_table(&$variables) {
+  // Get the element.
+  $element = $variables['element'];
+
+  // Build up the header.
+  $header = [
+    'days_open' => t('Open Days'),
+    'start_time' => t('Start Time'),
+    'end_time' => t('End Time'),
+  ];
+
+  // Build up the rows.
+  $rows = [];
+  // Loop through each child element.
+  foreach (element_children($element) as $key) {
+    // Update the row with the relevant data.
+    $rows[] = [
+      ['data' => render($element[$key]['days_open'])],
+      ['data' => render($element[$key]['start_time'])],
+      ['data' => render($element[$key]['end_time'])],
+    ];
+  }
+
+  // Return the themed table.
+  return theme('table', ['header' => $header, 'rows' => $rows]);
+}
+
+/**
+ * Return the list of times and days when chat is open.
+ *
+ * @return array
+ *   Array of times when chat is open, keyed by days of the week.
+ */
+function _vu_chat_now_return_times_open() {
+  $days_open = [];
+
+  // Get the variable value.
+  $times = variable_get('vu_chat_now', []);
+
+  foreach ($times as $day => $options) {
+    // If this day is open and start/end time was specified.
+    if ($options['days_open'] && !empty($options['start_time']) && !empty($options['end_time'])) {
+      $days_open[$day] = $options;
+    }
+  }
+
+  // Return the open days.
+  return $days_open;
+}
+
+/**
+ * Helper function: Return whether two days have the same open/close times.
+ *
+ * @param array $day1
+ *   Array of times for a given day.
+ * @param array $day2
+ *   Array of times for a given day.
+ *
+ * @return bool
+ *   TRUE if the two days have the same open/close times. FALSE otherwise.
+ */
+function _vu_chat_now_compare_times($day1, $day2) {
+  $start_1 = $day1['start_time'];
+  $end_1 = $day1['end_time'];
+  $start_2 = $day2['start_time'];
+  $end_2 = $day2['end_time'];
+
+  return $start_1 == $start_2 && $end_1 == $end_2;
+}
+
+/**
+ * Get open hours for the current day of the week.
+ *
+ * @param array $times
+ *   Array of times when the chat is open.
+ * @param int $now
+ *   Optional Unix timestamp for current time. Defaults to current server time.
+ *
+ * @return array|bool
+ *   Array of chat open hours for the current day of the week or FALSE if hours
+ *   are not defined for the current day of the week.
+ */
+function _vu_chat_now_get_today_hours($times, $now = NULL) {
+  $now = $now ? $now : time();
+  $day_of_week = date('l', $now);
+
+  // Today is not a day in the list of provided open days.
+  if (!array_key_exists($day_of_week, $times)) {
+    return FALSE;
+  }
+
+  return $times[$day_of_week];
+}
+
+/**
+ * Get the next day of the week after specified one.
+ *
+ * Note, that it is not necessary that the next day hours are tomorrow hours
+ * as chat may not be working on the next day.
+ *
+ * @param array $times
+ *   Array of times when the chat is open.
+ * @param int $now
+ *   Optional Unix timestamp for current time. Defaults to current server time.
+ *
+ * @return string|bool
+ *   The next day of the week after specified one when chat is open or FALSE if
+ *   no hours were provided.
+ */
+function _vu_chat_now_get_next_weekday($times, $now = NULL) {
+  $day_of_week = FALSE;
+
+  if (empty($times)) {
+    return $day_of_week;
+  }
+
+  $now = $now ? $now : time();
+  for ($i = 1; $i < 8; $i++) {
+    $future_day = date('l', strtotime("+$i days", $now));
+    if (!empty($times[$future_day])) {
+      $day_of_week = $future_day;
+      break;
+    }
+  }
+
+  return $day_of_week;
+}
+
+/**
+ * Get open hours for the next day of the week after specified one.
+ *
+ * Note, that it is not necessary that the next day hours are tomorrow hours
+ * as chat may not be working on the next day.
+ *
+ * @param array $times
+ *   Array of times when the chat is open.
+ * @param int $now
+ *   Optional Unix timestamp for current time. Defaults to current server time.
+ *
+ * @return array|bool
+ *   Array of chat open hours for the next day of the week after specified one
+ *   or FALSE if no hours were provided.
+ */
+function _vu_chat_now_get_next_weekday_hours($times, $now = NULL) {
+  $day = _vu_chat_now_get_next_weekday($times, $now);
+
+  return !empty($times[$day]) ? $times[$day] : FALSE;
+}
+
+/**
+ * Get chat state.
+ *
+ * @param array $times
+ *   Array of times from configuration.
+ * @param int $now
+ *   Optional timestamp for current moment.
+ *
+ * @return array
+ *   Array with the following values:
+ *   - is_open: (bool) Boolean flag to know if the chat is currently open.
+ *   - start: (string) Chat open time.
+ *   - finish: (string) Chat close time.
+ *   - weekday: (string) Chat open week day for start and finish times.
+ */
+function _vu_chat_now_get_chat_state($times, $now = NULL) {
+  $state = [
+    'is_open' => NULL,
+    'start' => NULL,
+    'finish' => NULL,
+    'weekday' => NULL,
+  ];
+
+  $now = $now ? $now : time();
+  $today_hours = _vu_chat_now_get_today_hours($times, $now);
+  if (!$today_hours) {
+    $state['is_open'] = FALSE;
+    $state['weekday'] = _vu_chat_now_get_next_weekday($times, $now);
+    $hours = _vu_chat_now_get_next_weekday_hours($times, $now);
+    $state['start'] = $hours['start_time'];
+    $state['finish'] = $hours['end_time'];
+
+    return $state;
+  }
+
+  $start = strtotime('today ' . $today_hours['start_time'], $now);
+  $finish = strtotime('today ' . $today_hours['end_time'], $now);
+
+  // Incorrectly set hours - any period that finishes today and starts tomorrow
+  // should be captured as 2 periods. I.e., 11pm-6am should be 11pm-12am for
+  // day1 and 12am-6am for day2.
+  if ($start > $finish) {
+    return $state;
+  }
+
+  // Before time period.
+  if ($now < $start) {
+    $hours = $today_hours;
+    $state['is_open'] = FALSE;
+    $state['weekday'] = date('l', $now);
+  }
+  // After time period.
+  elseif ($finish < $now) {
+    $hours = _vu_chat_now_get_next_weekday_hours($times, $now);
+    $state['is_open'] = FALSE;
+    $state['weekday'] = _vu_chat_now_get_next_weekday($times, $now);
+  }
+  else {
+    $hours = $today_hours;
+    $state['is_open'] = TRUE;
+    $state['weekday'] = date('l', $now);
+  }
+
+  $state['start'] = $hours['start_time'];
+  $state['finish'] = $hours['end_time'];
+
+  return $state;
+}

@@ -1,0 +1,185 @@
+@charset "UTF-8";
+.news {
+  @at-root #{&}__col {
+    @at-root #{&}--left {
+      @include breakpoint(desktop) {
+        padding-right: 0 !important;
+      }
+      @include breakpoint(tablet) {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+    }
+    @at-root #{&}--right {
+      margin-top: 15px;
+      @include breakpoint(tablet) {
+        float: right;
+        margin-top: -25px;
+        padding-right: 0 !important;
+      }
+      & > div {
+        padding: 25px 0 0;
+        border-bottom: 2px solid white;
+      }
+      .field-name-field-contact-area {
+        margin: 0.5em 0;
+      }
+      h2.side-block-title {
+        background: transparent url(../images/news-events-sprites.png) no-repeat;
+        font-size: 16px;
+        line-height: 25px;
+        font-weight: bold;
+        padding-left: 50px;
+      }
+    }
+  }
+  @at-root #{&}__date {
+    background: transparent url(../images/news-events-sprites.png) 0 -100px no-repeat;
+    padding-left: 15px;
+    line-height: 14px;
+    color: $green;
+    margin-bottom: 1em;
+    margin-left: 0;
+    font-size: 1em;
+    @include breakpoint(tablet) {
+      font-size: 12px;
+    }
+  }
+  @at-root #{&}__img {
+    @include breakpoint(tablet) {
+      clear: right;
+      float: right;
+      width: 220px;
+      margin-bottom: .2em;
+    }
+    figcaption {
+      font-size: 12px !important;
+      color: #666666;
+      margin: .5em 0 1em 0;
+      line-height: 14px;
+    }
+  }
+  @at-root #{&}__content {
+    h2:nth-of-type(n+2) {
+      @extend .h2-heading-dotted;
+    }
+    p:first-child {
+      font-weight: bold;
+      font-size: 17px;
+      line-height: inherit;
+      margin-bottom: 1em;
+    }
+  }
+  @at-root #{&}__contact-info {
+    background-color: $lightestGreen;
+    & > div {
+      margin: 0 15px 10px;
+      padding-top: 14px;
+      &:last-child {
+        margin-bottom: 20px;
+      }
+      .field-item {
+        margin-bottom: 20px;
+      }
+    }
+    h2.side-block-title {
+      background-position: 15px -75px;
+      margin-bottom: 15px;
+    }
+    .entity-title {
+      font-weight: bold;
+    }
+    .field-name-field-contact-title {
+      margin-bottom: 10px;
+    }
+    .label-inline {
+      display: inline-block;
+    }
+    .field-name-field-contact-email {
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
+  @at-root #{&}__related {
+    background-color: $light_blue;
+    h2.side-block-title {
+      background-position: 15px 0;
+    }
+    ul, .field-items {
+      list-style: none;
+      margin: 0;
+      li, .field-item {
+        border-bottom: 2px solid white;
+        padding: 15px;
+        overflow: hidden;
+        a {
+          font-weight: bold;
+          border-bottom: 1px solid #999999;
+          text-decoration: none;
+        }
+        p {
+          margin-top: 10px;
+        }
+        .node-unpublished {
+          background: none;
+        }
+      }
+    }
+  }
+  .mr__contact-info {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    @include breakpoint(tablet) {
+      margin-bottom: 46px;
+    }
+    .field-label-inline .field-items {
+      float: none;
+    }
+    > strong {
+      padding-bottom: 2px;
+      display: block;
+    }
+    .entity-title {
+      display: inline-block;
+      &:after {
+        content: ':\00a0';
+      }
+    }
+    .field-name-field-contact-title, .field-name-field-contact-phone {
+      display: inline-block;
+      &:before {
+        display: none;
+      }
+      .field-label, .label-inline {
+        display: none;
+      }
+      .field-items, .field-item {
+        display: inline-block;
+      }
+      &:after {
+        content: ",\00a0";
+        visibility: visible;
+        display: inline;
+        clear: none;
+      }
+    }
+    .field-name-field-contact-email {
+      display: inline-block;
+      .field-label, .label-inline {
+        display: none;
+      }
+    }
+  }
+}
+
+.media-release-class .region-sidebar-first .menu li a.active-trail {
+  background: transparent url("../images/left-nav-bg-gradient.png") no-repeat scroll right center;
+  color: white;
+  display: block;
+  margin-bottom: 0;
+  margin-right: 0;
+  padding-right: 20px;
+  @include text-shadow(0 1px 0 $blue3);
+}

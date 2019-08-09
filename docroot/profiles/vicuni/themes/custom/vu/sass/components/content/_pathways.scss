@@ -1,0 +1,38 @@
+.accordion-inner {
+  h3 {
+    margin-top: 20px;
+  }
+  div p {
+    margin: 15px 0 0 0;
+  }
+  h3 + p {
+    margin-top: 0;
+  }
+  .pathway {
+    background-color: $lightestGreen;
+    margin: 4px 0 4px 0;
+    padding: 15px 20px 15px 20px;
+    h4 {
+      text-shadow: 0 1px 0 #ffffff;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      li {
+        font-size: 13px;
+        color: $grey;
+        line-height: 18px;
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+    }
+    & + p {
+      margin-top: 15px;
+    }
+  }
+
+}

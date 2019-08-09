@@ -1,0 +1,26 @@
+//
+// Pre-defined spacing to be used instead of ad-hoc values.
+//
+$spacing-vertical-top: 30px;
+$spacing-vertical-top-xs: 12px;
+$spacing-vertical-top-sm: 20px;
+$spacing-vertical-top-lg: 40px;
+
+$spacing-vertical-bottom: 30px;
+$spacing-vertical-bottom-xs: 12px;
+$spacing-vertical-bottom-sm: 20px;
+$spacing-vertical-bottom-lg: 40px;
+
+$spacing-horizontal-inline-icons: 14px;
+$spacing-horizontal-block-icons: $spacing-horizontal-inline-icons;
+
+// Header spacing.
+$spacing-horizontal-header-gutter-md: 15px;
+$spacing-horizontal-header-gutter-lg: 25px;
+
+// Menu spacing.
+$spacing-vertical-mainmenu-top: 14px;
+$spacing-vertical-mainmenu-bottom: 14px;
+
+// Mobile fixed header padding. This value should be the exact height of the fixed header in Mobile.
+$spacing-vertical-fixed-mobile-header-offset: 50px;

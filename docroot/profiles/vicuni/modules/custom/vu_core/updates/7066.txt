@@ -1,0 +1,1 @@
+Removes traces of bugheard module.

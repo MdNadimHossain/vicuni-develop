@@ -1,0 +1,1021 @@
+//
+// Mixins
+//
+@import "../bootstrap/default-variables";
+
+//
+// Screen reader only.
+//
+@mixin sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+//
+// Screen reader and focused.
+//
+@mixin sr-only-focused {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+}
+
+//
+// Make element focusable.
+//
+@mixin sr-only-focusable {
+  &:active,
+  &:focus {
+    @include sr-only-focused();
+  }
+}
+
+//
+// Apply grid column styles to an element.
+//
+@mixin make-grid-column() {
+  padding-left: $grid-gutter-width / 2;
+  padding-right: $grid-gutter-width / 2;
+}
+
+//
+// Link color.
+//
+@mixin link-color($color:$link-color, $hover:$link-hover-color, $visited:$link-visited-color, $active: $link-active-color) {
+  color: $color;
+  &:link {
+    color: $color;
+  }
+  &:visited {
+    color: $visited;
+  }
+  &.active,
+  &:active {
+    color: $active;
+  }
+  &:hover,
+  &:visited:hover {
+    color: $hover;
+    cursor: pointer;
+  }
+  &:focus {
+    color: $active;
+  }
+}
+
+//
+// Remove underline from all states.
+//
+@mixin no-underline() {
+  &:hover,
+  &:focus,
+  &:active:hover,
+  &:active:focus {
+    text-decoration: none;
+  }
+}
+
+// Default list style
+@mixin default-list-style() {
+  ol,
+  ul {
+    padding-left: 32px;
+    line-height: 1.714285714; // 24/14
+  }
+
+  ol {
+    ol {
+      list-style-type: lower-alpha;
+
+      ol {
+        list-style-type: lower-roman;
+      }
+    }
+
+    li {
+      padding-left: 8px;
+    }
+  }
+
+  ul {
+    @include no-bullet;
+    margin-left: 1px;
+    li {
+      display: table;
+      margin-left: -32px;
+      &:before {
+        content: '\25B8';
+        display: table-cell;
+        padding-right: 16px;
+        vertical-align: top;
+      }
+
+      li {
+        &:before {
+          content: '-';
+          padding-right: 17.25px;
+        }
+      }
+    }
+  }
+}
+
+// Link arrows.
+@mixin victory-link-arrows($width: 65px, $height: 20px, $padding: 0 0 0 0, $position: absolute) {
+  position: relative;
+
+  &:after {
+    @include transition(right 0.2s cubic-bezier(0.645, 0.045, 0.355, 1));
+
+    display: inline-block;
+    background: url($image-link-arrow) no-repeat center right;
+    content: "";
+    height: $height;
+    padding: $padding;
+    position: $position;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: $width;
+    outline: 1px solid transparent;
+  }
+
+  &:hover {
+    &:after {
+      background-image: url($image-link-arrow-hover);
+      right: 0;
+    }
+  }
+}
+
+// Input placeholder color.
+@mixin input-placeholder($color) {
+  &.placeholder {
+    color: $color;
+  }
+  &:-moz-placeholder {
+    color: $color;
+  }
+  &::-webkit-input-placeholder {
+    color: $color;
+  }
+}
+
+//
+// Content header blue stripe.
+//
+@mixin victory-title__padding {
+  padding-left: $grid-gutter-width / 2;
+  padding-right: $grid-gutter-width / 2;
+
+  @include breakpoint($breakpoint-sm) {
+    padding-left: calc((100% - #{$container-sm} + #{$grid-gutter-width}) / 2);
+  }
+
+  @include breakpoint($breakpoint-md) {
+    padding-left: calc((100% - #{$container-md} + #{$grid-gutter-width}) / 2);
+  }
+
+  @include breakpoint($breakpoint-lg) {
+    padding-left: calc((100% - #{$container-lg} + #{$grid-gutter-width}) / 2);
+  }
+
+  @include breakpoint($breakpoint-xl) {
+    padding-left: calc((100% - #{$container-xl} + #{$grid-gutter-width}) / 2);
+  }
+}
+
+@mixin victory-title__stripe {
+  $local-color: $color-white;
+  $local-bg-color: $color-grey-tundora;
+  // Separate variable for pseudo elements for easy debugging.
+  $local-pseudo-bg-color: $local-bg-color;
+  $local-stripe-height: 28px;
+
+  @include col-no-gutters;
+  @include font(20px, 'futura');
+  @include make-xs-column(12);
+  @include reset-box-model;
+  @include victory-title__padding;
+
+  background-color: $local-bg-color;
+  color: $local-color;
+  letter-spacing: 0.5px;
+  line-height: $local-stripe-height;
+  margin-bottom: $spacing-vertical-bottom-sm;
+  @include breakpoint($breakpoint-md-up) {
+    margin-bottom: $spacing-vertical-bottom-lg;
+  }
+  padding-bottom: 16px;
+  padding-top: 16px;
+  position: relative;
+
+  @include breakpoint($breakpoint-sm-up) {
+    width: calc((100% - #{$grid-gutter-width}) / 2);
+  }
+}
+
+// Svg link arrows.
+@mixin victory-svg-arrows($width: 65px, $height: 20px, $stroke-color: $color-grey-silver-chalice) {
+  .link-arrow {
+    @include transition(margin-left 0.2s cubic-bezier(0.645, 0.045, 0.355, 1));
+
+    display: inline-block;
+    margin-left: 0;
+    svg {
+      width: $width;
+      height: $height;
+      #arrow-long {
+        stroke: $stroke-color;
+      }
+    }
+  }
+}
+
+// Featured Content Pane - General style.
+@mixin featured-content-pane {
+  // Set a standard color for links and their states.
+  a {
+    @include link-colors($color-black-mine_shaft);
+
+    &:hover, &:focus {
+      text-decoration: none;
+    }
+  }
+
+  .featured-entity {
+    @include font(18px, 'futura', 300);
+    @include transition(compact(opacity, .125s, ease-out, .25s));
+
+    color: $color-black-mine_shaft;
+    cursor: pointer;
+    line-height: 28px;
+
+    &:hover {
+      @include transition(compact(opacity, .125s, ease-in, .25s));
+
+      background: $color-yellow-grandis;
+    }
+
+    &__text {
+      @include font(14px, 'default', 300);
+
+      letter-spacing: 0.5px;
+      line-height: 22px;
+    }
+  }
+
+  @include breakpoint($breakpoint-xs) {
+    .featured-entity__column {
+      padding-bottom: 20px;
+    }
+
+    .featured-entity__column:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  @include breakpoint($screen-sm-min) {
+    & .row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .featured-entity__column {
+      display: flex;
+
+      & > div, & > div a {
+        display: flex;
+        max-width: 100%;
+      }
+
+      &.items-2:nth-child(1) {
+        @include make-sm-column(8);
+
+        & > div {
+          display: block;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Quotes.
+@mixin victory-quotes($width: 10px, $height: 10px, $padding: 0 0 0 0) {
+  position: relative;
+
+  &:after, &:before {
+    @include font(22px, 'futura', 300);
+
+    background: {
+      repeat: no-repeat;
+      position-x: center;
+      position-y: center;
+    }
+    content: '';
+    color: $color-blue-lochmara;
+    display: inline-block;
+    height: $height;
+    padding: $padding;
+    position: relative;
+    top: -5px;
+    width: $width;
+  }
+
+  &:before {
+    background-image: url($image-quote-open);
+    margin-right: 5px;
+  }
+
+  &:after {
+    background-image: url($image-quote-close);
+    margin-left: 5px;
+  }
+}
+
+//
+// Class for FontAwesome pseudo additions (i.e. not adding as an <i> tag).
+//
+@mixin fa-pseudo {
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: inherit;
+}
+
+//
+//  The base FontAwesome before element. (No overrides)
+//
+@mixin fa-before-base() {
+  &:before {
+    margin-right: 0.5em;
+    @include fa-pseudo;
+  }
+  &:hover, &:focus {
+    &:before {
+      text-decoration: none !important;
+    }
+  }
+}
+
+//
+// Add font Awesome icon before an element.
+//
+@mixin fa-before($content: "", $size: 1em, $color: inherit) {
+  position: relative;
+  @include fa-before-base();
+  &:before {
+    font-size: $size;
+    content: $content;
+    color: $color;
+  }
+}
+
+//
+//  The base FontAwesome after element. (No overrides)
+//
+@mixin fa-after-base() {
+  &:after {
+    margin-left: 0.5em;
+    @include fa-pseudo;
+  }
+  &:hover, &:focus {
+    &:after {
+      text-decoration: none !important;
+    }
+  }
+}
+
+//
+// Add font Awesome icon after an element.
+//
+@mixin fa-after($content: "", $size: 1em, $color: inherit) {
+  position: relative;
+  @include fa-after-base();
+  &:after {
+    font-size: $size;
+    content: $content;
+    color: $color;
+    @include fa-pseudo;
+  }
+}
+
+//
+// Use FA icons on the element itself as a pseudo-prefix.
+//
+@mixin fa-prefix($content: "", $size: 1em, $color: inherit) {
+  @include fa-before($content, $size, $color);
+  &:before {
+    display: inline-block;
+    line-height: 100%;
+    margin-right: $size/2;
+  }
+}
+
+//
+// Use FA icons on the element itself as a pseudo-suffix.
+//
+@mixin fa-suffix($content: "", $size: 1em, $color: inherit) {
+  @include fa-after($content, $size, $color);
+  &:after {
+    display: inline-block;
+    line-height: 100%;
+    margin-left: $size/2;
+  }
+}
+
+//
+// Set gutter as inner padding.
+//
+@mixin gutter-inner($inner-gutter: $grid-gutter-width / 2 ) {
+  padding-left: $inner-gutter;
+  padding-right: $inner-gutter;
+}
+
+// Remove gutter from row.
+@mixin row-no-gutters {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+// Remove gutter from column.
+@mixin col-no-gutters {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+//
+// Set element height using padding.
+//
+@mixin padding-from-height($height, $font-size: $font-size-base, $line-height: false) {
+  @if ($line-height == false) {
+    $line-height: $font-size * $line-height-base;
+    $line-height: round($line-height);
+    // Set line-height for an element to make sure that odd height values are handled correctly.
+    line-height: $line-height;
+  }
+
+  $local-top: round(($height - $line-height ) / 2);
+  $local-bottom: round(($height - $line-height ) / 2);
+
+  padding-top: $local-top;
+  // Use additional delta to adjust bottom padding.
+  $local-delta: $height - ($local-top + $local-bottom + $line-height);
+  padding-bottom: $local-bottom + $local-delta;
+}
+
+// Angled borders.
+@mixin angled-borders($border-height: 345px, $border-width: 130px, $border-color-1: $color-blue-lochmara, $border-color-2: transparent) {
+  .left-angled-shape {
+    border: {
+      bottom: $border-height solid $border-color-1;
+      right: $border-width solid $border-color-2;
+    }
+    position: absolute;
+  }
+
+  .right-angled-shape {
+    border: {
+      left: $border-width solid $border-color-2;
+      top: $border-height solid $border-color-1;
+    }
+    position: relative;
+  }
+}
+
+@mixin victory-section {
+  background-color: $color-white;
+  margin: 0 auto;
+  width: 100%;
+
+  @include breakpoint($breakpoint-lg) {
+    width: calc((100% - #{$container-lg}) / 2 + #{$container-lg});
+  }
+
+  @include breakpoint($breakpoint-xl) {
+    width: calc((100% - #{$container-xl}) / 1.666 + #{$container-xl});
+  }
+}
+
+// Hero banner default values.
+@mixin hero-banner-default-values {
+  $local-text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
+  $local-color-background: rgba(68, 68, 68, 0.3);
+
+  & {
+    @include container-fixed;
+    &, .container {
+      position: relative;
+    }
+
+    &__content {
+      padding-top: $spacing-vertical-top-sm;
+      position: absolute;
+      z-index: 2;
+
+      @include breakpoint($breakpoint-sm) {
+        padding-top: 40px;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        padding-top: 60px;
+      }
+
+      .field-name-field-hero-banner-headline {
+        display: inline-table;
+        height: 115px;
+        margin-bottom: 20px;
+        width: 100%;
+
+        @include breakpoint($breakpoint-sm) {
+          height: 140px;
+        }
+
+        @include breakpoint($breakpoint-md-up) {
+          height: 176px;
+        }
+      }
+    }
+
+    .field-name-field-hero-banner-message {
+      @include font(14px);
+
+      @include breakpoint($breakpoint-md-up) {
+        @include font($size: 20px, $weight: 400);
+
+        line-height: 1.4;
+      }
+
+      p {
+        background: $local-color-background;
+        color: $color-white;
+        display: inline;
+        padding: 2.5px 10px;
+        text-shadow: $local-text-shadow;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+
+        a {
+          @include default-link($local-color: 'light');
+
+          color: $color-white;
+
+          &:active,
+          &:focus,
+          &:hover {
+            color: $color-grey-tundora;
+            text-shadow: none;
+          }
+          &.ext {
+            @include fa-suffix('\f08e', 12px);
+            &.ext::after {
+              background-image: none;
+            }
+          }
+        }
+      }
+    }
+
+    .field-name-field-hero-banner-note {
+      @include font(14px);
+
+      color: $color-white;
+      font-style: oblique;
+      text-shadow: $local-text-shadow;
+
+      margin-top: $spacing-vertical-top-sm;
+      @include breakpoint($breakpoint-md-up) {
+        margin-top: $spacing-vertical-top-lg;
+      }
+    }
+
+    &__image {
+      height: 300px;
+      overflow: hidden;
+      position: relative;
+
+      @include breakpoint($breakpoint-sm) {
+        height: 400px;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        height: 600px;
+      }
+
+      img {
+        height: 100%;
+        left: 50%;
+        max-width: none;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        position: absolute;
+        width: auto;
+
+        // Fix for sizes between XS and Small.
+        @media (min-width: $screen-xs-min) AND (max-width: $screen-xs-max) {
+          height: auto;
+          top: 45%;
+        }
+
+        @include breakpoint($breakpoint-sm-up) {
+          height: auto;
+          width: auto;
+          top: 40%;
+        }
+
+        @include breakpoint($breakpoint-md-up) {
+          top: 28%;
+        }
+
+        @include breakpoint($breakpoint-xl) {
+          max-width: 2880px;
+          width: 100%;
+        }
+      }
+    }
+
+    &__header {
+      @include font(36px, $font-futura-condensed, 800);
+
+      color: $color-white;
+      display: table-cell;
+      vertical-align: bottom;
+      font-style: italic;
+      margin: 0;
+      line-height: 28px;
+      text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.4);
+      text-transform: uppercase;
+
+      @include breakpoint($breakpoint-sm) {
+        @include font(48px, $font-futura-condensed, 800);
+        line-height: 36px;
+      }
+
+      @include breakpoint($breakpoint-md-up) {
+        @include font(72px, $font-futura-condensed, 800);
+        line-height: 56px;
+      }
+    }
+  }
+}
+
+// Adds Hero banner's before/after pseudo elements.
+@mixin hero-banner-pseudo-el($el: before, $offset-property: top, $background-color : $color-grey-gallery) {
+  $local-pseudo-offset-xs: -30%;
+  $local-pseudo-offset-sm: -22%;
+  $local-pseudo-offset-md: -15%;
+  $local-pseudo-offset-lg-up: -20%;
+
+  &::#{$el} {
+    background: $background-color;
+    content: '';
+    display: block;
+    height: 115px;
+    position: absolute;
+    transform: skewY(-1.2deg);
+    width: 100%;
+    z-index: 3;
+
+    #{$offset-property}: $local-pseudo-offset-xs;
+
+    @include breakpoint($breakpoint-sm) {
+      #{$offset-property}: $local-pseudo-offset-sm;
+    }
+
+    @include breakpoint($breakpoint-md) {
+      #{$offset-property}: $local-pseudo-offset-md;
+      height: 100px;
+    }
+
+    @include breakpoint($breakpoint-lg-up) {
+      #{$offset-property}: $local-pseudo-offset-lg-up;
+      height: 150px;
+    }
+  }
+}
+
+// Add one column padding right
+@mixin padding-right-one-column() {
+  @include breakpoint($breakpoint-sm) {
+    padding-right: calc(#{$container-sm}/#{$grid-columns});
+  }
+  @include breakpoint($breakpoint-md) {
+    padding-right: calc(#{$container-md}/#{$grid-columns});
+  }
+  @include breakpoint($breakpoint-lg) {
+    padding-right: calc(#{$container-lg}/#{$grid-columns});
+  }
+  @include breakpoint($breakpoint-xl) {
+    padding-right: calc(#{$container-xl}/#{$grid-columns});
+  }
+}
+
+// Merge Text field and button inside the find media export form.
+// For XS devices.
+@mixin find-expert-media-xs {
+
+  .paragraphs-items-field-component-section-content {
+    margin-top: 0px !important;
+  }
+
+  & .find-media-expert-a,
+  & .researcher-link {
+    padding-top: 10px;
+  }
+
+  form#vu-core-expert-guide-search-form,
+  .researcher-search-form > div {
+    position: relative;
+
+    .form-text {
+      float: left;
+      border: 1px solid $color-grey-silver_chalice;
+      width: 100% !important;
+      border-collapse: collapse;
+    }
+
+    .form-submit {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 60px !important;
+      min-width: 60px !important;
+      border: 1px solid $color-grey-silver_chalice;
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      color: $color-grey-dove;
+      background-color : rgba($color-white, 0.95);
+      border-left: 0px;
+      z-index: 100;
+
+      &::after {
+        content: ''!important;
+      }
+
+      &::before {
+        font-family:'FontAwesome' !important;
+        content: "\f002";
+      }
+
+      &:hover {
+        background-color: $color-yellow-grandis;
+      }
+
+    }
+  }
+
+}
+
+@mixin auto-line-height($fs, $lh) {
+  font-size: $fs;
+  line-height: $lh / $fs;
+}
+
+@mixin researcher-search-order-change {
+  .researcher-search-form {
+    .search-container {
+      display: flex;
+      flex-direction: column;
+      .form-item-query {
+        order: 1;
+      }
+      .form-radios {
+        order: 2;
+      }
+      .form-submit {
+        order: 3;
+      }
+    }
+  }
+}
+
+@mixin vu-search-component {
+  //Default settings, if this component is the sole component added to section.
+  background-color: #F9F9F9;
+  padding: 30px;
+
+  & .find-media-expert-a,
+  & .researcher-link {
+    padding-top: 10px;
+    clear: both;
+    & a {
+      text-decoration: none;
+      text-decoration-color: $color-yellow-grandis;
+      -webkit-box-shadow: inset 0 -4px 0 $color-yellow-grandis;
+      box-shadow: inset 0 -4px 0 $color-yellow-grandis;
+      padding-bottom: 2px;
+      cursor: pointer;
+      &:hover {
+        background-color: $color-yellow-grandis;
+      }
+    }
+  }
+
+  .form-type-textfield {
+    @include font(20px, 'futura');
+    margin-bottom: 10px;
+  }
+
+  .field-name-field-description, .researcher-description {
+    margin-bottom: 20px;
+  }
+
+  .field-name-field-title, .researcher-title {
+    @include font(20px, 'futura');
+    margin-bottom: 10px;
+  }
+
+  .form-text {
+    height: 60px !important;
+    width: 75%;
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    background-color: rgba($color-white, 0.95) !important;
+    border: 1px solid $color-grey-silver_chalice;
+  }
+
+  .form-submit {
+    min-width: 150px;
+    width: 150px;
+    margin: 0px;
+    height: 60px !important;
+    background-color: $color-yellow-grandis;
+    color: #000;
+    display:inline-block;
+    vertical-align: middle;
+    line-height: 20px;
+    &:hover {
+      background-color: $color-blue-lochmara;
+      color: #fff;
+    }
+    &:active {
+      background-color: $color-blue-lochmara;
+      border: 0px;
+    }
+    &:focus {outline:none;}
+    &::-moz-focus-inner {border:0;}
+  }
+
+  .form-radios {
+    display: block;
+    margin-bottom: 10px;
+    @include breakpoint($breakpoint-sm-up) {
+      display: inline-block;
+    }
+
+    .form-type-radio {
+      @include breakpoint($breakpoint-sm-up) {
+        display: inline-block;
+        margin-right: 20px;
+      }
+    }
+  }
+
+  @include breakpoint($breakpoint-sm) {
+    .form-text {
+      width: 65%;
+      float: left;
+    }
+    .form-submit {
+      width: 150px;
+      float: left;
+    }
+  }
+}
+
+@mixin vu-webforms {
+    .form-type-textfield {
+      .input-group {
+        input {
+          &.form-text {
+            display: table-row;
+          }
+        }
+        .input-group-addon {
+          display: table-row;
+          border: none;
+          background: transparent;
+          padding-left: 0px;
+          text-align: left;
+        }
+      }
+    }
+    .webform-component-file {
+      a[data-toggle="popover"], span.icon {
+        display: none;
+      }
+      .form-managed-file {
+        .form-file {
+          border: none;
+          box-shadow: none;
+        }
+        button {
+          margin-top: 0;
+        }
+      }
+    }
+    input[type="file"] {
+      padding: 10px 0;
+      width: 200px;
+    }
+    .form-required {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: $color-red;
+    }
+    .captcha.panel {
+      border-color: transparent;
+      border-radius: 0px;
+      box-shadow: none;
+      margin-bottom: 10px;
+      .g-recaptcha .recaptcha-validate {
+        border: 1px $color-red solid;
+        &::after {
+          background-color: $soft-peach;
+          color: $terracotta;
+          content: "Please verify you are a human.";
+        }
+      }
+      .panel-heading {
+        display: none;
+      }
+      .panel-body {
+        padding: 0px;
+        .help-block {
+          display: none;
+        }
+      }
+    }
+
+    @include breakpoint($breakpoint-xs) {
+      .input-group-btn {
+        display: inline-block;
+      }
+    }
+    @include breakpoint($breakpoint-xs-up) {
+    input {
+      &.form-text {
+        width: $field_width_default;
+      }
+      &.input-xxlarge {
+        width: 100%;
+      }
+      &.input-mini {
+        width: $field_width_mini;
+      }
+      &.input-small {
+        width: $field_width_small;
+      }
+    }
+    select {
+      width: $field_width_default+10;
+      &.input-xxlarge {
+        width: 100%;
+      }
+      &.input-mini {
+        width: $field_width_mini;
+      }
+      &.input-small {
+        width: $field_width_small;
+      }
+    }
+    .webform-datepicker {
+      select {
+        width: auto;
+        display: inline-block;
+      }
+    }
+  }
+  @include breakpoint($breakpoint-md-up) {
+    input.input-xxlarge, select.input-xxlarge {
+      width: $field_width_large;
+    }
+  }
+  .button-primary {
+    @extend .btn;
+    @extend .btn-primary;
+
+    @include box-shadow(none);
+
+    &:hover:active {
+      @include box-shadow(none);
+    }
+  }
+  .input-group-btn {
+    display: inline;
+    button {
+      display: none;
+    }
+  }
+}

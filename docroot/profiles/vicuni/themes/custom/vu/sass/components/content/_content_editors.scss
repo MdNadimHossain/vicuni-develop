@@ -1,0 +1,88 @@
+/**
+ * Styles for all-pages, my-pages, my-courses
+ */
+
+.my-pages {
+  padding: 25px 0;
+  margin-bottom: 0px;
+  width: auto;
+  label {
+    font-weight: bold;
+    width: 130px;
+    float: left;
+    display: block;
+    clear: left;
+  }
+  input, select {
+    margin-right: 10px;
+  }
+  table {
+    width: 928px;
+    width: 933px;
+    table-layout: fixed;
+    border-collapse: separate;
+    .btn {
+      font-size: 15px;
+      color: $grey3;
+      padding: 3px 6px;
+      width: 4em;
+      white-space: nowrap;
+      margin-bottom: 6px;
+      .fa {
+        font-size: 80%;
+        margin-left: 3px;
+      }
+    }
+    th, td {
+      padding: 15px 10px;
+      vertical-align: top;
+      white-space: normal;
+      overflow-x: hidden;
+    }
+    td {
+      text-overflow: ellipsis;
+      &:first-child {
+        padding-right: 5px;
+      }
+    }
+    th {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+      &:hover.nosort, &.nosort {
+        cursor: default;
+        text-decoration: none;
+      }
+      &.sort {
+        text-decoration: underline;
+        &:after {
+          content: '\21E9';
+        }
+        &.asc:after {
+          content: '\21E7';
+        }
+      }
+      &.narrow {
+        width: 70px;
+      }
+      &.updated_date {
+        width: 100px;
+      }
+    }
+    tr:hover {
+      background: $light_blue;
+      color: black;
+    }
+  }
+  .csv {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 0 0 0 40px;
+    background: url(../images/csv.png) no-repeat left center;
+  }
+  .item-list {
+    margin-top: 25px;
+    margin-bottom: 20px;
+  }
+}

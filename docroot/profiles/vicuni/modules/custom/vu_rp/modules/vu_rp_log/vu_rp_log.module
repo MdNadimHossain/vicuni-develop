@@ -1,0 +1,127 @@
+<?php
+
+/**
+ * @file
+ * VU Researcher Profile Researchers log functionality.
+ */
+
+include_once 'vu_rp_log.views.inc';
+
+/**
+ * Implements hook_permission().
+ */
+function vu_rp_log_permission() {
+  return [
+    'access researcher profile api log' => [
+      'title' => t('Access API logs'),
+      'description' => t('Access API logs'),
+    ],
+    'clear researcher profile api log' => [
+      'title' => t('Clear API logs'),
+      'description' => t('Clear API logs'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vu_rp_log_menu() {
+
+  $items['admin/config/researcher-profile/log/%'] = [
+    'title' => 'Log record',
+    'description' => 'View Researcher Profile action logs',
+    'page callback' => 'vu_rp_log_record_view_callback',
+    'page arguments' => [4],
+    'access arguments' => ['access researcher profile api log'],
+    'file' => 'vu_rp_log.admin.inc',
+    'type' => MENU_CALLBACK,
+    'weight' => 100,
+  ];
+
+  $items['admin/config/researcher-profile/log/clear'] = [
+    'title' => 'Log clear record',
+    'description' => 'Clear log records',
+    'page callback' => 'vu_rp_log_record_clear_callback',
+    'access arguments' => ['access researcher profile api log'],
+    'file' => 'vu_rp_log.admin.inc',
+    'type' => MENU_CALLBACK,
+    'weight' => 100,
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_vu_rp_api_logger_log().
+ */
+function vu_rp_log_vu_rp_api_logger_log($event, $message, $severity) {
+  vu_rp_log_record_add($event, $message, $severity);
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function vu_rp_log_views_api() {
+  return [
+    'api' => 3,
+    'path' => drupal_get_path('module', 'vu_rp_log'),
+  ];
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function vu_rp_log_preprocess_html(&$variables) {
+  // Add vu_core.admin.css to override admin style if needed.
+  if (path_is_admin(current_path())) {
+    drupal_add_css(drupal_get_path('module', 'vu_rp_log') . '/css/vu_rp_log.admin.css', ['weight' => CSS_THEME]);
+  }
+}
+
+/**
+ * Add new log record.
+ */
+function vu_rp_log_record_add($event, $message, $severity) {
+  db_insert('vu_rp_log')
+    ->fields([
+      'event' => $event,
+      'severity' => $severity,
+      'timestamp' => microtime(TRUE),
+      'message' => $message,
+      // @todo: Fix this later.
+      'entity_id' => NULL,
+    ])
+    ->execute();
+}
+
+/**
+ * Load log record record by id.
+ */
+function vu_rp_log_record_load($id) {
+  return db_select('vu_rp_log', 'log')
+    ->fields('log')
+    ->condition('id', $id)
+    ->execute()
+    ->fetchAssoc();
+}
+
+/**
+ * Delete all log records.
+ */
+function vu_rp_log_record_delete_all() {
+  db_truncate('vu_rp_log')->execute();
+}
+
+/**
+ * Get all unique log events.
+ */
+function vu_rp_log_get_events() {
+  $result = db_select('vu_rp_log', 'log')
+    ->fields('log', ['event'])
+    ->groupBy('event')
+    ->execute()
+    ->fetchAllKeyed(0, 0);
+
+  return $result;
+}

@@ -1,0 +1,814 @@
+//
+// Secondary navigation (Main menu Level 2).
+//
+@import '../../base/images';
+
+//
+// HOW IT ALL WORKS
+//
+// Dropdown is built using Bootstrap's dropdown JS component to trigger state
+// of the dropdown trigger (link in the horizontal menu), assign appropriate
+// open/close classes and handle keyboard input (esc, enter etc.).
+//
+// All open/close transitions are done through CSS transitions based on the
+// currently assigned open/close class.
+//
+// Close transition is setup to be faster then open transition to accommodate
+// faster switching between dropdowns.
+//
+// Structurally, each menu consists of menu wrapper (.menu-wrapper) and
+// menu (ul) inside; each menu consists of menu items (li) with links (a) and other
+// menus inside.
+// div.menu-wrapper>ul.menu>li>a+(div.menu-wrapper...)
+//
+// First menu is a horizontal menu. First menu wrapper of each menu item of this
+// menu is an actual dropdown positioned absolutely below the horizontal menu.
+// This dropdown takes 100% of the screen width.
+//
+// All children menus of the first menu of the dropdown are positioned
+// absolutely, so the dropdown height cannot be recalculated to these menus
+// heights by a browser. For this, we use JS to track currently hovered menu
+// items and active trail items.
+//
+// Technically, dropdown has it's min-height updated (and animated using CSS
+// transitions) based on the highest currently visible menu. To calculate the
+// heights of each of the menus, they all are rendered with visibility set to
+// 'hidden'. Activating visible state (hovering or active trail) changes
+// visibility to 'visible'.
+//
+// Active trail has special handling, as it requires any currently hovered items
+// to override dropdown height on 'mouseover', but then restore the height based
+// on active trail item on mouseleave.
+// IMPORTANT: because of how visibility is calculated, all children menu
+// wrappers (except for dropdown itself) of the current active trail links
+// are shown/hidden using transition with the same parameters as dropdown
+// transitions. This is done to avoid dropdown height jumping because children
+// menus (menus on the active trail) will be pushing the height to the ma before
+// a transition has finished.
+
+// Width of the main menu container (Horizontal bar of Level 2 links).
+$local-main-width: $container-md;
+$local-main-width-lg: $container-lg;
+$local-main-item-font-size: 18px;
+$local-main-item-font-size-lg: 20px;
+$local-main-item-horizontal-spacing: 40px;
+$local-main-item-color: $color-grey-tundora;
+$local-main-item-hover-color: $color-blue-lochmara;
+$local-main-item-active-color: $local-main-item-hover-color;
+$local-main-item-icon-space: 10px;
+// Width of the logo, placed on top of the menu.
+$local-main-logo-width: 250px;
+
+// Width of the dropdown inner container.
+$local-dropdown-width: $local-main-width;
+$local-dropdown-width-lg: $local-main-width-lg;
+$local-dropdown-open-speed: 720ms;
+$local-dropdown-close-speed: 200ms;
+// Number of columns in the menu.
+$local-column-count: 3;
+$local-dropdown-column-vertical-padding: 40px;
+
+$local-dropdown-bg-color: $color-grey-gallery;
+$local-dropdown-link-font-size: $font-size-base;
+$local-dropdown-link-font-size-lg: 16px;
+$local-dropdown-link-color: $local-main-item-color;
+$local-dropdown-link-color-hover: $local-main-item-hover-color;
+$local-dropdown-link-color-active: $local-dropdown-link-color-hover;
+$local-dropdown-link-vertical-padding: 15px;
+$local-dropdown-link-horizontal-padding: $grid-gutter-width / 2;
+$local-dropdown-link-horizontal-padding-lg: $grid-gutter-width / 2;
+$local-dropdown-link-arrow-width: 45px;
+$local-dropdown-link-arrow-offset: percentage((8 / $grid-columns));
+$local-dropdown-link-arrow-active-width: percentage((3 / $grid-columns));
+$local-dropdown-link-arrow-active-width-lg: percentage((3 / $grid-columns));
+$local-dropdown-link-arrow-height: 20px;
+
+// The width of the left-side section in the dropdown menu.
+$local-dropdown-section-width: ($local-dropdown-width / ($local-column-count + 1));
+$local-dropdown-section-width-lg: ($local-dropdown-width-lg / ($local-column-count + 1));
+$local-dropdown-section-bg: $color-blue-elephant;
+$local-dropdown-button-hover: $color-yellow-grandis;
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// Internal - do not change.
+$local-dropdown-open-close-easing-menu-max-height: 1000px;
+$local-dropdown-column-padding: $local-dropdown-section-width;
+$local-dropdown-column-padding-lg: $local-dropdown-section-width-lg;
+$local-dropdown-columns-width: $local-dropdown-width - $local-dropdown-column-padding;
+$local-dropdown-columns-width-lg: $local-dropdown-width-lg - $local-dropdown-column-padding-lg;
+$local-dropdown-column-width: $local-dropdown-columns-width / $local-column-count;
+$local-dropdown-column-width-lg: $local-dropdown-columns-width-lg / $local-column-count;
+$local-dropdown-z-index-container: $zindex-secondary-navigation-dropdown;
+$local-dropdown-z-index-active-trail: $local-dropdown-z-index-container + 1;
+$local-dropdown-z-index-hover: $local-dropdown-z-index-container + 2;
+$local-dropdown-z-index-close: $local-dropdown-z-index-container + 3;
+//
+// Mixin to add dropdown behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-dropdown() {
+  > .menu-wrapper {
+    position: absolute;
+    left: 0;
+    margin: 0;
+    z-index: $local-dropdown-z-index-container;
+    // Animate min-height change driven by menu height from JS.
+    @include transition(min-height $local-dropdown-close-speed cubic-bezier(0.645, 0.045, 0.355, 1) 0s);
+    display: block;
+
+    // Here and below, these selectors are used for any elements that are
+    // positioned absolutely within dropdown and require to be opened/closed
+    // together with the dropdown (absolutely positioned elements within
+    // non-relatively positioned parent, as in our case, are taking out of the
+    // elements flow and cannot be collapsed by the parent).
+    > .menu,
+    .collapsible {
+      display: block;
+
+      max-height: 0;
+      min-height: 0;
+      // Collapsing speed is set to a lower value to allow smooth transition
+      // when switching between dropdowns.
+      // Make sure that min-height is transitioning at the same speed as
+      // max-height to prevent vertical jumps.
+      @include transition(max-height $local-dropdown-close-speed cubic-bezier(0.645, 0.045, 0.355, 1) 0s, min-height $local-dropdown-close-speed cubic-bezier(0.645, 0.045, 0.355, 1) 0s);
+      overflow: hidden;
+    }
+  }
+
+  &.open {
+    > .menu-wrapper {
+      display: block;
+      visibility: visible;
+
+      > .menu,
+      .collapsible {
+        max-height: $local-dropdown-open-close-easing-menu-max-height;
+        // Make sure that min-height is transitioning faster that max-height.
+        @include transition(max-height $local-dropdown-open-speed cubic-bezier(0.645, 0.045, 0.355, 1) 0s, min-height $local-dropdown-open-speed / 2 cubic-bezier(0.645, 0.045, 0.355, 1) 0s);
+      }
+    }
+  }
+
+  &:hover {
+    > .menu-wrapper {
+      > .menu,
+      .collapsible {
+        max-height: $local-dropdown-open-close-easing-menu-max-height;
+      }
+    }
+  }
+  .js & {
+    &:hover {
+      > .menu-wrapper {
+        > .menu,
+        .collapsible {
+          max-height: 0;
+        }
+      }
+    }
+    &.open:hover {
+      > .menu-wrapper {
+        > .menu,
+        .collapsible {
+          max-height: $local-dropdown-open-close-easing-menu-max-height;
+        }
+      }
+    }
+  }
+}
+
+//
+//  Mixin to add column default behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-column($columnIndex) {
+  @if ($columnIndex > 1) {
+    > .menu-wrapper {
+      position: absolute;
+      visibility: hidden;
+      height: 100%;
+      @if ($columnIndex != 2) {
+        top: 0;
+      }
+      width: $local-dropdown-column-width * ($local-column-count - $columnIndex + 1);
+      @include breakpoint($breakpoint-lg-up) {
+        width: $local-dropdown-column-width-lg * ($local-column-count - $columnIndex + 1);
+      }
+    }
+  }
+}
+
+//
+//  Mixin to add no-js column-hover behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-column-hover-no-js() {
+  &:hover,
+  &.active-trail {
+    .menu-wrapper {
+      display: block;
+      visibility: visible;
+      background: $local-dropdown-bg-color;
+      z-index: $local-dropdown-z-index-active-trail;
+    }
+  }
+  &:hover {
+    .menu-wrapper {
+      z-index: $local-dropdown-z-index-hover;
+    }
+  }
+
+  // Hover, active and active trail arrow, but only for expanded items.
+  &.expanded {
+    &:hover {
+      > a {
+        &:after {
+          background-image: url($image-dropdown-link-arrow-hover);
+          @include breakpoint($breakpoint-lg-up) {
+            background-image: url($image-dropdown-link-arrow-hover-lg);
+          }
+        }
+      }
+    }
+    &.active,
+    &.active-trail {
+      > a {
+        &:after {
+          background-image: url($image-dropdown-link-arrow-active);
+          @include breakpoint($breakpoint-lg-up) {
+            background-image: url($image-dropdown-link-arrow-active-lg);
+          }
+        }
+      }
+    }
+  }
+}
+
+//
+//  Mixin to add JS column-hover behaviour to a list item on specific level.
+//
+@mixin menu-item-behaviour-column-hover-js() {
+  &.js-mouse-over,
+  &.js-mouse-over-start {
+    > .menu-wrapper {
+      display: block;
+      visibility: visible;
+      background: $local-dropdown-bg-color;
+      z-index: $local-dropdown-z-index-active-trail;
+    }
+  }
+
+  &.js-mouse-over,
+  &.js-mouse-over-start {
+    > .menu-wrapper {
+      z-index: $local-dropdown-z-index-hover;
+    }
+  }
+
+  &.js-mouse-over-start {
+    > a {
+      @include menu-link($local-dropdown-link-color-active, $local-dropdown-link-color-active, $local-dropdown-link-color-active, $local-dropdown-link-color-active);
+    }
+  }
+
+  // Hover, active and active trail arrow, but only for expanded items.
+  &.expanded {
+    &.js-mouse-over,
+    &.js-mouse-over-start {
+      > a {
+        &:after {
+          background-image: url($image-dropdown-link-arrow-hover);
+          @include breakpoint($breakpoint-lg-up) {
+            background-image: url($image-dropdown-link-arrow-hover-lg);
+          }
+        }
+      }
+    }
+
+    &.js-mouse-over-start {
+      > a {
+        &:after {
+          background-image: url($image-dropdown-link-arrow-active);
+          @include breakpoint($breakpoint-lg-up) {
+            background-image: url($image-dropdown-link-arrow-active-lg);
+          }
+        }
+      }
+    }
+  }
+}
+
+//
+// Common menu link style.
+//
+@mixin menu-link($link, $hover, $visited, $active) {
+  color: $link;
+  font-family: $font-futura;
+  font-weight: 500;
+  cursor: pointer;
+  &:hover,
+  &:focus {
+    color: $hover;
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: $visited;
+
+    &:hover {
+      color: $hover;
+    }
+
+    &:focus {
+      color: $active;
+      &:hover {
+        color: $hover;
+      }
+    }
+  }
+}
+
+// @todo:
+// - add JS delays
+.region-navigation .menu-level-2 {
+  display: none;
+  @include breakpoint ($breakpoint-md-up) {
+    display: block;
+  }
+
+  // Reset all menu elements.
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+  .expanded,
+  .leaf {
+    margin: 0;
+    padding: 0;
+  }
+
+  // Level 2 - main horizontal menu.
+  > .menu-wrapper {
+    @include debug-container();
+
+    > .menu {
+      margin: 0 auto;
+      width: $container-md;
+      display: table;
+      @include breakpoint ($breakpoint-lg-up) {
+        width: $container-lg;
+      }
+      // Parent item for a dropdown menu.
+      > .level-2 {
+        @include breakpoint ($breakpoint-md) {
+          @include make-md-column(2);
+          position: inherit;
+        }
+        @include breakpoint ($breakpoint-lg-up) {
+          @include make-lg-column(2);
+          position: inherit;
+        }
+        @include menu-item-behaviour-column(1);
+        @include menu-item-behaviour-dropdown();
+
+        display: inline-block;
+        float: none;
+
+        text-align: left;
+        vertical-align: top;
+
+        &:first-child {
+          margin-left: percentage(($local-column-count / $grid-columns));
+        }
+
+        > a {
+          @include menu-link($local-main-item-color, $local-main-item-hover-color, $local-main-item-color, $local-main-item-active-color);
+
+          font-size: $local-main-item-font-size;
+          @include breakpoint($breakpoint-lg-up) {
+            font-size: $local-main-item-font-size-lg;
+          }
+
+          display: inline-block;
+          margin: 0 auto;
+          padding-left: 0;
+          padding-right: $spacing-horizontal-header-gutter-md;
+          @include padding-from-height(100px, $local-main-item-font-size);
+
+          @include breakpoint($breakpoint-lg-up) {
+            @include padding-from-height(100px, $local-main-item-font-size-lg);
+            padding-right: $spacing-horizontal-header-gutter-lg;
+          }
+
+          &.active,
+          &.active-trail {
+            color: $local-main-item-active-color;
+            &:visited,
+            &:visited:hover {
+              color: $local-main-item-active-color;
+            }
+          }
+        }
+
+        &.expanded {
+          // Add expanding arrow to Level2 expanded closed and open link.
+          > a {
+            white-space: normal;
+            @include fa-after("\f107");
+            &:after {
+              position: absolute;
+              margin-left: $local-main-item-icon-space;
+            }
+            padding-right: 1em;
+            width: 100%;
+            &.has-top {
+              padding-right: 0;
+              &:after {display: none;}
+              span.top {
+                display: block;
+                @include fa-after("\f107");
+              }
+            }
+          }
+
+          &.open > a {
+            @include fa-after("\f106");
+            &.has-top {
+              &:after {display: none;}
+              span.top {
+                @include fa-after("\f106");
+              }
+            }
+          }
+
+          // Level 3 - first-level dropdown and a container - closed.
+          > .menu-wrapper {
+            background: $local-dropdown-bg-color;
+            // Make dropdown wrapper to be 100% width of the page.
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+
+            > .menu {
+              // Center dropdown links container.
+              margin: 0 auto;
+              width: $local-dropdown-width;
+              // Give space for a section (see below).
+              padding-left: $local-dropdown-column-padding;
+
+              @include breakpoint($breakpoint-lg-up) {
+                width: $local-dropdown-width-lg;
+                padding-left: $local-dropdown-column-padding-lg;
+              }
+
+              @include debug-container();
+
+              // Section of the menu placed on left of the links.
+              .section {
+                position: absolute;
+                width: 100%;
+                left: 0;
+                top: 0;
+                height: 100%;
+
+                a {
+                  height: 100%;
+                  position: absolute;
+                  background: $local-dropdown-section-bg;
+                  width: 100%;
+                  right: 50%;
+                  margin-right: $local-dropdown-width / 2 - $local-dropdown-column-width + $local-dropdown-link-horizontal-padding;
+                  @include breakpoint($breakpoint-lg-up) {
+                    margin-right: $local-dropdown-width-lg / 2 - $local-dropdown-column-width-lg + $local-dropdown-link-horizontal-padding-lg;
+                  }
+                  .inner {
+                    padding: $spacing-vertical-top-lg $grid-gutter-width $spacing-vertical-bottom-lg ($grid-gutter-width / 2);
+                    width: $local-dropdown-section-width - $grid-gutter-width;
+                    @include breakpoint($breakpoint-lg-up) {
+                      width: $local-dropdown-section-width-lg - $grid-gutter-width;
+                      padding-left: $grid-gutter-width - 5;
+                    }
+                    right: 0;
+                    position: absolute;
+
+                    h2.title {
+                      @include font($local-main-item-font-size, 'futura');
+                      line-height: $local-main-item-font-size;
+                      @include breakpoint($breakpoint-lg-up) {
+                        font-size: $local-main-item-font-size-lg;
+                        line-height: $local-main-item-font-size-lg;
+                      }
+                      color: $color-white;
+                      line-height: 150%;
+                      margin: {
+                        bottom: $spacing-vertical-bottom;
+                        top: 0;
+                      }
+                    }
+
+                    .summary {
+                      display: inline-block;
+                      color: $color-white;
+                      margin-bottom: 30px;
+                    }
+
+                    .button {
+                      @include border-radius(4px);
+                      display: inline-block;
+                      background-color: $local-main-item-hover-color;
+                      border: solid 2px $local-main-item-hover-color;
+                      text-align: center;
+                      color: $color-white;
+                      padding: $grid-gutter-width/2 32px;
+                      @include font($local-dropdown-link-font-size-lg, 'futura');
+                      line-height: $local-dropdown-link-font-size-lg;
+                      white-space: nowrap;
+                      width: 150px;
+                      height: 50px;
+                      @include breakpoint($breakpoint-lg-up) {
+                        width: 170px;
+                        font-size: $local-main-item-font-size;
+                        line-height: $local-main-item-font-size;
+                      }
+
+                      &:hover {
+                        color: $local-dropdown-section-bg;
+                        background: $local-dropdown-button-hover;
+                        border-color: $local-dropdown-button-hover;
+                        cursor: pointer;
+                      }
+                    }
+                  }
+                  &:hover {
+                    .button {
+                      color: $local-dropdown-section-bg;
+                      background: $local-dropdown-button-hover;
+                      border-color: $local-dropdown-button-hover;
+                    }
+                  }
+                }
+              }
+
+              .leaf,
+              .expanded {
+                // All links in the dropdown columns.
+                a {
+                  @include menu-link($local-dropdown-link-color, $local-dropdown-link-color-hover, $local-dropdown-link-color, $local-dropdown-link-color-active);
+                  position: relative;
+                  display: block;
+                  padding: {
+                    top: $local-dropdown-link-vertical-padding;
+                    right: $local-dropdown-column-width / 3 + $local-dropdown-link-horizontal-padding;
+                    bottom: 0;
+                    left: $local-dropdown-link-horizontal-padding;
+                  }
+                  // Leave space for arrow for all links.
+                  width: $local-dropdown-column-width;
+                  color: $local-dropdown-link-color;
+                  font-size: $local-dropdown-link-font-size;
+                  @include breakpoint($breakpoint-lg-up) {
+                    padding: {
+                      top: $local-dropdown-link-vertical-padding;
+                      right: $local-dropdown-column-width-lg / 3 + $local-dropdown-link-horizontal-padding-lg;
+                      bottom: 0;
+                      left: $local-dropdown-link-horizontal-padding-lg;
+                    }
+                    // Leave space for arrow for all links.
+                    width: $local-dropdown-column-width-lg;
+                    font-size: $local-dropdown-link-font-size-lg;
+                  }
+                }
+              }
+
+              // Add arrows to expanded items.
+              .expanded {
+                > a {
+                  &:after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: $local-dropdown-column-width / 3 * 2 + $local-dropdown-link-horizontal-padding;
+                    // Set the space to the maximum arrow width to allow it to
+                    // grow without re-flowing links.
+                    width: $local-dropdown-link-arrow-active-width;
+                    height: $local-dropdown-link-arrow-height;
+                    // Make arrow start at the top of the first line of the menu
+                    // link - add margin same as padding of the link.
+                    margin-top: $local-dropdown-link-vertical-padding;
+                    background: url($image-dropdown-link-arrow) no-repeat center left;
+                    @include breakpoint($breakpoint-lg-up) {
+                      left: $local-dropdown-column-width-lg / 3 * 2 + $local-dropdown-link-horizontal-padding-lg;
+                      background: url($image-dropdown-link-arrow-lg) no-repeat center left;
+                      width: $local-dropdown-link-arrow-active-width-lg;
+                    }
+                    @include transition(background-image 0.2s cubic-bezier(0.645, 0.045, 0.355, 1));
+                  }
+                }
+              }
+
+              > .level-3 {
+                @include menu-item-behaviour-column(2);
+
+                &.first {
+                  margin-top: $local-dropdown-column-vertical-padding;
+                  &>a {
+                    padding-top: 0;
+                    &:after {
+                      margin-top: 0;
+                    }
+                  }
+                }
+
+                &.last {
+                  margin-bottom: $local-dropdown-column-vertical-padding;
+                }
+
+                > .menu-wrapper {
+                  margin: 0;
+                  // This is positioned within grandfather.
+                  margin-left: $local-dropdown-column-width;
+                  @include breakpoint($breakpoint-lg-up) {
+                    margin-left: $local-dropdown-column-width-lg;
+                  }
+                  top: $local-dropdown-column-vertical-padding;
+                  @include debug-container();
+
+                  > .menu {
+                    position: relative;
+                    margin: 0;
+
+                    > .level-4 {
+                      @include menu-item-behaviour-column(3);
+                      &.first {
+                        &>a {
+                          padding-top: 0;
+                          &:after {
+                            margin-top: 0;
+                          }
+                        }
+                      }
+                      // Add double vertical spacing due to the absolute
+                      // positioning of current menu container at this level.
+                      // Resulting height will be overflowing the container,
+                      // but will be hidden by it.
+                      &:last-child {
+                        padding-bottom: $local-dropdown-column-vertical-padding * 2;
+                      }
+
+                      > .menu-wrapper {
+                        margin: 0;
+                        // This sits within previous level.
+                        margin-left: $local-dropdown-column-width;
+                        @include breakpoint($breakpoint-lg-up) {
+                          margin-left: $local-dropdown-column-width-lg;
+                        }
+                        @include debug-container();
+                        > .menu {
+                          position: relative;
+                          margin: 0;
+
+                          > .level-5 {
+                            // Add double vertical spacing due to the absolute
+                            // positioning of current menu container at this level.
+                            // Resulting height will be overflowing the container,
+                            // but will be hidden by it.
+                            &:last-child {
+                              padding-bottom: $local-dropdown-column-vertical-padding * 2;
+                            }
+                            &.first {
+                              &>a {
+                                padding-top: 0;
+                                &:after {
+                                  margin-top: 0;
+                                }
+                              }
+                            }
+                            // Reset right spacing for arrow in the last
+                            // column.
+                            &.leaf,
+                            &.expanded {
+                              a {
+                                // Leave space for arrow for all links.
+                                padding-right: $local-dropdown-link-horizontal-padding;
+                                @include breakpoint($breakpoint-lg-up) {
+                                  padding-right: $local-dropdown-link-horizontal-padding-lg;
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            // Close button - added via JS.
+            .close {
+              @extend %close;
+              position: absolute;
+              bottom: $local-dropdown-column-vertical-padding + 5px;
+              line-height: 37px;
+              right: -($local-dropdown-width / 2 - $grid-gutter-width);
+              @include breakpoint($breakpoint-lg-up) {
+                right: -($local-dropdown-width-lg / 2 - $grid-gutter-width - $local-main-item-icon-space);
+              }
+              margin-right: 50%;
+              @include transparent;
+              @include transition(opacity $local-dropdown-close-speed / 2 linear 0);
+              z-index: $local-dropdown-z-index-close;
+
+            }
+          }
+          // No-JS version for dropdown.
+          .no-js & {
+            &:hover {
+              > .menu-wrapper {
+                > .menu {
+                  > .level-3 {
+                    @include menu-item-behaviour-column-hover-no-js();
+                    > .menu-wrapper {
+                      > .menu {
+                        > .level-4 {
+                          @include menu-item-behaviour-column-hover-no-js();
+                          > .menu-wrapper {
+                            > .menu {
+                              > .level-5 {
+                                @include menu-item-behaviour-column-hover-no-js();
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              .close {
+                //display: block;
+                // Default value for close button from Bootstrap.
+                opacity: .2;
+                @include transition(opacity $local-dropdown-open-speed / 2 linear $local-dropdown-open-speed / 2);
+              }
+            }
+          }
+
+          // JS-based version for dropdown.
+          &.open {
+            > .menu-wrapper {
+              > .menu {
+                > .level-3 {
+                  @include menu-item-behaviour-column-hover-js();
+                  > .menu-wrapper {
+                    > .menu {
+                      > .level-4 {
+                        @include menu-item-behaviour-column-hover-js();
+                        > .menu-wrapper {
+                          > .menu {
+                            > .level-5 {
+                              @include menu-item-behaviour-column-hover-js();
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            .close {
+              //display: block;
+              // Default value for close button from Bootstrap.
+              opacity: .2;
+              @include transition(opacity $local-dropdown-open-speed / 2 linear $local-dropdown-open-speed / 2);
+            }
+          }
+        }
+      }
+    }
+
+    // Debug last menu item in the list.
+    .menu {
+      li {
+        &:last-child {
+          @include debug-container(#1e6394);
+        }
+      }
+    }
+  }
+}
+
+// Responsive handling of overlay behavior.
+#mainMenuOverlay {
+  display: none !important;
+}
+
+@include breakpoint ($breakpoint-md-up) {
+  #mainMenuOverlay {
+    display: block !important;
+  }
+}

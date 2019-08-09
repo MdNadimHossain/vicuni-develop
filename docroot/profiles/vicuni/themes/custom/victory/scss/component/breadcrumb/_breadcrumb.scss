@@ -1,0 +1,41 @@
+// Breadcrumb styling.
+.breadcrumb {
+  @include font(10px, 'futura', 500);
+
+  background-color: transparent;
+  border: none;
+  color: $color-white;
+  line-height: 16px;
+  margin-bottom: 10px;
+  padding: 0;
+  height: 45px;
+
+  @include breakpoint($breakpoint-sm-up) {
+    @include font(11px, 'futura', 500);
+    line-height: 15px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  @include breakpoint($breakpoint-md-up) {
+    height: 65px;
+    @include font(14px, 'futura', 500);
+    line-height: 22px;
+  }
+
+  > li {
+    + li:before {
+      color: $color-white;
+      content: "\003e";
+    }
+
+    &:last-child:after {
+      color: $color-white;
+      content: "\003e";
+      padding: 0 5px;
+    }
+  }
+  a, .active {
+    color: $color-white;
+  }
+}

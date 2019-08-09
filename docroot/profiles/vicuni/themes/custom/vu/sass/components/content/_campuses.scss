@@ -1,0 +1,190 @@
+@charset "UTF-8";
+.campuses_sidebar_menu {
+  @include breakpoint(tablet) {
+    max-width: 225px;
+  }
+  > span.section-link {
+    display: none;
+  }
+  padding: 20px;
+  background-color: $light_blue;
+  margin: 11px 0;
+  -webkit-font-smoothing: auto;
+  h2.block-title {
+    font-size: 18px;
+    line-height: 27px;
+    margin: 0;
+    font-weight: bold;
+    margin: 2px 0;
+    color: #000000;
+  }
+  .menu-block-wrapper {
+    padding-top: 15px;
+  }
+  ul.menu.nav {
+    margin: 0;
+    padding: 0;
+    li, li.leaf {
+      margin: 4px 0 4px 15px;
+      list-style-type: square;
+      padding-left: 0;
+      color: $blue;
+      display: list-item;
+      font-size: 13px;
+      a {
+        background: none;
+        margin: 0;
+        padding: 0;
+        &.active {
+          background: none;
+          text-shadow: none;
+          padding: 0;
+          color: inherit;
+        }
+        &:visited {
+          color: purple;
+        }
+      }
+    }
+  }
+}
+
+
+/* Related facilities styles */
+
+.in-this-section.view-campuses-related-blocks {
+  .view-header {
+    margin-bottom: 20px;
+    margin-top: 20px;
+    h2 {
+      color: inherit;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1.2;
+      &:hover {
+        text-decoration: none !important;
+        color: inherit;
+      }
+    }
+  }
+  ul li a {
+    @media (max-width: ($breakpoint_tablet - 1)) {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  }
+}
+
+
+/*mobile overrides */
+
+.window-sm .campuses_sidebar_menu {
+  h2.block-title {
+    cursor: pointer;
+  }
+}
+
+
+/* Campus journey planner block */
+
+.campus-journey-planner {
+  margin-top: 20px;
+  & > div {
+    padding-left: 0 !important;
+    padding-right: 15px !important;
+    margin-bottom: 20px;
+  }
+  h3 {
+    background: url(../images/campus-sprite.png) no-repeat;
+    display: block;
+    height: 25px;
+    line-height: 25px;
+    padding-left: 34px;
+    margin-bottom: 7px;
+  }
+  .address {
+    line-height: 20px;
+    font-size: 16px;
+    h3 {
+      background-position: left -75px;
+    }
+  }
+  .by-ptv {
+    h3 {
+      background-position: left 0;
+    }
+    a:after {
+      content: "\0020\25B8";
+    }
+  }
+  .by-road {
+    padding-right: 0 !important;
+    h3 {
+      background-position: left -25px;
+    }
+    label {
+      color: black;
+      width: 45px;
+      font-size: 13px;
+      float: left;
+      font-weight: normal;
+    }
+    form > div {
+      margin: 7px 0;
+    }
+    input[type='text'], select {
+      border: 1px solid #cccccc;
+      background: white;
+      box-sizing: border-box;
+      height: 28px;
+      font-size: 1em;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      transition: border linear .2s, box-shadow linear .2s;
+      border-radius: 3px;
+      width: 80%;
+    }
+    select {
+      font-size: 13px;
+    }
+    input[type='submit'] {
+      width: 70%;
+      background: $offwhite2;
+      margin-left: 45px;
+    }
+  }
+}
+
+#block-vumain-vumain-campus-image-thumb {
+  margin-bottom: 30px;
+}
+
+section.googlemaps {
+  margin-bottom: 24px;
+  .tab-content {
+    margin-top: 24px;
+  }
+  .tab-pane, #campus-map {
+    img {
+      max-width: 100%;
+    }
+  }
+  #google-map {
+    @include breakpoint(tablet) {
+      padding-right: 30px;
+    }
+  }
+}
+
+section.campus-location-maps {
+  position: relative;
+  padding-bottom: 84%; // This is the aspect ratio
+  height: 0;
+  overflow: hidden;
+  #campus-location-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}

@@ -1,0 +1,90 @@
+<?php
+/**
+ * @file
+ * Mid-Year Intake install.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function vu_midyear_intake_install() {
+  vu_midyear_intake_update_7001();
+  vu_midyear_intake_update_7002();
+}
+
+/**
+ * Create field_course_midyear_intake.
+ */
+function vu_midyear_intake_update_7001() {
+  if (!field_info_field('field_course_midyear_intake')) {
+    $field = array(
+      'field_name' => 'field_course_midyear_intake',
+      'type' => 'list_boolean',
+      'module' => 'list',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+      'settings' => array(
+        'allowed_values' =>
+          array(
+            0 => 'No',
+            1 => 'Yes',
+          ),
+        'allowed_values_function' => '',
+      ),
+    );
+    field_create_field($field);
+  }
+
+  if (!field_info_instance('node', 'field_course_midyear_intake', 'courses')) {
+    $instance = array(
+      'field_name' => 'field_course_midyear_intake',
+      'entity_type' => 'node',
+      'bundle' => 'courses',
+      'label' => 'Available for Mid-Year Intake',
+      'required' => FALSE,
+      'default_value' => array(
+        0 => array(
+          'value' => 0,
+        ),
+      ),
+      'widget' => array(
+        'weight' => 50,
+        'type' => 'options_onoff',
+        'module' => 'options',
+        'active' => 1,
+        'settings' => array(
+          'display_label' => 1,
+        ),
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Set default value for vu_midyear_intake_source.
+ */
+function vu_midyear_intake_update_7002() {
+  global $databases;
+  foreach ($databases as $key => $targets) {
+    foreach ($targets as $target => $info) {
+      if (Database::getConnection($target, $key)
+        ->schema()
+        ->tableExists('course_intake')
+      ) {
+        variable_set('vu_midyear_intake_source', "$key:$target");
+        break;
+      }
+    }
+  }
+}

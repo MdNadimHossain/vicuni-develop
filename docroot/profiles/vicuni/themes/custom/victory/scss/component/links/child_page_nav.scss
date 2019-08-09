@@ -1,0 +1,197 @@
+.child-page-nav {
+  @include clearfix;
+
+  margin: 0;
+
+  ul.menu {
+    @include no-bullets;
+
+    border-top: 3px solid $color-blue-loblolly;
+    border-bottom: 2px solid $color-blue-loblolly;
+    margin: 0;
+    padding: 0;
+    line-height: inherit;
+
+    & > li {
+      display: block;
+      padding: 0;
+      clear: left;
+      &:before {
+        display: none;
+      }
+
+      & > a {
+        @include font(20px, 'futura', 400);
+        @include victory-link-arrows(20px, 24px);
+
+        align-items: center;
+        border-bottom: 1px solid $color-blue-loblolly;
+        @include display-flex;
+        @include flex-wrap(wrap);
+        color: $color-blue-elephant;
+        line-height: 26px;
+        padding: 18px 0;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+
+        &:active, &:focus, &:hover {
+          background: transparent;
+          color: $color-blue-lochmara;
+          text-decoration: none;
+        }
+
+        @include breakpoint($breakpoint-md-up) {
+          @include victory-link-arrows(43px, 24px);
+        }
+
+        p {
+          .summary {
+            @include font(14px, $fonts-default, normal);
+
+            display: block;
+            color: $color-black-mine_shaft;
+            line-height: 22px;
+
+            @include breakpoint($breakpoint-xs) {
+              display: none;
+            }
+          }
+
+          margin-bottom: 0;
+          padding-right: 50px;
+          width: 100%;
+
+          @include breakpoint($breakpoint-sm-up) {
+            padding-right: calc(#{ceil(percentage((1/$grid-columns)))} + #{$grid-gutter-width});
+          }
+        }
+      }
+    }
+  }
+
+  // First 4 need to be blocks for top level pages
+  &.first-four-block ul.menu li {
+    @include breakpoint($breakpoint-sm-up) {
+      &:nth-child(-n+4) {
+        width: 50%;
+        float:left;
+        clear: none;
+
+        & > a {
+          padding: 30px 0;
+
+          min-height: 366px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+
+          @include breakpoint($breakpoint-lg-up) {
+            min-height: 270px;
+          }
+
+          p {
+            .title {
+              @include font(27px, 'futura', 400);
+              line-height: 1.3em;
+            }
+
+            .summary {
+              display: block;
+              padding-top: 12px;
+              min-height: 7em;
+            }
+          }
+
+          &:after {
+            clear: both;
+            display: block;
+            transition: left 0.2s cubic-bezier(0.645,0.045,0.355,1);
+            float: none;
+            margin: 0;
+            position: absolute;
+            top: auto;
+            right: auto;
+            left: 0;
+            bottom: 18px;
+          }
+
+          &:hover:after {
+            right: auto;
+            left: 10px;
+          }
+        }
+      }
+
+      &:nth-child(n+5) {
+        & > a .summary {display:none;}
+      }
+    }
+  }
+
+  // Full length navigation block.
+  &.full-length ul.menu li {
+    @include breakpoint($breakpoint-sm-up) {
+        & > a .summary {display:block;}
+    }
+  }
+  // Extend first 4 to 12
+  &.first-twelve-block ul.menu li {
+    @include breakpoint($breakpoint-sm-up) {
+      &:nth-child(-n+12) {
+        width: 50%;
+        float:left;
+        clear: none;
+
+        & > a {
+          padding: 30px 0;
+
+          min-height: 280px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+
+          @include breakpoint($breakpoint-sm) {
+            min-height: 360px;
+          }
+
+          @include breakpoint($breakpoint-lg-up) {
+            min-height: 240px;
+          }
+
+          p {
+            .title {
+              @include font(27px, 'futura', 400);
+              line-height: 1.3em;
+            }
+
+            .summary {
+              display: block;
+              padding-top: 12px;
+              min-height: 7em;
+            }
+          }
+
+          &:after {
+            clear: both;
+            display: block;
+            transition: left 0.2s cubic-bezier(0.645,0.045,0.355,1);
+            float: none;
+            margin: 0;
+            position: absolute;
+            top: auto;
+            right: auto;
+            left: 0;
+            bottom: 18px;
+          }
+
+          &:hover:after {
+            right: auto;
+            left: 10px;
+          }
+        }
+      }
+
+
+    }
+  }
+}

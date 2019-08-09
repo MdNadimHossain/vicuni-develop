@@ -1,0 +1,149 @@
+//
+// Lower footer component.
+//
+.vu-block-lower-footer {
+  $verticalSpace: 30px;
+
+  background-color: $dark_blue10;
+  color: $white;
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  a {
+    color: $white80;
+    @include opacity(0.8);
+
+    &:active, &:focus, &:hover {
+      color: $white;
+      text-decoration: none;
+    }
+    &:hover, &:focus {
+      @include opacity(1);
+      cursor: pointer;
+    }
+  }
+
+  .middle {
+    .col {
+      .panel-pane {
+        border-bottom: 1px solid rgba($white, 0.15);
+        text-align: center;
+
+        margin-top: $verticalSpace;
+        padding-bottom: $verticalSpace;
+
+        @include breakpoint (minitablet_DEPRECATED) {
+          border-bottom: none;
+          text-align: left;
+
+          margin-top: 0;
+          &:first-child {
+            margin-top: 0;
+          }
+        }
+
+        h3.pane-title {
+          font-size: 14px;
+          line-height: 36px;
+        }
+      }
+
+      &:first-child {
+        .panel-pane {
+          &:first-child {
+            margin-top: 0;
+          }
+        }
+      }
+      &:last-child {
+        .panel-pane {
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+  }
+
+  ul.menu-footer {
+    margin: 25px 0;
+    border-top: solid 1px rgba($white, 0.15);
+    padding-top: $verticalSpace;
+
+    @include column-count(2);
+
+    @include breakpoint(minitablet_DEPRECATED) {
+      @include horizontal-list(0);
+      @include column-count(1);
+    }
+
+    li {
+      display: block;
+      width: 50%;
+      margin-right: 0;
+      margin-bottom: 20px;
+
+      @include breakpoint(minitablet_DEPRECATED) {
+        float: left;
+        margin-right: 20px;
+        width: auto;
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      a {
+        font-size: 12px;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  // Add margin to all icons which are added to content.
+  .panel-pane .pane-title .fa {
+    margin-right: 12px;
+  }
+
+  .app-content-text {
+    margin-bottom: $verticalSpace;
+  }
+  .appstore {
+    display: inline;
+
+    img {
+      opacity: 0.8;
+      &.apple-store-icon {
+        width: 98px;
+        @media only screen and (min-width: $breakpoint_tablet) and (max-width: 991px) {
+          margin-left: 7px;
+        }
+      }
+      &.google-play-logo {
+        width: 116px;
+      }
+    }
+    &:hover {
+      img {
+        opacity: 1;
+      }
+    }
+  }
+
+  .social-media-links li {
+    margin-right: 20px;
+    float: none;
+
+    @include breakpoint(minitablet_DEPRECATED) {
+      margin-right: 38px;
+    }
+
+    @include breakpoint(tablet) {
+      float: left;
+    }
+  }
+
+  .pane-vumain-vumain-copyright {
+    font-size: 12px;
+  }
+}

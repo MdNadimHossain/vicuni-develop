@@ -1,0 +1,20 @@
+#block-workbench-block div.workbench-info-block {
+  padding: 20px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  em {
+    font-weight: normal;
+  }
+  #edit-state {
+    width: auto;
+    min-width: 30%;
+  }
+  & > br:nth-of-type(5) {
+    height: 20px;
+    display: block;
+    content: " ";
+  }
+  .btn {
+    padding: 10px 20px;
+  }
+}

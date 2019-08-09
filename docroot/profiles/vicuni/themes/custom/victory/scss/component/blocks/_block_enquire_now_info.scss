@@ -1,0 +1,112 @@
+// Enquire now - info block.
+.enquire-now-info-block {
+  background-color: $color-blue-fun_blue !important;
+  color: $color-white;
+  padding: $spacing-vertical-bottom-sm;
+
+  h3 {
+    @include font($font-size-h3, 'futura', 500)
+  }
+
+  a {
+    color: $color-white;
+  }
+
+  ul {
+    @include no-bullets;
+
+    margin: 0;
+    padding-left: 0;
+
+    li {
+      @include font(14px);
+
+      margin-top: 10px;
+
+      &:before {
+        @include inline-block;
+
+        width: 30px;
+      }
+
+      a {
+        border-bottom: 1px solid $color-white;
+        box-shadow: none;
+
+        &:active, &:hover, &:focus {
+          background-color: transparent;
+        }
+      }
+
+      &.enquire-now-info {
+        &__link {
+          @include fa-before('\f041');
+        }
+
+        &__phone {
+          @include fa-before('\f095');
+
+          a {
+            border: none;
+
+            &:after {
+              display: none !important;
+            }
+          }
+        }
+
+        &__contact {
+          @include fa-before('\f086');
+        }
+
+        &__ask {
+          @include fa-before('\f059');
+        }
+      }
+    }
+  }
+
+  &__tafe {
+    background-color: $color-branding-vicpoly-bg !important;
+    position: relative;
+
+    &:before {
+      //background-image: url('../images/brands/vicpoly.svg');
+      background-repeat: no-repeat;
+      content: ' ';
+      display: block;
+      height: 34px;
+      position: absolute;
+      right: 28px;
+      top: 26px;
+      width: 34px;
+    }
+  }
+
+  &__pgr {
+    ul li.enquire-now-info__contact {
+      @include fa-before('\f0e0');
+    }
+  }
+}
+
+// Override other CSS behaviours.
+* {
+  .col-md-4 > {
+    .field-name-enquire-now-info {
+      padding: 0 !important;
+    }
+  }
+
+  .col-md-4 > .enquire-now-info-block,
+  .content .field-name-enquire-now-info {
+    a {
+      box-shadow: none !important;
+      background-color: inherit !important;
+    }
+
+    ul {
+      margin-left: 0 !important;
+    }
+  }
+}

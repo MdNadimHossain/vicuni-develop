@@ -1,0 +1,98 @@
+<?php
+/**
+ * @file
+ * VU Enquire Now install file.
+ */
+
+/**
+ * Implements hook_schema()
+ */
+function vu_enquire_now_schema() {
+  return array(
+    'enquire_now_submissions' => array(
+      'fields' => array(
+        'sid' => array(
+          'description' => 'Autoincrement surrogate primary key',
+          'type' => 'serial',
+          'not null' => TRUE,
+        ),
+        'drupal_submitted' => array(
+          'description' => 'UNIX timestamp recording the moment of submission',
+          'type' => 'int',
+          'size' => 'big',
+          'not null' => TRUE,
+          'unsigned' => TRUE,
+        ),
+        'boomi_submitted' => array(
+          'description' => "UNIX timestamp: when the submission was retrieved by Boomi, 0 if it hasn't been",
+          'type' => 'int',
+          'size' => 'big',
+          'not null' => TRUE,
+          'unsigned' => TRUE,
+          'default' => 0,
+        ),
+        'first_name' => array(
+          'type' => 'text',
+          'size' => 'small',
+        ),
+        'last_name' => array(
+          'type' => 'text',
+          'size' => 'small',
+        ),
+        'email' => array(
+          'type' => 'text',
+          'size' => 'small',
+          'not null' => TRUE,
+        ),
+        'phone' => array(
+          'type' => 'text',
+          'size' => 'small',
+        ),
+        'course' => array(
+          'type' => 'text',
+          'size' => 'small',
+        ),
+        'school' => array(
+          'type' => 'text',
+          'size' => 'small',
+        ),
+        'comment' => array(
+          'type' => 'text',
+        ),
+        'opt_in' => array(
+          'type' => 'text',
+          'size' => 'small',
+        ),
+        'postal' => array(
+          'type' => 'int',
+        ),
+        'timeframe' => array(
+          'type' => 'text',
+        ),
+        'current_situation' => array(
+          'type' => 'text',
+        ),
+        'area_of_interest' => array(
+          'type' => 'text',
+        ),
+      ),
+      'primary key' => array('sid'),
+      'indexes' => array(
+        'drupal_submitted' => array('drupal_submitted'),
+        'boomi_submitted' => array('boomi_submitted'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Add new fields to Course Index.
+ */
+function vu_enquire_now_update_7002() {
+  $schema = vu_enquire_now_schema();
+  foreach ($schema['enquire_now_submissions']['fields'] as $field => $spec) {
+    if (!db_field_exists('enquire_now_submissions', $field)) {
+      db_add_field('enquire_now_submissions', $field, $spec);
+    }
+  }
+}

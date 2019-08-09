@@ -1,0 +1,2 @@
+Updates course title to remove course code from TAFE course titles.
+Removes the old campaign bean and adds the homepage hero banner.

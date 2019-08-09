@@ -1,0 +1,6 @@
+name = Workbench Moderation Overrides
+description = Overrides the Workbench Moderation behaviour that automatically sets a "moderator log" message
+core = 7.x
+package = VU
+
+dependencies[] = workbench_moderation

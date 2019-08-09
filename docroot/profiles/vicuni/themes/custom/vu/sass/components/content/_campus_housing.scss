@@ -1,0 +1,43 @@
+@charset "UTF-8";
+.node-campus-housing {
+  .image-caption {
+    @include breakpoint(tablet) {
+      float: right;
+    }
+  }
+  h2 {
+    @extend .h2-heading-dotted;
+  }
+  .field-name-body {
+    h2 {
+      &:first-of-type {
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+  .field-name-field-directions {
+    margin-bottom: 9px;
+  }
+  iframe {
+    margin-top: 14px;
+    margin-bottom: 14px;
+  }
+}
+
+.node-type-campus-housing .region-content {
+  .block {
+    h2 {
+      @extend .h2-heading-dotted;
+    }
+    &.vu-campus-housing-victoria-place {
+      a {
+        border-bottom: 1px solid $grey9;
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

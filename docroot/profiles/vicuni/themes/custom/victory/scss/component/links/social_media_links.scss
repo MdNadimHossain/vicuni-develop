@@ -1,0 +1,92 @@
+//
+// Social Media Links block.
+//
+
+.social-media-links {
+  @include horizontal-list(false);
+  li {
+    margin-bottom: $spacing-vertical-bottom-xs;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .fa {
+    span {
+      @include sr-only();
+    }
+    margin-right: 0px !important;
+  }
+
+  &.vu-sydney-footer-media {
+    @include breakpoint($breakpoint-xs) {
+      display: inline-flex;
+    }
+    @include breakpoint($breakpoint-sm) {
+      li {
+        margin-right: 38px !important;
+      }
+    }
+    @include breakpoint($breakpoint-md-up) {
+      display: inline-flex;
+    }
+  }
+
+  &.page-connect {
+    .fa {
+      font-size: 25px;
+      line-height: 24px;
+    }
+    li {
+      margin-left: 20px;
+
+      &:first-child {
+        margin-left: 0px;
+      }
+    }
+  }
+}
+
+.override-social-links-footer .pane-vumain-vumain-social-media-links.footer-connect {
+  .pane-content {
+    ul {
+      padding: 0px;
+      @include breakpoint($breakpoint-xs) {
+        display: inline-block;
+        margin-bottom: -16px;
+      }
+      @include breakpoint($breakpoint-lg-up) {
+        padding: 0px 35px 0px 0px;
+      }
+      li {
+        list-style: none;
+        display: inline;
+        margin-right: 40px;
+        @include breakpoint($breakpoint-xs) {
+          float: left;
+          margin-right: 14px;
+          margin-left: 14px;
+        }
+        @include breakpoint($breakpoint-sm) {
+          margin-right: 20px;
+        }
+        @include breakpoint($breakpoint-md) {
+          margin-right: 40px;
+        }
+        a {
+          i.fa {
+            font-size: 30px;
+            margin-bottom: 12px;
+            margin-right: 0px !important;
+          }
+          &:hover {
+            i.fa {
+              color: $color-white;
+            }
+          }
+        }
+      }
+    }
+  }
+}

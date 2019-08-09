@@ -1,0 +1,103 @@
+//
+// Primary navigation (Main menu Level 1).
+//
+
+#block-panels-mini-vu-block-primary-menu .primary {
+  @include font(16px, 'futura', 400);
+  @include reset-box-model;
+  background: $color-grey-tundora;
+
+  display: none;
+  @include breakpoint ($breakpoint-md-up) {
+    display: block;
+  }
+
+  .pane-content {
+    @include reset-box-model;
+  }
+
+  .menu {
+    display: table;
+    margin: 0;
+    width: 100%;
+
+    .leaf {
+      @include reset-box-model;
+
+      display: table-cell;
+      vertical-align: middle;
+    }
+
+    a {
+      &,
+      .nolink {
+        color: $color-white;
+        display: block;
+        height: 50px;
+        overflow: hidden;
+        padding: {
+          bottom: $spacing-vertical-mainmenu-bottom;
+          right: $spacing-horizontal-header-gutter-md;
+          left: $spacing-horizontal-header-gutter-md;
+          top: $spacing-vertical-mainmenu-top;
+        }
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        font-weight: 500;
+        line-height: 1.375;
+
+        @include breakpoint($breakpoint-lg-up) {
+          padding: {
+            right: $spacing-horizontal-header-gutter-lg;
+            left: $spacing-horizontal-header-gutter-lg;
+          }
+        }
+
+        &:focus,
+        &:hover {
+          cursor: pointer;
+          background-color: $color-black-mine_shaft;
+        }
+
+        &.active,
+        &.active-trail {
+          background-color: $color-white;
+          color: $color-grey-tundora;
+
+          &:focus,
+          &:hover {
+            background-color: $color-white;
+            color: $color-grey-tundora;
+          }
+        }
+
+        &.fa-lock {
+          &:before {
+            @include font(16px, FontAwesome);
+          }
+        }
+      }
+    }
+
+    .separator {
+      visibility: hidden;
+      width: 100%;
+    }
+  }
+
+  &.subsite {
+    background: $color-subsite-blue;
+    a {
+      &,
+      .nolink {
+        &:focus,
+        &:hover {
+          background-color: #262626;
+          color: $color-white;
+        }
+      }
+    }
+  }
+}
+

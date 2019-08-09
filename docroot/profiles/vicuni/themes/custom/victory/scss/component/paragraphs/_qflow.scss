@@ -1,0 +1,67 @@
+.qflow-container {
+  background-color: #1F435D;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.04);
+  color: $color-white;
+  padding: 25px;
+  .qflow-title {
+    color: $color-white;
+    font-family: $font-futura;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 32px;
+    margin-top: 30px;
+  }
+  a {
+    color: $color-white;
+    text-decoration: none;
+    &.qflow-virtual-ticket {
+      .accessibility, &:after {
+        display: none;
+      }
+    }
+    &.qflow-virtual-ticket {
+      font-family: $font-futura;
+      font-size: 24px;
+      font-weight: 500;
+      line-height: 28px;
+      color: $color-blue-elephant;
+    }
+  }
+  .paragraphs-items-field-qflow-links {
+    margin-top: 20px;
+    .field-item:not(:last-child) {
+      margin-bottom: 6px;
+    }
+    a {
+      @include default-link;
+    }
+  }
+  .qflow-description {
+    margin-top: 23px;
+    a {
+      @include default-link;
+    }
+  }
+  .virtual-ticket {
+    text-align: center;
+    position: relative;
+    .ticket-icon {
+      display: block;
+      width: 100%;
+      height: 92px;
+      background: url($image-qflow);
+      background-size: 100% 92px;
+      &:hover {
+        background: url($image-qflow-hover);
+        background-size: 100% 92px;
+      }
+    }
+    .ticket-icon-text {
+      position: absolute;
+      top: 48%;
+      left: 48%;
+      transform: translate(-50%, -50%);
+      width: 75%;
+    }
+  }
+}

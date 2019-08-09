@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ * VU Researcher Profile Researchers list functionality.
+ */
+
+include_once 'vu_rp_list.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function vu_rp_list_menu() {
+  // @note: The page for a list of researchers is handled by views.
+  $items['admin/config/researcher-profile/list/add'] = [
+    'title' => 'Add new researcher',
+    'description' => 'Add new researcher',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_list_add_form'],
+    'access arguments' => ['manage researcher list'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'vu_rp_list.admin.inc',
+  ];
+
+  $items['admin/config/researcher-profile/list/delete-all'] = [
+    'title' => 'Delete all researchers',
+    'description' => 'Delete all researchers',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['vu_rp_list_delete_all'],
+    'access arguments' => ['manage researcher list'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'vu_rp_list.admin.inc',
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function vu_rp_list_permission() {
+  return [
+    'manage researcher list' => [
+      'title' => t('Manage a list of researchers'),
+      'description' => t('Manage a list of researchers'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function vu_rp_list_views_query_alter(&$view, &$query) {
+  if ($view->name == 'rp_researchers_list' && $view->current_display == 'page') {
+    $params = drupal_get_query_parameters();
+    if (isset($params['status'])) {
+      // Filter by active users - users with linked profiles.
+      if ($params['status'] == 1) {
+        $query->add_where('node', 'nid', NULL, 'IS NOT NULL');
+      }
+      elseif (!$params['status']) {
+        // Filter by inactive users - users without linked profiles.
+        $query->add_where('node', 'nid', NULL, 'IS NULL');
+      }
+    }
+    // Show users who have not logged in.
+    if (isset($params['users']) && $params['users'] == 'no-account') {
+      $query->add_where('users_cas_user', 'users_cas_user.uid', NULL, 'IS NULL');
+    }
+    // Set order by field for status.
+    if (isset($params['order']) && $params['order'] == 'status') {
+      $query->orderby[0] = [
+        'field' => 'node_field_data_field_rp_nid_nid',
+        'direction' => isset($params['sort']) ? $params['sort'] : 'ASC',
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function vu_rp_list_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  $params = drupal_get_query_parameters();
+  if (isset($params['users']) && $params['users'] == 'no-account') {
+    // Add query parameter to the form to preserve value.
+    $form['users'] = [
+      '#type' => 'hidden',
+      '#value' => $params['users'],
+    ];
+  }
+}
+
+/**
+ * Implements hook_vu_rp_api_account_is_blacklisted_alter().
+ */
+function vu_rp_list_vu_rp_api_account_is_blacklisted_alter(&$is_blacklisted, $id) {
+  $is_blacklisted = !vu_rp_list_is_existing_staff_id($id);
+}
+
+/**
+ * Check if existing staff id.
+ *
+ * @param string $staff_id
+ *   Staff id of a user.
+ *
+ * @return bool
+ *   True if the user exists.
+ *   or false.
+ */
+function vu_rp_list_is_existing_staff_id($staff_id) {
+  $staff_id = vu_core_normalise_staff_id($staff_id);
+  $result = db_select('vu_rp_list_researchers', 'rp')
+    ->fields('rp')
+    ->condition('staff_id', $staff_id)
+    ->countQuery()
+    ->execute()
+    ->fetchField();
+
+  if ($result) {
+    return TRUE;
+  }
+}
+
+/**
+ * Delete list record with specified staff id.
+ */
+function vu_rp_list_record_delete($staff_id) {
+  $staff_id = vu_core_normalise_staff_id($staff_id);
+
+  db_delete('vu_rp_list_researchers')
+    ->condition('staff_id', $staff_id)
+    ->execute();
+}
+
+/**
+ * Save record.
+ */
+function vu_rp_list_record_save($staff_id) {
+  $staff_id = vu_core_normalise_staff_id($staff_id);
+
+  // Dont save staff id if already present.
+  if (vu_rp_list_is_existing_staff_id($staff_id)) {
+    return;
+  }
+
+  $result = db_insert('vu_rp_list_researchers')
+    ->fields([
+      'staff_id' => $staff_id,
+    ])
+    ->execute();
+
+  return $result;
+}
+
+/**
+ * Remove all records from research list.
+ */
+function vu_rp_list_record_remove_all() {
+  db_truncate('vu_rp_list_researchers')->execute();
+}

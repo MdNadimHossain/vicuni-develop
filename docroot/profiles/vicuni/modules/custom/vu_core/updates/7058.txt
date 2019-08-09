@@ -1,0 +1,1 @@
+Adds placeholders for news and events on new homepage.

@@ -1,0 +1,1860 @@
+<?php
+
+/**
+ * @file
+ * Sets up the base table for our entity.
+ */
+
+use Drupal\drupal_helpers\Block;
+use Drupal\drupal_helpers\Feature;
+use Drupal\drupal_helpers\General;
+use Drupal\drupal_helpers\Menu;
+use Drupal\drupal_helpers\Module;
+use Drupal\drupal_helpers\Theme;
+use Drupal\drupal_helpers\User;
+
+/**
+ * Implements hook_schema().
+ */
+function vu_core_schema() {
+  $schema = [];
+
+  $schema['vu_pathway'] = [
+    'description' => 'The base table for vu_pathway entities.',
+    'fields' => [
+      'pathway_id' => [
+        'description' => 'Primary Key: Identifier for a vu_pathway.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      // Custom table schema borrowed from D6.
+      'country' => [
+        'type' => 'text',
+      ],
+      'departure_institution' => [
+        'type' => 'text',
+      ],
+      'departure_faculty' => [
+        'type' => 'text',
+      ],
+      'departure_school' => [
+        'type' => 'text',
+      ],
+      'departure_course_code' => [
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'departure_course_type' => [
+        'type' => 'text',
+      ],
+      'departure_course_title' => [
+        'type' => 'text',
+      ],
+      'destination_faculty' => [
+        'type' => 'text',
+      ],
+      'destination_school' => [
+        'type' => 'text',
+      ],
+      'destination_course_code' => [
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'destination_course_type' => [
+        'type' => 'text',
+      ],
+      'destination_course_title' => [
+        'type' => 'text',
+      ],
+      'credit_units' => [
+        'type' => 'int',
+        'size' => 'tiny',
+      ],
+      'credit_years' => [
+        'type' => 'text',
+        'size' => 'tiny',
+      ],
+      'departure_course_specialisation' => [
+        'type' => 'text',
+      ],
+      'destination_course_specialisation' => [
+        'type' => 'text',
+      ],
+      // End fields.
+    ],
+    'primary key' => ['pathway_id'],
+    'indexes' => [
+      'destination_course_code' => ['destination_course_code'],
+      'departure_course_code' => ['departure_course_code'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Helper to flush caches and revert features.
+ *
+ * Runs as a part of hook_persistent_update().
+ *
+ * @param array|null $modules
+ *   An array of modules to perform a hard refresh on or no modules to
+ *   use current module.
+ * @param bool $flush_caches_before
+ *   Flush caches before feature revert.
+ * @param bool $flush_caches_after
+ *   Flush caches after feature revert.
+ *
+ * @throws \DrupalUpdateException
+ */
+function vu_core_feature_revert_flush($modules = NULL, $flush_caches_before = TRUE, $flush_caches_after = TRUE) {
+  if (empty($modules)) {
+    $modules = basename(__FILE__, '.install');
+  }
+
+  $modules = is_array($modules) ? $modules : [$modules];
+
+  $revert = [];
+  foreach ($modules as $module) {
+    if (!Module::isEnabled($module)) {
+      Module::enable($module);
+    }
+
+    $info = system_get_info('module', $module);
+
+    // Specified module may not be a feature.
+    if (!isset($info['features'])) {
+      continue;
+    }
+
+    // Enable all module dependencies.
+    if (!empty($info['dependencies']) && is_array($info['dependencies'])) {
+      foreach ($info['dependencies'] as $dependency) {
+        if (!Module::isEnabled($dependency)) {
+          Module::enable($dependency);
+        }
+      }
+    }
+
+    // Forcefully clear internal Features caches to discover changes in files.
+    module_load_include('inc', 'features', 'features.export');
+    foreach (array_keys($info['features']) as $component) {
+      if ($component == 'features_api') {
+        continue;
+      }
+
+      features_get_components($component, NULL, TRUE);
+      features_include_defaults($component, TRUE);
+      features_get_default($component, $module, TRUE, TRUE);
+    }
+
+    // Build components list for feature revert.
+    $revert[$module] = array_keys($info['features']);
+  }
+
+  if ($flush_caches_before) {
+    General::messageSet('Flushing all standard Drupal caches before reverting features');
+    drupal_flush_all_caches();
+    // Make sure all stream wrappers are registered.
+    drupal_static_reset();
+    file_get_stream_wrappers();
+  }
+
+  foreach ($revert as $module => $components) {
+    foreach ($components as $component) {
+      Feature::revert($module, $component);
+    }
+  }
+
+  if ($flush_caches_after) {
+    General::messageSet('Flushing all standard Drupal caches after reverting features');
+    drupal_flush_all_caches();
+    // Make sure all stream wrappers are registered.
+    drupal_static_reset();
+    file_get_stream_wrappers();
+  }
+}
+
+/**
+ * Helper function to create test users for each role.
+ *
+ * Runs as a part of hook_persistent_update().
+ *
+ * @param int $num_users
+ *   The number of users to create for each role.
+ * @param array $roles
+ *   Optional array of roles to create. If not provided, all available roles
+ *   will be created.
+ *
+ * @throws \Exception
+ */
+function vu_core_create_role_test_users($num_users = 2, $roles = [], $prefix = '') {
+  $created_users = [];
+
+  $roles = empty($roles) ? user_roles(TRUE) : $roles;
+  foreach ($roles as $role_name) {
+    $role = user_role_load_by_name($role_name);
+    if (!$role) {
+      General::messageSet('Unable to find role: ' . $role_name);
+      continue;
+    }
+    $rid = $role->rid;
+    $role_machine_name = strtolower(preg_replace('/[^a-z]+/i', '_', $role_name));
+    for ($i = 1; $i <= $num_users; $i++) {
+      $name = $prefix . 'role_' . $role_machine_name . '_' . $i;
+      // If this test user has been created previously, skip and notify.
+      $existing_user = user_load_by_name($name);
+      if ($existing_user !== FALSE) {
+        General::messageSet('Skipped existing user: ' . $name);
+        $created_users[] = $existing_user;
+        continue;
+      }
+      $mail = $name . '@vu.edu.au';
+      $test_user = [
+        'name' => $name,
+        'pass' => $name,
+        'mail' => $mail,
+        'status' => 1,
+        'init' => $mail,
+        'roles' => [
+          DRUPAL_AUTHENTICATED_RID => 'authenticated user',
+          $rid => $role_name,
+        ],
+      ];
+      $created_user = user_save('', $test_user);
+      if ($created_user !== FALSE) {
+        General::messageSet('Created user: ' . $name);
+        $created_users[] = $created_user;
+      }
+      else {
+        General::messageSet('FAILED creating user: ' . $name);
+      }
+    }
+  }
+
+  return $created_users;
+}
+
+/**
+ * Saves a copy of the JSDelivr JSON api.
+ */
+function vu_core_jsdelivr_prepare_cache() {
+  $jsdelivr_src = drupal_get_path('module', 'vu_core') . '/assets/jsdelivr.json';
+  $jsdelivr_dest = 'public://bootstrap/cdn_providers/jsdelivr.json';
+
+  $jsdelivr_src_exists = file_exists($jsdelivr_src);
+  $jsdelivr_dest_exists = file_exists($jsdelivr_dest);
+  // Copy if the destination doesn't exist.
+  if ((!$jsdelivr_dest_exists && $jsdelivr_src_exists)
+    // Copy if the destination hash doesn't match.
+    || ($jsdelivr_src_exists && $jsdelivr_dest_exists
+      && md5_file($jsdelivr_src, TRUE) !== md5_file($jsdelivr_dest, TRUE))) {
+    General::messageSet('Creating local copy of jsdelivr.json (API).');
+    file_put_contents($jsdelivr_dest, file_get_contents($jsdelivr_src));
+  }
+}
+
+/**
+ * Implements hook_persistent_update().
+ */
+function vu_core_persistent_update() {
+  General::messageSet('PERSISTENT UPDATE STARTED', '-- ', 0);
+
+  General::messageSet('Preparing jsdelivr cache', '-- ', 0);
+  vu_core_jsdelivr_prepare_cache();
+
+  General::messageSet('Reverting main features', '-- ', 0);
+  vu_core_feature_revert_flush([
+    'vu_core',
+    'vu_rp',
+  ], FALSE);
+
+  General::messageSet('Reverting additional features', '-- ', 0);
+  vu_core_feature_revert_flush([
+    'vu_imports',
+    'vpoly_core',
+  ], FALSE);
+
+  $environment = variable_get('environment', FALSE);
+  $non_production_environments = [
+    ENVIRONMENT_LOCAL => TRUE,
+    ENVIRONMENT_DEV => TRUE,
+    ENVIRONMENT_TEST => TRUE,
+    ENVIRONMENT_TEST2 => TRUE,
+  ];
+
+  if (isset($non_production_environments[$environment])) {
+    General::messageSet('Creating test users on non-production environments.', '-- ', 0);
+    vu_core_create_role_test_users();
+
+    General::messageSet('Enabling vu_tester module.', '-- ', 0);
+    Module::enable('vu_tester');
+    $role = user_role_load_by_name('administrator');
+    user_role_grant_permissions($role->rid, ['access vu_tester']);
+
+    General::messageSet('Enabling dblog module', '-- ', 0);
+    Module::enable('dblog');
+  }
+
+  // Stop public environments being visible to google.
+  if ($environment == ENVIRONMENT_DEV || $environment == ENVIRONMENT_TEST || $environment == ENVIRONMENT_TEST2) {
+    General::messageSet('Enabling Shield in non-production environments', '-- ', 0);
+    Module::enable('shield');
+    // Turn off google maps on lower environments.
+    General::messageSet('Disabling google maps on non-production environments', '-- ', 0);
+    variable_set('google_maps_api_key', '');
+
+    General::messageSet('Overriding Robotstxt.');
+    // Set robotstxt.
+    $content = "User-agent: * \nDisallow: /";
+
+    vu_core_set_robotstxt($content);
+  }
+
+  if ($environment == ENVIRONMENT_LOCAL || $environment == ENVIRONMENT_CI) {
+    General::messageSet('Enabling simpletest module on local or CI.', '-- ', 0);
+    Module::enable('simpletest');
+    Module::enable('vu_rp_demo');
+    Module::enable('vu_rp_test');
+    // Turn off google maps on lower environments.
+    General::messageSet('Disabling google maps on non-production environments', '-- ', 0);
+    variable_set('google_maps_api_key', '');
+
+    // Allow list processing on CI.
+    if (variable_get(VU_RP_API_VARIABLE_NAME_ALLOW_ACCOUNT_PROCESSING) == FALSE) {
+      variable_set(VU_RP_API_VARIABLE_NAME_ALLOW_ACCOUNT_PROCESSING, TRUE);
+    }
+
+    // Setting private file path to accessible directory.
+    General::messageSet('Set path empty for private file on local and CI', '-- ', 0);
+    variable_set('file_private_path', '');
+  }
+
+  General::messageSet('Updating file temp path on every environment', '-- ', 0);
+  variable_set('file_temporary_path', '/tmp');
+
+  if ($environment == ENVIRONMENT_LOCAL) {
+    General::messageSet('Enabling UI modules on local', '-- ', 0);
+    Module::enable('field_ui');
+    Module::enable('ds_ui');
+    Module::enable('views_ui');
+  }
+
+  General::messageSet('PERSISTENT UPDATE FINISHED', '-- ', 0);
+}
+
+/**
+ * Enables drupal_helpers module.
+ */
+function vu_core_update_7000() {
+  module_enable(['xautoload', 'drupal_helpers']);
+  cache_clear_all();
+}
+
+/**
+ * Enables required modules.
+ */
+function vu_core_update_7001() {
+  $modules = [
+    'bugherd',
+    'vu_imports',
+    'vu_courses_xml',
+  ];
+
+  foreach ($modules as $module) {
+    Module::enable($module);
+  }
+}
+
+/**
+ * Disables development modules.
+ */
+function vu_core_update_7002() {
+  // Note that these modules will be enabled via contexts in local environment.
+  $modules = [
+    'bean_admin_ui',
+    'context_ui',
+    'feeds_tamper_ui',
+    'feeds_ui',
+    'field_ui',
+    'migrate_d2d_ui',
+    'migrate_ui',
+    'module_filter',
+  ];
+
+  foreach ($modules as $module) {
+    Module::disable($module, FALSE);
+  }
+}
+
+/**
+ * Reverts vu_core feature.
+ */
+function vu_core_update_7003() {
+  // Since this feature contains other module's settings, such as permissions,
+  // it should be reverted after all other modules being enabled. Otherwise,
+  // such settings will not be reverted and the feature revert would need
+  // to be run again after a module being enabled.
+  Feature::revert('vu_core');
+}
+
+/**
+ * Updates courses/search menu item in the Informational navigation links menu.
+ */
+function vu_core_update_7004() {
+  // This update will be rolled back on migration. Please use postImport()
+  // on respective migration class.
+  // @see VUMenuItemMigration::postImport()
+  Menu::updateItem('primary-links', ['link_title' => 'Search for courses'], ['link_path' => 'courses/search']);
+}
+
+/**
+ * Enables persistent_update module.
+ */
+function vu_core_update_7005() {
+  Module::enable('persistent_update');
+  // Explicitly run feature revert and flush caches as persistent_update's
+  // hook is not available until next update run.
+  vu_core_feature_revert_flush(['vu_core', 'vu_imports']);
+}
+
+/**
+ * Fixes hidden menu on webform nodes.
+ */
+function vu_core_update_7006() {
+  // Add the sidebar Persuasive menu (7) to webform content type.
+  $menu_webform = [
+    'module' => 'menu_block',
+    'delta' => '7',
+    'type' => 'webform',
+  ];
+  db_merge('block_node_type')
+    ->key($menu_webform)
+    ->insertFields($menu_webform)
+    ->execute();
+
+  // Add the sidebar Subsite menu (8) to webform content type.
+  $menu_webform = [
+    'module' => 'menu_block',
+    'delta' => '8',
+    'type' => 'webform',
+  ];
+  db_merge('block_node_type')
+    ->key($menu_webform)
+    ->insertFields($menu_webform)
+    ->execute();
+}
+
+/**
+ * Disables facet api blocks in block system. They're now managed in Context.
+ */
+function vu_core_update_7007() {
+  $deltas = [
+    'AWbALQ1bDORjU4RTfNayojdl9guWb0kS',
+    'JsMibik3AsNhra6N2CxxI0lGTlMkyGqs',
+    'xJNVNXh0gHtViI7xJQw2jGrDxJkQ2xhg',
+    'Tbp5BL9nDwdi0rFLwc0lliAFPfk48bxx',
+    'IA5mcSIsWs5DMsH4vZeq4jEyw7ZDV1Tc',
+    'OQMJIvoLQqkmIkx1rM5Wq6i91dtY2w1F',
+    'FspOblNDasyhQfd5XqWECHV3Gtm1onCW',
+  ];
+  foreach ($deltas as $block_delta) {
+    Block::remove($block_delta, 'facetapi', 'vu');
+  }
+}
+
+/**
+ * Removes 'welcome-to-vu' redirect that causes redirect loops.
+ */
+function vu_core_update_7008() {
+  $rid = redirect_load_by_source('welcome-to-vu');
+  if ($rid) {
+    redirect_delete($rid);
+  }
+}
+
+/**
+ * Deletes old Courses feeds importers.
+ */
+function vu_core_update_7009() {
+  ctools_include('export');
+  $importers = ['courses_na', 'courses_vet'];
+  foreach ($importers as $importer) {
+    $importer = ctools_export_crud_load('feeds_importer', $importer);
+    ctools_export_crud_delete('feeds_importer', $importer);
+  }
+}
+
+/**
+ * Disables Featured content block in block system. It's now managed in Context.
+ */
+function vu_core_update_7010() {
+  Block::remove('featured_content', 'vumain', 'vu');
+}
+
+/**
+ * Re-registers existing/new VUMigrations.
+ */
+function vu_core_update_7011() {
+  migrate_static_registration();
+}
+
+/**
+ * Disables current search block in block system. It is now managed in Context.
+ */
+function vu_core_update_7012() {
+  Block::remove('standard', 'current_search', 'vu');
+}
+
+/**
+ * Removes manually added inline entities.
+ */
+function vu_core_update_7013() {
+  $query = new EntityFieldQuery();
+  $entity_type = 'inline_entities';
+  $query->entityCondition('entity_type', $entity_type)
+    ->entityCondition('bundle', [
+      'topic_page_content',
+      'topic_page_sidebar_content',
+    ], 'IN');
+  $result = $query->execute();
+  if ($result && count($result[$entity_type])) {
+    foreach ($result[$entity_type] as $entity_id => $entity_value) {
+      $wrapper = entity_metadata_wrapper($entity_type, $entity_id);
+
+      // Manually created files conflict with file migration.
+      // Quite troublesome thus delete them all!
+      if (isset($wrapper->field_image)) {
+        $value = $wrapper->field_image->value();
+        if (is_array($value) && !empty($value['fid'])) {
+          $file = file_load($value['fid']);
+          file_delete($file, TRUE);
+        }
+        $wrapper->field_image = NULL;
+        $wrapper->save();
+      }
+      // We can now safely delete the entity.
+      entity_delete($entity_type, $entity_id);
+    }
+  }
+}
+
+/**
+ * Deletes legacy Drupal 6 roles in favour of new Author/Approver/etc roles.
+ */
+function vu_core_update_7014() {
+  foreach (['WS publisher', 'publisher'] as $role_name) {
+    $role = user_role_load_by_name($role_name);
+    if ($role) {
+      user_role_delete((int) $role->rid);
+    }
+  }
+}
+
+/**
+ * Change type of field_main_content_caption.
+ */
+function vu_core_update_7015() {
+  db_update('field_config')
+    ->fields(['type' => 'text_long'])
+    ->condition('field_name', 'field_main_content_caption')
+    ->execute();
+
+  db_change_field('field_data_field_main_content_caption', 'field_main_content_caption_value', 'field_main_content_caption_value', [
+    'type' => 'varchar',
+    'length' => '1000',
+  ]);
+
+  db_change_field('field_revision_field_main_content_caption', 'field_main_content_caption_value', 'field_main_content_caption_value', [
+    'type' => 'varchar',
+    'length' => '1000',
+  ]);
+
+  field_cache_clear(TRUE);
+}
+
+/**
+ * Disables Footer menu block in block system. It's now managed in Context.
+ */
+function vu_core_update_7016() {
+  Block::remove('menu-footer', 'menu', 'vu');
+}
+
+/**
+ * Enables special_menu_items module.
+ */
+function vu_core_update_7017() {
+  Module::enable('special_menu_items');
+  Module::enable('panels');
+  Module::enable('panels_mini');
+  drupal_flush_all_caches();
+}
+
+/**
+ * Reverts menus to make footer-useful-links menu available.
+ */
+function vu_core_update_7018() {
+  Feature::revert('vu_core', 'menu');
+}
+
+/**
+ * Runs Menu migration.
+ */
+function vu_core_update_7019() {
+  migrate_static_registration();
+  $migration = Migration::getInstance('VUMenu');
+  // Need to rollback for a 'clean' import.  Partial import on top of already
+  // migrated items will not preserve existing items.
+  $migration->processRollback();
+  $migration->processImport(['force' => TRUE]);
+}
+
+/**
+ * Removes obsolete Useful Menu Links menu.
+ */
+function vu_core_update_7020() {
+  menu_delete(['menu_name' => 'menu-useful-links']);
+}
+
+/**
+ * Removes TB Megamenu module.
+ */
+function vu_core_update_7021() {
+  Module::remove('tb_megamenu');
+  drupal_flush_all_caches();
+  db_drop_table('tb_megamenus');
+}
+
+/**
+ * Disables 'Powered by Drupal' block.
+ */
+function vu_core_update_7022() {
+  Block::remove('powered-by', 'system', 'vu');
+}
+
+/**
+ * Removes blocks from header region.
+ */
+function vu_core_update_7023() {
+  Block::remove('menu-header-area', 'menu', 'vu');
+  Block::remove('menu-header-area', 'google_appliance', 'vu');
+  Block::remove('ga_block_search_form', 'tb_megamenu', 'vu');
+  Block::remove('ga_block_search_form', 'google_appliance', 'vu');
+}
+
+/**
+ * Removes course finder block in homepage.
+ *
+ * It's managed in context now.
+ */
+function vu_core_update_7024() {
+  Block::remove('homepage_course_finder_box', 'vumain', 'vu');
+}
+
+/**
+ * Enables menu_attributes module.
+ */
+function vu_core_update_7025() {
+  Module::enable('menu_attributes');
+}
+
+/**
+ * Updates system table 'info' column from blob => longblob.
+ */
+function vu_core_update_7026() {
+  // At the time of this update hook running the info column should already be
+  // longblob. This update hook is to keep a record of when this change was
+  // made.
+  db_change_field("system", "info", "info", [
+    'type' => 'blob',
+    "size" => "big",
+  ]);
+}
+
+/**
+ * Adds custom Our Students Bean.
+ */
+function vu_core_update_7027() {
+  $bean = bean_create(['type' => 'student_testimonials']);
+  $bean->label = 'VU English - Our Students';
+  $bean->title = 'Our Students';
+  $bean->delta = 'vu_english-our_students_block';
+  $bean->save();
+}
+
+/**
+ * Adds user accounts.
+ */
+function vu_core_update_7028() {
+  $users = [
+    'alex@realityloop.com' => 'administrator',
+    'allan.walker@vu.edu.au' => 'administrator',
+    'guy@realityloop.com' => 'administrator',
+  ];
+  foreach ($users as $mail => $role) {
+    $account = User::create(['mail' => $mail], [$role]);
+    General::messageSet(format_string('Created user !mail with password !password', [
+      '!mail' => $account->mail,
+      '!password' => $account->pass_raw,
+    ]));
+  }
+}
+
+/**
+ * Removes deprecated Menu Blocks.
+ */
+function vu_core_update_7029() {
+  // Left Navigation: Persuasive.
+  Block::remove('7', 'menu_block', 'vu');
+  // Left Navigation: Informational navigation.
+  Block::remove('1', 'menu_block', 'vu');
+  // Left Navigation: Utility.
+  Block::remove('6', 'menu_block', 'vu');
+
+  // Delete Megamenu Blocks.
+  $module = 'block';
+  $deltas = [
+    66,
+    61,
+    86,
+    81,
+    76,
+    101,
+    91,
+    96,
+    111,
+    121,
+    71,
+    126,
+    131,
+  ];
+  foreach ($deltas as $delta) {
+    db_delete('block')
+      ->condition('module', $module)
+      ->condition('delta', $delta)
+      ->execute();
+    db_delete('block_custom')
+      ->condition('bid', $delta)
+      ->execute();
+    db_delete('block_role')
+      ->condition('module', $module)
+      ->condition('delta', $delta)
+      ->execute();
+  }
+}
+
+/**
+ * Permanently Delete unused menus.
+ */
+function vu_core_update_7030() {
+  $menus = [
+    'menu-utility',
+    'primary-links',
+    'secondary-links',
+  ];
+  foreach ($menus as $menu) {
+    menu_delete(menu_load($menu));
+  }
+}
+
+/**
+ * Disable views_ui module.
+ */
+function vu_core_update_7031() {
+  Module::disable('views_ui');
+}
+
+/**
+ * Remove manually added files in campus pages.
+ */
+function vu_core_update_7032() {
+  $query = new EntityFieldQuery();
+  $entity_type = 'node';
+  $query->entityCondition('entity_type', $entity_type)
+    ->entityCondition('bundle', 'campus');
+  $result = $query->execute();
+  if ($result && count($result[$entity_type])) {
+    foreach ($result[$entity_type] as $entity_id => $entity_value) {
+      $wrapper = entity_metadata_wrapper($entity_type, $entity_id);
+
+      // Manually created files create conflicts with file migration.
+      if (isset($wrapper->field_campus_image)) {
+        $wrapper->field_campus_image = NULL;
+      }
+      if (isset($wrapper->field_campus_video)) {
+        $wrapper->field_campus_video = NULL;
+      }
+      $wrapper->save();
+    }
+  }
+}
+
+/**
+ * Removes 'Header area' menu.
+ */
+function vu_core_update_7033() {
+  menu_delete(['menu_name' => 'menu-header-area']);
+}
+
+/**
+ * Disables mid-year course search.
+ */
+function vu_core_update_7034() {
+  variable_set('vu_midyear_intake', 0);
+}
+
+/**
+ * Enables xmlsitemap and triggers sitemap generation.
+ */
+function vu_core_update_7035() {
+  module_enable([
+    'xmlsitemap_node',
+    'xmlsitemap_menu',
+    'xmlsitemap',
+    'xmlsitemap_engines',
+  ]);
+
+  Feature::revert('vu_core');
+
+  module_load_include('inc', 'xmlsitemap', 'xmlsitemap.xmlsitemap');
+
+  xmlsitemap_sitemap_multiple_update([]);
+}
+
+/**
+ * Disables Courses by topic and by a-z blocks. They're now managed in Context.
+ */
+function vu_core_update_7036() {
+  Block::remove('courses_lists-all_by_topic', 'views', 'vu');
+  Block::remove('course-list', 'vumain', 'vu');
+}
+
+/**
+ * Disables Success stories blocks. They're now managed in Context.
+ */
+function vu_core_update_7037() {
+  Block::remove('success_stories-block', 'views', 'vu');
+  Block::remove('success_stories-block_1', 'views', 'vu');
+  Block::remove('success_stories-block_2', 'views', 'vu');
+  Block::remove('success_stories-block_3', 'views', 'vu');
+}
+
+/**
+ * Removes migration modules.
+ */
+function vu_core_update_7038() {
+  Module::remove('migrate');
+  Module::remove('migrate_ui');
+  Module::remove('migrate_d2d');
+  Module::remove('vu_migration');
+  drupal_flush_all_caches();
+}
+
+/**
+ * Removes leftover migration modules.
+ */
+function vu_core_update_7039() {
+  Module::remove('migrate_d2d_ui');
+  drupal_flush_all_caches();
+}
+
+/**
+ * Updates Courses Disclaimer block.
+ */
+function vu_core_update_7040() {
+  // Allow block to be placed via context.
+  Block::remove('courses_disclaimer', 'vumain', 'vu');
+  // Set the international course disclaimer variable for the first time.
+  variable_set('courses_disclaimer_international', VUMAIN_DEFAULT_INTERNATIONAL_DISCLAIMER);
+}
+
+/**
+ * Removes subsites and other outdated menu blocks.
+ */
+function vu_core_update_7041() {
+  Block::remove(8, 'menu_block', 'vu');
+  Block::remove(5, 'menu_block', 'vu');
+  Block::remove('left_nav_main_menu', 'menu_block', 'vu');
+}
+
+/**
+ * Enables 'expanded' attribute on News & Events main menu item.
+ */
+function vu_core_update_7042() {
+  Menu::updateItem('main-menu', ['link_title' => 'News & Events'], ['expanded' => 1]);
+}
+
+/**
+ * Adds redirect from old to new COP page.
+ */
+function vu_core_update_7043() {
+  $redirect = (object) [];
+
+  redirect_object_prepare($redirect, [
+    'source' => 'preference-2016',
+    'source_options' => [],
+    'redirect' => 'change-of-preference-2016',
+    'redirect_options' => [],
+    'language' => LANGUAGE_NONE,
+  ]);
+  redirect_save($redirect);
+}
+
+/**
+ * Updates attributes on shutter triggers.
+ */
+function vu_core_update_7044() {
+  Menu::updateItem('main-menu', ['link_title' => 'Login'], [
+    'options' => [
+      'attributes' => [
+        'class' => [
+          'fa-prefix',
+          'fa-lock',
+          'noext',
+          'js-menu-item-login',
+          'js-responsive-menu-ignore',
+          'shutter-trigger',
+        ],
+        'aria-hidden' => TRUE,
+        'aria-pressed' => FALSE,
+        'data-toggle' => 'modal',
+        'data-target' => '.region-shutter',
+        'data-shutter-item-target' => '#block-menu-block-main-menu-tools',
+      ],
+    ],
+  ]);
+
+  Menu::updateItem('main-menu', ['link_title' => 'Search'], [
+    'options' => [
+      'attributes' => [
+        'class' => [
+          'search',
+          'js-responsive-menu-ignore',
+          'shutter-trigger',
+        ],
+        'aria-hidden' => TRUE,
+        'aria-pressed' => FALSE,
+        'data-toggle' => 'modal',
+        'data-target' => '.region-shutter',
+        'data-shutter-item-target' => '#block-google-appliance-ga-block-search-form',
+      ],
+    ],
+  ]);
+}
+
+/**
+ * Run url_alias creation for nodes without alias, using D6 path alias.
+ */
+function vu_core_update_7045(&$sandbox) {
+  // Set up sandbox / multi-pass variables.
+  $temp_table_name = 'path_temp';
+  if (empty($sandbox['run_counter'])) {
+    General::messageSet('Doing preliminary setup.');
+    // Rough node count divided by items per run divided by 100000 for
+    // % complete (1.0 = 1005 complete)
+    $sandbox['increment'] = 16000 / 50 / 100000;
+    $sandbox['run_counter'] = 0;
+    $sandbox['updated_nodes'] = 0;
+    $sandbox['last_pid'] = 0;
+    drush_invoke_process(['@self'], 'cache-clear', ['all']);
+  }
+
+  // First run only.
+  if ($sandbox['run_counter'] === 0) {
+    // Delete stub nodes.
+    General::messageSet('Deleting stub nodes.');
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->propertyCondition('title', 'STUB for sourceid', 'STARTS_WITH');
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+    $result = $query->execute();
+
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      node_delete_multiple($nids);
+      General::messageSet('Stub nodes deleted.');
+    }
+
+    // Create database for quick loading/select statements.
+    $schema = [
+      'fields' => [
+        'pid' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => NULL,
+        ],
+        'nid' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
+      'primary key' => ['pid'],
+      'indexes' => [
+        'nid' => ['nid'],
+      ],
+    ];
+    if (db_table_exists($temp_table_name)) {
+      General::messageSet('Deleting existing temporary table.');
+      db_drop_table($temp_table_name);
+    }
+    General::messageSet('Creating temporary table.');
+    db_create_table($temp_table_name, $schema);
+    $source_data = db_select('node')
+      ->fields('node', ['nid'])
+      ->orderBy('status', 'DESC')
+      ->orderBy('nid');
+    General::messageSet('Inserting list of nodes to process into temporary table.');
+    db_insert($temp_table_name)->from($source_data)->execute();
+
+    // Enable Menu Node API module for node menu item lookup for Pathauto alias
+    // creation.
+    module_enable(['menu_node']);
+
+    // Set menu_node options.
+    variable_set('menu_parent_links', 'main-menu:0');
+    $menus = [
+      0 => 'main-menu',
+      1 => 'menu-subsites',
+    ];
+    variable_set('menu_options_page_builder', $menus);
+    variable_set('menu_options_webform', $menus);
+
+    // Make sure that we don't get paths clipped when we generate them.
+    variable_set('pathauto_max_length', 255);
+
+    // Set the path pattern for items in the main-menu.
+    variable_set('pathauto_vu_core_main-menu_pattern', '[node:menu-link:parents:join-path]/[node:menu-link:title]');
+    // Set unit node pattern...for some reason it was set to units/[node:title].
+    variable_set('pathauto_node_unit_pattern', 'units/[node:field_unit_code]');
+    // Set unitset pattern also.
+    variable_set('pathauto_node_unit_set_pattern', 'unitsets/[node:field_unit_code]');
+
+    // Get the list of nodes that are missing aliases.
+    $json_file = DRUPAL_ROOT . '/' . drupal_get_path('module', 'vu_core') . '/includes/d6_aliases.json';
+
+    $d6_aliases = drupal_json_decode(file_get_contents($json_file));
+
+    General::messageSet('Updating nodes with missing D6 aliases.');
+    module_load_include('inc', 'pathauto');
+    foreach ($d6_aliases as $d6_alias) {
+      // Generate the D6 alias so that a redirect will be created when the
+      // new IA path is set.
+      path_save($d6_alias);
+
+      // Set nids for pathauto processing.
+      $nid = substr($d6_alias['source'], 5);
+      General::messageSet("[$nid] Adding old IA alias for: {$d6_alias['source']} Alias: {$d6_alias['alias']}.");
+    }
+
+    General::messageSet('Setting pathauto = 1 for all nodes.');
+    // Turn off phpcs/DCR check because this cannot be done with db_insert.
+    // @codingStandardsIgnoreStart
+    db_query("INSERT INTO
+              {pathauto_state} (`entity_type`, `entity_id`, `pathauto`)
+              SELECT 'node', n.`nid`, 1
+              FROM {node} n
+              ON DUPLICATE KEY UPDATE `pathauto`=1;");
+    // @codingStandardsIgnoreEnd
+
+    General::messageSet('Flushing drupal caches.');
+    drush_invoke_process(['@self'], 'cache-clear', ['all']);
+  }
+  $sandbox['run_counter']++;
+
+  General::messageSet("Starting run {$sandbox['run_counter']}.");
+
+  // Remove completed records for faster select queries.
+  db_delete($temp_table_name)
+    ->condition('pid', $sandbox['last_pid'], '<=')
+    ->execute();
+
+  $result = db_query_range("SELECT pid,nid
+                      FROM {$temp_table_name}
+                      ORDER BY pid ASC", 0, 50);
+
+  General::messageSet('Updating node path aliases.');
+  $count = 0;
+  // Update ALL D7 node paths.
+  foreach ($result as $nid) {
+    // Not all mysql DBs have sequential AUTO_INCREMENT fields.
+    $sandbox['last_pid'] = $nid->pid;
+    $node_query = db_query("SELECT
+                      n.title, n.language, n.type, n.type as bundle, 'node' as entity_type, n.status, n.nid, n.nid as entity_id, n.vid, n.vid as revision_id, mr.field_media_release_value
+                      FROM node n
+                      LEFT JOIN field_data_field_media_release mr
+                      ON n.nid = mr.entity_id AND n.vid = mr.revision_id
+                      WHERE n.nid=:nid", [':nid' => $nid->nid]);
+    $node = $node_query->fetchObject();
+
+    if ($node == FALSE) {
+      General::messageSet("[{$nid->nid}] No entry found in node table...");
+      continue;
+    }
+
+    if (isset($node->field_media_release_value) && $node->field_media_release_value !== NULL) {
+      $node->field_media_release = [
+        LANGUAGE_NONE => [
+          [
+            "value" => $node->field_media_release_value,
+          ],
+        ],
+      ];
+    }
+    // We have all the data we need from the entity field query, this is
+    // significantly faster than node_load per nid.
+    $count++;
+
+    // Update pathauto aliases and enable pathauto.
+    $old_path = entity_uri('node', $node);
+    $old_path = !empty($old_path['path']) ? drupal_get_path_alias($old_path['path']) : '<NONE>';
+
+    $new_path = pathauto_node_update_alias($node, 'update', ['force' => '1']);
+    if (!empty($new_path['alias'])) {
+      General::messageSet("[{$node->nid}] New path created, updated from: $old_path to: {$new_path['alias']}");
+    }
+    else {
+      General::messageSet("[{$node->nid}] Path not updated. Path: $old_path");
+    }
+  }
+
+  $sandbox['updated_nodes'] += $count;
+  General::messageSet("Completed run. $count nodes parsed. Total: {$sandbox['updated_nodes']}");
+
+  $sandbox['#finished'] = $count === 0 ? 1.0 : $sandbox['run_counter'] * $sandbox['increment'];
+
+  if ($sandbox['#finished'] >= 1.0) {
+    if (db_table_exists($temp_table_name)) {
+      db_drop_table($temp_table_name);
+    }
+    General::messageSet('Flushing drupal caches.');
+    drush_invoke_process(['@self'], 'cache-clear', ['all']);
+  }
+  elseif ($sandbox['run_counter'] % 50 == 0) {
+    General::messageSet('Flushing caches every 50 runs.');
+    drush_invoke_process(['@self'], 'cache-clear', ['all']);
+  }
+}
+
+/**
+ * Enable Victory theme.
+ */
+function vu_core_update_7046() {
+  Theme::enable('victory');
+}
+
+/**
+ * Revert ECK Bundles.
+ */
+function vu_core_update_7047() {
+  Feature::revert('vu_core', 'eck_bundle');
+  // Reset ECK static cache.
+  drupal_static_reset('loadByEntityType');
+}
+
+/**
+ * Adds custom 'Study a single unit' Bean.
+ */
+function vu_core_update_7048() {
+  // Revert VU Core feature first to ensure the bean type is defined.
+  Feature::revert('vu_core');
+
+  $bean = bean_create(['type' => 'basic_bean']);
+  $bean->label = 'Study a single unit';
+  $bean->title = 'Study a single unit';
+  $bean->delta = 'vu-study_single_unit_bean';
+  $bean->field_body[LANGUAGE_NONE][0] = [
+    'value' => t('<p>This unit may be available as a single unit of study.</p><p>Find out more about how to <a href="/study-at-vu/how-to-apply/single-units-of-study" title="Apply for single units of study">apply for single units of study</a> at VU.</p>'),
+    'format' => 'filtered_html',
+  ];
+  $bean->save();
+}
+
+/**
+ * Enable Typekit API module.
+ */
+function vu_core_update_7049() {
+  Module::enable('typekit_api');
+}
+
+/**
+ * Enable and set up link management.
+ */
+function vu_core_update_7050(&$sandbox) {
+  // This update hook passes, but the features
+  // revert afterwards runs out of memory. 512MB
+  // is the same amount that /admin/ pages get currently.
+  ini_set('memory_limit', '512M');
+  module_enable([
+    'bulk_field_process',
+    'entityreference_backreference',
+    'link_management',
+  ]);
+  // Run href to token transformation on all text fields.
+  link_management_bulk_convert_content();
+}
+
+/**
+ * Update broken external and email links in link management table.
+ */
+function vu_core_update_7051(&$sandbox) {
+  _vu_core_clean_link_management();
+}
+
+/**
+ * Cleans link_management table from invalid urls.
+ */
+function _vu_core_clean_link_management() {
+  $result = db_query("select * from {link_management} where destination REGEXP '^(\/.*[@].*)|^(\/http)'");
+  $count = 0;
+  if ($result->rowCount() != 0) {
+    foreach ($result as $record) {
+      $old_destination = $record->destination;
+      $new_destination = '';
+      if ($old_destination[0] === '/') {
+        $new_destination = ltrim($old_destination, '/');
+        if (filter_var($new_destination, FILTER_VALIDATE_EMAIL)) {
+          $new_destination = 'mailto:' . $new_destination;
+        }
+      }
+      if (!empty($new_destination)) {
+        $new_hash = hash('sha256', $new_destination);
+        $update = db_update('link_management')
+          ->fields([
+            'destination' => $new_destination,
+            'destination_hash' => $new_hash,
+            'external' => 1,
+          ])
+          ->condition('lmid', $record->lmid)
+          ->execute();
+        General::messageSet("{$update} updated link : {$old_destination} ===> {$new_destination}");
+        $count++;
+      }
+    }
+  }
+  General::messageSet("Total updated links: {$count}");
+}
+
+/**
+ * Enable feature switches modules.
+ */
+function vu_core_update_7052(&$sandbox) {
+  Module::enable('vu_feature_switches');
+}
+
+/**
+ * Update broken external and email links in link management table.
+ */
+function vu_core_update_7053(&$sandbox) {
+  _vu_core_clean_link_management();
+}
+
+/**
+ * Add 'VicPoly', 'Centenary' and 'Campaign opportunity and success' Beans.
+ */
+function vu_core_update_7054() {
+  // Revert VU Core feature first to ensure the bean type is defined.
+  Feature::revert('vu_core');
+
+  // 'VicPoly' Promo Bean.
+  $beans['promo-vicpoly'] = [
+    'type' => 'promo',
+    'label' => 'VicPoly',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => 'Interested in TAFE?']],
+        'en' => [['value' => 'Interested in TAFE?']],
+      ],
+      'field_promo_text' => [LANGUAGE_NONE => [['value' => 'Victoria Polytechnic is our TAFE division, giving you the power to influence your journey and take charge of tomorrow.']]],
+      'field_promo_link' => [
+        LANGUAGE_NONE => [
+          [
+            'url' => 'https://www.vu.edu.au/victoriapolytechnic',
+            'title' => 'Find a TAFE course',
+          ],
+        ],
+      ],
+      'field_promo_brand' => [LANGUAGE_NONE => [['value' => 'vicpoly']]],
+    ],
+  ];
+
+  // 'Centenary' Promo Bean.
+  $beans['promo-centenary'] = [
+    'type' => 'promo',
+    'label' => 'Centenary',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => 'Celebrating a centenary of opportunity']],
+        'en' => [['value' => 'Celebrating a centenary of opportunity']],
+      ],
+      'field_promo_text' => [LANGUAGE_NONE => [['value' => 'Although young, our university has a rich history, providing high quality, accessible education and enriching the community for 100 years and counting.']]],
+      'field_promo_link' => [
+        LANGUAGE_NONE => [
+          [
+            'url' => 'http://www.vucentenary.com.au',
+            'title' => 'Centenary celebrations & supporting our mission',
+          ],
+        ],
+      ],
+      'field_promo_brand' => [LANGUAGE_NONE => [['value' => 'centenary']]],
+    ],
+  ];
+
+  // Create Beans.
+  foreach ($beans as $delta => $item) {
+    $bean = bean_create(['type' => $item['type']]);
+    $bean->label = $item['label'];
+    if (isset($item['title'])) {
+      $bean->title = $item['title'];
+    }
+    $bean->delta = $delta;
+    foreach ($item['fields'] as $name => $value) {
+      $bean->{$name} = $value;
+    }
+    $bean->save();
+  }
+
+  // Adds custom 'Campaign opportunity and success' Bean.
+  $bean = bean_create(['type' => 'campaign']);
+  $bean->label = 'Campaign opportunity and success';
+  $bean->title = '<none>';
+  $bean->delta = 'campaign-opportunity-and-success';
+  $bean->field_campaign_link[LANGUAGE_NONE][0] = [
+    'url' => t('https://www.vu.edu.au/study-at-vu'),
+    'title' => t('Study at VU'),
+  ];
+  $bean->field_campaign_quote[LANGUAGE_NONE][0] = [
+    'value' => t('“Victory is providing students with insight into my industry”'),
+  ];
+  $bean->field_campaign_statement[LANGUAGE_NONE][0] = [
+    'value' => t('YOUR UNIVERSITY OF OPPORTUNITY & SUCCESS'),
+  ];
+  // Some file on our system.
+  if (variable_get('environment', NULL) != 'ci') {
+    $directory = 'public://images/campaign';
+    file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+
+    $image = file_get_contents('https://cdn.pbrd.co/images/yrsTSqJvF.jpg');
+    $file = file_save_data($image, 'public://images/campaign/homepage-banner_james.jpg', FILE_EXISTS_REPLACE);
+    $bean->field_image[LANGUAGE_NONE][0] = (array) $file;
+  }
+  $bean->save();
+}
+
+/**
+ * Add Choose VU beans, fieldable panel panes and related.
+ */
+function vu_core_update_7055() {
+  // Enable paragraphs and fieldable_panels_panes modules.
+  Module::enable('paragraphs');
+  Module::enable('fieldable_panels_panes');
+
+  // Revert VU Core feature first to ensure the bean type is defined.
+  Feature::revert('vu_core');
+
+  // Create image destination directory.
+  $directory = 'public://images/choose_vu';
+  file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+
+  // 'International students' Choose VU Bean.
+  $beans['choose_vu-international_students'] = [
+    'type' => 'choose_vu',
+    'label' => 'Choose VU - International students',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => 'International students']],
+        'en' => [['value' => 'International students']],
+      ],
+      'field_choose_vu_link' => [
+        LANGUAGE_NONE => [['target_id' => '10887721']],
+      ],
+      'field_choose_vu_text' => [
+        LANGUAGE_NONE => [['value' => 'Apply to study at VU, and join one of Australia’s most culturally and socially diverse universities.']],
+      ],
+    ],
+  ];
+  if (variable_get('environment', NULL) !== 'ci') {
+    $request = drupal_http_request('http://d6web.vu.edu.au/sites/default/files/update_hook_images/CB320_International_Shot2_024.jpg');
+    $file = file_save_data($request->data, "{$directory}/international_students.jpg", FILE_EXISTS_REPLACE);
+    $beans['choose_vu-international_students']['fields']['field_choose_vu_image'][LANGUAGE_NONE][0] = (array) $file;
+  }
+
+  // 'Industry connected' Choose VU Bean.
+  $beans['choose_vu-industry_connected'] = [
+    'type' => 'choose_vu',
+    'label' => 'Choose VU - Industry connected',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => 'Industry connected']],
+        'en' => [['value' => 'Industry connected']],
+      ],
+      'field_choose_vu_link' => [
+        LANGUAGE_NONE => [['target_id' => '10889501']],
+      ],
+      'field_choose_vu_text' => [
+        LANGUAGE_NONE => [['value' => 'We are one of the most industry connected institutions in Australia with over 4000 industry relationships.']],
+      ],
+    ],
+  ];
+  if (variable_get('environment', NULL) !== 'ci') {
+    $request = drupal_http_request('http://d6web.vu.edu.au/sites/default/files/update_hook_images/OLP-1_Image.jpg');
+    $file = file_save_data($request->data, "{$directory}/industry_connected.jpg", FILE_EXISTS_REPLACE);
+    $beans['choose_vu-industry_connected']['fields']['field_choose_vu_image'][LANGUAGE_NONE][0] = (array) $file;
+  }
+
+  // 'Innovative research' Choose VU Bean.
+  $beans['choose_vu-innovative_research'] = [
+    'type' => 'choose_vu',
+    'label' => 'Choose VU - Innovative research',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => 'Innovative research']],
+        'en' => [['value' => 'Innovative research']],
+      ],
+      'field_choose_vu_link' => [
+        LANGUAGE_NONE => [['target_id' => '10889331']],
+      ],
+      'field_choose_vu_text' => [
+        LANGUAGE_NONE => [['value' => 'We offer world-class research opportunities, with 15 of our research disciplines ranked at or above world standard.']],
+      ],
+    ],
+  ];
+  if (variable_get('environment', NULL) !== 'ci') {
+    $request = drupal_http_request('https://d6web.vu.edu.au/sites/default/files/update_hook_images/OLP-68_Image.jpg');
+    $file = file_save_data($request->data, "{$directory}/innovative_research.jpg", FILE_EXISTS_REPLACE);
+    $beans['choose_vu-innovative_research']['fields']['field_choose_vu_image'][LANGUAGE_NONE][0] = (array) $file;
+  }
+
+  // Create Beans.
+  foreach ($beans as $delta => $item) {
+    $bean = bean_create(['type' => $item['type']]);
+    $bean->label = $item['label'];
+    if (isset($item['title'])) {
+      $bean->title = $item['title'];
+    }
+    $bean->delta = $delta;
+    foreach ($item['fields'] as $name => $value) {
+      $bean->{$name} = $value;
+    }
+    $bean->save();
+    $beans[$delta] = $bean->bid;
+  }
+
+  // Choose VU fieldable panel pane.
+  $fpp = fieldable_panels_panes_create([
+    'uid' => 1,
+    'title' => 'Choose VU',
+    'uuid' => '9d167593-6b7b-4558-81ff-c968125e61e5',
+    'bundle' => 'pane_featured_content',
+    'reusable' => 1,
+    'category' => 'VicUni',
+  ]);
+  fieldable_panels_panes_save($fpp);
+
+  // Choose VU paragraphs.
+  $paragraphs = [
+    $beans['choose_vu-international_students'],
+    $beans['choose_vu-industry_connected'],
+    $beans['choose_vu-innovative_research'],
+  ];
+  foreach ($paragraphs as $item) {
+    $paragraph = entity_create('paragraphs_item', [
+      'bundle' => 'bean_ref_paragraph',
+      'field_name' => 'field_fieldable_pane_paragraph',
+      'field_bean_entity_ref' => [LANGUAGE_NONE => [['target_id' => $item]]],
+    ]);
+    $paragraph->setHostEntity('fieldable_panels_pane', $fpp);
+    $paragraph->save();
+  }
+}
+
+/**
+ * Add quick facts entities and homepage pane.
+ */
+function _vu_core_create_quick_facts_pane() {
+  // Create image destination directory.
+  $directory = 'public://images/fact';
+  file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+
+  // '4000+' Quick fact Bean.
+  $beans['fact-4000_plus'] = [
+    'type' => 'quick_facts',
+    'label' => 'Quick facts - 4000+',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => '4000+']],
+        'en' => [['value' => '4000+']],
+      ],
+      'field_fact_description' => [LANGUAGE_NONE => [['value' => '4000+ industry connections university wide']]],
+    ],
+  ];
+  if (variable_get('environment', NULL) !== 'ci') {
+    $request = drupal_http_request('https://d6web.vu.edu.au/sites/default/files/update_hook_images/4000_plus.svg');
+    $file = file_save_data($request->data, "{$directory}/4000_plus.svg", FILE_EXISTS_REPLACE);
+    $file->display = TRUE;
+    $beans['fact-4000_plus']['fields']['field_fact_icon'][LANGUAGE_NONE][0] = (array) $file;
+  }
+
+  // 'Top 4%' Quick fact Bean.
+  $beans['fact-top_4_percent'] = [
+    'type' => 'quick_facts',
+    'label' => 'Quick facts - Top 4%',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => 'Top 4%']],
+        'en' => [['value' => 'Top 4%']],
+      ],
+      'field_fact_description' => [LANGUAGE_NONE => [['value' => 'Ranked in top 4% of universities worldwide by QS World University Rankings® 2016/2017']]],
+    ],
+  ];
+  if (variable_get('environment', NULL) !== 'ci') {
+    $request = drupal_http_request('https://d6web.vu.edu.au/sites/default/files/update_hook_images/top_4_percent.svg');
+    $file = file_save_data($request->data, "{$directory}/top_4_percent.svg", FILE_EXISTS_REPLACE);
+    $file->display = TRUE;
+    $beans['fact-top_4_percent']['fields']['field_fact_icon'][LANGUAGE_NONE][0] = (array) $file;
+  }
+
+  // '100 Years' Quick fact Bean.
+  $beans['fact-100_years'] = [
+    'type' => 'quick_facts',
+    'label' => 'Quick facts - 100 years',
+    'fields' => [
+      'title_field' => [
+        LANGUAGE_NONE => [['value' => '100 years']],
+        'en' => [['value' => '100 years']],
+      ],
+      'field_fact_description' => [LANGUAGE_NONE => [['value' => 'More than 100 years educating students']]],
+    ],
+  ];
+  if (variable_get('environment', NULL) !== 'ci') {
+    $request = drupal_http_request('https://d6web.vu.edu.au/sites/default/files/update_hook_images/100-years.svg');
+    $file = file_save_data($request->data, "{$directory}/100_years.svg", FILE_EXISTS_REPLACE);
+    $file->display = TRUE;
+    $beans['fact-100_years']['fields']['field_fact_icon'][LANGUAGE_NONE][0] = (array) $file;
+  }
+
+  // Create Beans.
+  foreach ($beans as $delta => $item) {
+    $bean = bean_create(['type' => $item['type']]);
+    $bean->label = $item['label'];
+    if (isset($item['title'])) {
+      $bean->title = $item['title'];
+    }
+    $bean->delta = $delta;
+    foreach ($item['fields'] as $name => $value) {
+      $bean->{$name} = $value;
+    }
+    $bean->save();
+    $beans[$delta] = $bean->bid;
+  }
+
+  // Quickfacts fieldable panel pane.
+  $fpp_quickfacts = fieldable_panels_panes_create([
+    'uid' => 1,
+    'title' => 'Did you know?',
+    'uuid' => '4d780dc9-9e0f-4245-94ab-72af81313cad',
+    'bundle' => 'pane_featured_content',
+    'reusable' => 1,
+    'category' => 'VicUni',
+    'field_featured_more' => [
+      LANGUAGE_NONE => [
+        [
+          'url' => 'node/10887751',
+          'title' => 'About VU',
+        ],
+      ],
+    ],
+  ]);
+  fieldable_panels_panes_save($fpp_quickfacts);
+
+  // Quickfacts paragraphs.
+  $paragraphs = [
+    $beans['fact-4000_plus'],
+    $beans['fact-top_4_percent'],
+    $beans['fact-100_years'],
+  ];
+  foreach ($paragraphs as $item) {
+    $paragraph = entity_create('paragraphs_item', [
+      'bundle' => 'bean_ref_paragraph',
+      'field_name' => 'field_fieldable_pane_paragraph',
+      'field_bean_entity_ref' => [LANGUAGE_NONE => [['target_id' => $item]]],
+    ]);
+    $paragraph->setHostEntity('fieldable_panels_pane', $fpp_quickfacts);
+    $paragraph->save();
+  }
+}
+
+/**
+ * Remove old choose_vu pane.
+ *
+ * We refactored some fields. This function Removes Choose VU old content
+ * and recreates them using the new fields.
+ */
+function _vu_core_remove_choose_vu_pane() {
+  // First delete the old Fieldable Panels Pane.
+  $query = new EntityFieldQuery();
+  $results = $query->entityCondition('entity_type', 'fieldable_panels_pane')
+    ->entityCondition('bundle', 'pane_featured_links')
+    ->execute();
+  if (!empty($results['fieldable_panels_pane'])) {
+    $fpp_ids = array_keys($results['fieldable_panels_pane']);
+    foreach ($fpp_ids as $id) {
+      $fpp = fieldable_panels_panes_load($id);
+      if (!empty($fpp->field_featured_link_paragraph[LANGUAGE_NONE])) {
+        $paragraphs = $fpp->field_featured_link_paragraph[LANGUAGE_NONE];
+        foreach ($paragraphs as $item) {
+          entity_delete_multiple('paragraphs_item', [$item['value']]);
+        }
+      }
+      fieldable_panels_panes_delete($fpp);
+    }
+  }
+
+  // Delete field_featured_link_paragraph which is replaced by
+  // field_fieldable_pane_paragraph.
+  field_delete_field("field_featured_link_paragraph");
+  field_purge_batch(10);
+
+  // Revert features.
+  Feature::revert('vu_core');
+
+  // Re-create Choose VU fieldable panel pane.
+  $fpp = fieldable_panels_panes_create([
+    'uid' => 1,
+    'title' => 'Choose VU',
+    'uuid' => '9d167593-6b7b-4558-81ff-c968125e61e5',
+    'bundle' => 'pane_featured_content',
+    'reusable' => 1,
+    'category' => 'VicUni',
+  ]);
+  fieldable_panels_panes_save($fpp);
+
+  $beans = [
+    'choose_vu-international_students',
+    'choose_vu-industry_connected',
+    'choose_vu-innovative_research',
+  ];
+
+  foreach ($beans as $bean) {
+    $bean_entity = bean_load_delta($bean);
+    $paragraph = entity_create('paragraphs_item', [
+      'bundle' => 'bean_ref_paragraph',
+      'field_name' => 'field_fieldable_pane_paragraph',
+      'field_bean_entity_ref' => [LANGUAGE_NONE => [['target_id' => $bean_entity->bid]]],
+    ]);
+    $paragraph->setHostEntity('fieldable_panels_pane', $fpp);
+    $paragraph->save();
+  }
+}
+
+/**
+ * Run url_alias creation for all courses.
+ */
+function vu_core_update_7056(&$sandbox) {
+  // Set up sandbox / multi-pass variables.
+  $temp_table_name = 'path_temp';
+  if (empty($sandbox['run_counter'])) {
+    General::messageSet('Doing preliminary setup.');
+    // Rough node count divided by items per run divided by 100000 for
+    // % complete (1.0 = 1005 complete)
+    $sandbox['increment'] = 16000 / 50 / 100000;
+    $sandbox['run_counter'] = 0;
+    $sandbox['updated_nodes'] = 0;
+    $sandbox['last_pid'] = 0;
+  }
+
+  // First run only.
+  if ($sandbox['run_counter'] === 0) {
+    // Set this here, it's also in features but we need it during generation.
+    variable_set('pathauto_punctuation_slash', 1);
+    // Create database for quick loading/select statements.
+    $schema = [
+      'fields' => [
+        'pid' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => NULL,
+        ],
+        'nid' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
+      'primary key' => ['pid'],
+      'indexes' => [
+        'nid' => ['nid'],
+      ],
+    ];
+    if (db_table_exists($temp_table_name)) {
+      General::messageSet('Deleting existing temporary table.');
+      db_drop_table($temp_table_name);
+    }
+    General::messageSet('Creating temporary table.');
+    db_create_table($temp_table_name, $schema);
+    $source_data = db_select('node')
+      ->condition('type', 'courses')
+      ->fields('node', ['nid'])
+      ->orderBy('status', 'DESC')
+      ->orderBy('nid');
+    General::messageSet('Inserting list of nodes to process into temporary table.');
+    db_insert($temp_table_name)->from($source_data)->execute();
+  }
+  $sandbox['run_counter']++;
+
+  General::messageSet("Starting run {$sandbox['run_counter']}.");
+
+  // Remove completed records for faster select queries.
+  db_delete($temp_table_name)
+    ->condition('pid', $sandbox['last_pid'], '<=')
+    ->execute();
+
+  $result = db_query_range("SELECT pid,nid
+                      FROM {$temp_table_name}
+                      ORDER BY pid ASC", 0, 50);
+
+  General::messageSet('Updating node path aliases.');
+  $count = 0;
+  // Update ALL D7 node paths.
+  foreach ($result as $nid) {
+    // Not all mysql DBs have sequential AUTO_INCREMENT fields.
+    $sandbox['last_pid'] = $nid->pid;
+    $node_query = db_query("SELECT
+                      n.title, n.language, n.type, n.type as bundle, 'node' as entity_type, n.status, n.nid, n.nid as entity_id, n.vid, n.vid as revision_id, a.field_url_alias_title_value, c.field_unit_code_value
+                      FROM node n
+                      LEFT JOIN field_data_field_url_alias_title a
+                      ON n.nid = a.entity_id AND n.vid = a.revision_id
+                      LEFT JOIN field_data_field_unit_code c
+                      ON n.nid = c.entity_id AND n.vid = c.revision_id
+                      WHERE n.nid=:nid", [':nid' => $nid->nid]);
+    $node = $node_query->fetchObject();
+
+    if ($node == FALSE) {
+      General::messageSet("[{$nid->nid}] No entry found in node table...");
+      continue;
+    }
+    if (isset($node->field_url_alias_title_value) && !empty($node->field_url_alias_title_value)) {
+      $node->field_url_alias_title = [
+        $node->language => [
+          [
+            "value" => $node->field_url_alias_title_value,
+          ],
+        ],
+      ];
+    }
+    else {
+      $node->field_url_alias_title = [
+        $node->language => [
+          [
+            "value" => $node->title,
+          ],
+        ],
+      ];
+    }
+    if (isset($node->field_unit_code_value) && $node->field_unit_code_value !== NULL) {
+      $node->field_unit_code = [
+        $node->language => [
+          [
+            "value" => $node->field_unit_code_value,
+          ],
+        ],
+      ];
+    }
+
+    // We have all the data we need from the entity field query, this is
+    // significantly faster than node_load per nid.
+    $count++;
+
+    // Update pathauto aliases and enable pathauto.
+    $old_path = entity_uri('node', $node);
+    $old_path = !empty($old_path['path']) ? drupal_get_path_alias($old_path['path']) : '<NONE>';
+
+    $new_path = pathauto_node_update_alias($node, 'update', ['force' => '1']);
+    if (!empty($new_path['alias'])) {
+      General::messageSet("[{$node->nid}] New path created, updated from: $old_path to: {$new_path['alias']}");
+    }
+    else {
+      General::messageSet("[{$node->nid}] Path not updated. Path: $old_path");
+    }
+  }
+
+  $sandbox['updated_nodes'] += $count;
+  General::messageSet("Completed run. $count nodes parsed. Total: {$sandbox['updated_nodes']}");
+
+  $sandbox['#finished'] = $count === 0 ? 1.0 : $sandbox['run_counter'] * $sandbox['increment'];
+
+  if ($sandbox['#finished'] >= 1.0) {
+    if (db_table_exists($temp_table_name)) {
+      db_drop_table($temp_table_name);
+    }
+    General::messageSet('Flushing drupal caches.');
+    drush_invoke_process(['@self'], 'cache-clear', ['all']);
+  }
+  elseif ($sandbox['run_counter'] % 50 == 0) {
+    General::messageSet('Flushing caches every 50 runs.');
+    drush_invoke_process(['@self'], 'cache-clear', ['all']);
+  }
+}
+
+/**
+ * Helper to generate and run hook_update_N() functions from files.
+ */
+function _vu_core_install_execute_dynamic_updates($updates_dir) {
+  // Gather updates.
+  $update_files = file_scan_directory($updates_dir, '/[\d]+(\-[^.]+)?\.inc$/');
+  // Always sort to preserve the order.
+  ksort($update_files);
+
+  $prefix = pathinfo(__FILE__)['filename'] . '_update';
+
+  $schemas = [];
+  foreach ($update_files as $update_file) {
+    // Get schema for this file.
+    $parts = explode(DIRECTORY_SEPARATOR, pathinfo($update_file->uri)['dirname']);
+    $schema = end($parts);
+
+    if (!is_numeric($schema)) {
+      continue;
+    }
+
+    $function = "{$prefix}_{$schema}";
+    // Do not run updates if they were implemented as update hooks.
+    if (function_exists($function)) {
+      continue;
+    }
+
+    $schemas[$schema]['function'] = $function;
+    $schemas[$schema]['uris'][] = $update_file->uri;
+    $message_file = $updates_dir . DIRECTORY_SEPARATOR . "$schema.txt";
+    $schemas[$schema]['message'] = file_exists($message_file) ? file_get_contents($message_file) : "$schema update.";
+  }
+
+  foreach ($schemas as $schema_id => $schema) {
+    $eval = '';
+    $eval .= sprintf("/** \n * %s\n */\n function %s(){", $schema['message'], $schema['function']);
+    foreach ($schema['uris'] as $uri) {
+      $sub_schema = pathinfo($uri)['filename'];
+      $eval .= "print PHP_EOL; " . PHP_EOL;
+      $eval .= "print '    ** Started update $schema_id: $sub_schema' . PHP_EOL; " . PHP_EOL;
+      $eval .= PHP_EOL . "require_once '$uri';\n" . PHP_EOL;
+      $eval .= "print '    ** Finished update $schema_id: $sub_schema' . PHP_EOL;" . PHP_EOL;
+    }
+    $eval .= '}';
+
+    eval($eval);
+  }
+}
+
+// Run dynamic updates.
+//
+// Do not add anything below this line.
+_vu_core_install_execute_dynamic_updates(drupal_get_path('module', 'vu_core') . '/updates');

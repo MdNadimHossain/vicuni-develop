@@ -1,0 +1,223 @@
+<?php
+/**
+ * @file
+ * VU Mid-Year Intake module.
+ */
+
+define('VU_MIDYEAR_INTAKE_STATUS_OFFERED', 'OFFERED');
+define('VU_MIDYEAR_INTAKE_SEARCH_TYPE', 'Midyear');
+
+include_once 'vu_midyear_intake.admin.inc';
+
+/**
+ * Implements hook_form_FORM_ID_alter()
+ */
+function vu_midyear_intake_form_node_type_form_alter(&$form, &$form_state, $form_id) {
+  _vu_midyear_intake_form_node_type_form_alter($form, $form_state, $form_id);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter()
+ */
+function vu_midyear_intake_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  if (vu_midyear_intake_is_enabled()) {
+    $view = $form_state['view'];
+    if ($view->name == 'course_search') {
+      $q = drupal_get_query_parameters();
+      if (!empty($q['type']) && $q['type'] == VU_MIDYEAR_INTAKE_SEARCH_TYPE) {
+        $form['type'] = array(
+          '#type' => 'hidden',
+          '#value' => 'Midyear',
+          '#default_value' => VU_MIDYEAR_INTAKE_SEARCH_TYPE,
+        );
+        $form_state['input']['type'] = VU_MIDYEAR_INTAKE_SEARCH_TYPE;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function vu_midyear_intake_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'vu_midyear_intake'),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function vu_midyear_intake_menu() {
+  $items['admin/structure/types/manage/courses/reload_midyear_intake'] = array(
+    'title' => t('Reload Mid-Year Intake data'),
+    'page callback' => 'vu_midyear_intake_reload',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('administer nodes'),
+    'file' => 'vu_midyear_intake.admin.inc',
+    'file path' => drupal_get_path('module', 'vu_midyear_intake'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_course_intake_update()
+ *
+ * @param string $course_code
+ *   Course code.
+ * @param int $available
+ *   Whether this course is available.
+ *
+ * @throws \Exception
+ */
+function vu_midyear_intake_course_intake_update($course_code, $available = 0) {
+  $is_drush = drupal_is_cli() && function_exists('drush_main');
+  if ($nid = vu_midyear_intake_get_nid_from_course_code($course_code)) {
+    if ($course = node_load($nid)) {
+      $course_available = 0;
+      if (vu_midyear_intake_is_enabled() && $available) {
+        $course_available = 1;
+      }
+      $course->field_course_midyear_intake[$course->language][0]['value'] = $course_available;
+      if ($is_drush) {
+        drush_print(dt('!code !status course midyear intake', array(
+          '!code' => $course_code,
+          '!status' => $course_available ? 'ENABLED' : 'DISABLED',
+        )));
+      }
+
+      $course->revision = 0;
+      node_save($course);
+    }
+  }
+}
+
+/**
+ * Find Node ID from course code.
+ *
+ * @param string $course_code
+ *
+ * @return int|NULL
+ */
+function vu_midyear_intake_get_nid_from_course_code($course_code) {
+  $cache = &drupal_static(__FUNCTION__, array());
+  if (isset($cache[$course_code])) {
+    return $cache[$course_code];
+  }
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'courses')
+    // Enforce loading unpublished node.
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  $query->fieldCondition('field_unit_code', 'value', $course_code);
+  $query->range(0, 1);
+  $result = $query->execute();
+  if ($result && count($result['node'])) {
+    $nids = array_keys($result['node']);
+    $cache[$course_code] = reset($nids);
+    return $cache[$course_code];
+  }
+
+  return NULL;
+}
+
+/**
+ * Check if the Mid-Year Intake period is enabled.
+ *
+ * @return int
+ */
+function vu_midyear_intake_is_enabled() {
+  return vu_feature_switches_switch_state('courses-midyear-info');
+}
+
+/**
+ * Return the timestamp of the last reindex.
+ *
+ * @return int
+ */
+function vu_midyear_intake_get_last_reindex() {
+  return variable_get('vu_midyear_intake_last_reindex', 0);
+}
+
+/**
+ * Update the timestamp of the last reindex.
+ *
+ * @param int
+ */
+function vu_midyear_intake_set_last_reindex($last_index_timestamp = REQUEST_TIME) {
+  variable_set('vu_midyear_intake_last_reindex', $last_index_timestamp);
+}
+
+/**
+ * Scan the course_intake table and reindex any new changes.
+ */
+function vu_midyear_intake_update_index() {
+  if (!vu_midyear_intake_is_enabled()) {
+    return;
+  }
+
+  $is_drush = drupal_is_cli() && function_exists('drush_main');
+
+  $last_reindex = vu_midyear_intake_get_last_reindex();
+  $source = variable_get('vu_midyear_intake_source', 'default:default');
+  list($key, $target) = explode(':', $source);
+
+  $query = Database::getConnection($target, $key)
+    ->select('course_intake');
+  $query->addField('course_intake', 'course_code');
+  $query->addExpression('GROUP_CONCAT(DISTINCT intake_enabled)', 'intake_enabled');
+  $query->addExpression('GROUP_CONCAT(DISTINCT course_intake_status)', 'course_intake_status');
+  $query->where('updated_date_time > FROM_UNIXTIME(:updated_date_time)', array(':updated_date_time' => $last_reindex));
+  $query->groupBy('course_code');
+  $result = $query->execute();
+  foreach ($result as $row) {
+    if ($course = vu_midyear_intake_get_nid_from_course_code($row->course_code)) {
+      $course_available = 0;
+      if (strpos($row->intake_enabled, '1') !== FALSE
+        && strpos($row->course_intake_status, VU_MIDYEAR_INTAKE_STATUS_OFFERED) !== FALSE
+      ) {
+        $course_available = 1;
+      }
+      if ($is_drush) {
+        drush_print(dt('Updated: !code (!available)', array(
+          '!code' => $row->course_code,
+          '!available' => $course_available,
+        )));
+      }
+      module_invoke_all('course_intake_update', $row->course_code, $course_available);
+    }
+  }
+  vu_midyear_intake_set_last_reindex();
+
+  // Only invoke Search API reindex if there is a change.
+  if ($result->rowCount()) {
+    if ($is_drush) {
+      drush_print(dt('!count courses changed in course_intake.', array('!count' => $result->rowCount())));
+      drush_print(dt('Reindexing Search API.'));
+    }
+    module_invoke('search_api', 'cron');
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function vu_midyear_intake_cron() {
+  vu_midyear_intake_update_index();
+}
+
+/**
+ * Implements hook_module_implements_alter
+ *
+ */
+function vu_midyear_intake_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'search_api_solr_query_alter') {
+
+    $group = $implementations['vu_midyear_intake'];
+    unset($implementations['vu_midyear_intake']);
+    $implementations['vu_midyear_intake'] = $group;
+  }
+}

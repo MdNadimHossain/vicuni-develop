@@ -1,0 +1,299 @@
+@charset "UTF-8";
+@mixin sidebar_box() {
+  font-size: 13px;
+  overflow: hidden;
+  position: relative;
+  -moz-osx-font-smoothing: auto;
+  -webkit-font-smoothing: auto;
+  background: $white2;
+  padding: 15px 25px 25px;
+  @include breakpoint(desktop) {
+    margin-bottom: 25px;
+  }
+  ul {
+    margin-bottom: 0;
+    margin-left: 0;
+    padding: 0;
+    list-style: none;
+    &.list-unstyled, &.unstyled {
+      margin-bottom: 0px;
+    }
+    &.student-tools {
+      img {
+        margin-top: 8px;
+      }
+    }
+    li {
+      padding: 12px 0;
+      font-weight: bold;
+    }
+  }
+  a {
+    border-bottom: 0px;
+    color: $vuBlue;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .content-block__heading {
+    color: $dark_blue2;
+    font-size: 18px;
+    line-height: 27px;
+    margin-bottom: 18px;
+  }
+  .content-block__content {
+    & > i.fa:first-of-type {
+      color: rgba(0, 0, 0, 0.05);
+      position: absolute;
+      right: 10px;
+      top: -0.05em;
+    }
+    & > ul + p {
+      font-weight: bold;
+      margin-bottom: 0;
+      margin-top: 20px;
+      text-align: right;
+      &:after {
+        content: "\f054";
+        display: inline-block;
+        font-family: FontAwesome;
+        color: #0078c1;
+        margin-left: 8px;
+        font-weight: normal;
+      }
+    }
+  }
+  &.sidebar-box--list-with-icons {
+    background: $white2;
+    padding: 15px 25px 25px;
+    ul.fa-ul {
+      margin: 0;
+      padding: 0;
+      li {
+        padding-left: 2.2em;
+      }
+      .fa {
+        top: auto;
+        left: 0;
+        padding-top: 0.2em;
+        text-align: left;
+        color: $vuBlue;
+        font-size: 1.2em;
+      }
+    }
+  }
+  &.sidebar-box--important-dates {
+    background: $white2;
+    padding: 15px 25px 25px;
+    ul {
+      margin: 0;
+      padding: 0;
+      li {
+        list-style: none;
+        overflow: hidden;
+        padding-top: 0px;
+        h4 {
+          color: $vuBlue;
+          float: left;
+          font-size: 20px;
+          font-weight: 500;
+          line-height: 18px;
+          width: 30px;
+          margin: 4px 15px 10px 0px;
+          font-family: $futura;
+          span {
+            clear: both;
+            display: block;
+            font-size: 14px;
+            text-transform: uppercase;
+          }
+        }
+        a {
+          border-bottom: 1px solid #333333;
+          text-decoration: none;
+          color: $grey3;
+        }
+      }
+    }
+  }
+  &.sidebar-box--connect-with-us {
+    background: white;
+    padding: 15px 25px 25px;
+    ul {
+      overflow: hidden;
+      padding: 0px;
+      margin: 0px;
+      li {
+        float: left;
+        margin-right: 10px;
+        margin-bottom: 2px;
+        padding-top: 0;
+        list-style-image: none;
+        list-style-type: none;
+        display: inline-block;
+      }
+    }
+    .link--social {
+      display: block;
+      font-size: 20px;
+      line-height: 30px;
+      padding: 0;
+      text-align: center;
+      width: 30px;
+      height: 30px;
+      @include border-radius(15px);
+      .title {
+        display: none;
+      }
+    }
+    .link--social-dark {
+      background: $dark_blue2;
+      color: white;
+      text-decoration: none;
+      &:hover, &:focus {
+        background-color: $vuBlue;
+      }
+    }
+  }
+  &.sidebar-box--text-yellow-bg {
+    background: $white2;
+    padding: 15px 25px 25px;
+  }
+  &.sidebar-box--text-light-blue-bg {
+    background: $light_blue9;
+    padding: 15px 25px 25px;
+    ul {
+      margin-left: 12px;
+      li {
+        padding: 0px;
+        font-weight: normal;
+      }
+    }
+  }
+  .field-name-field-sidebar-content {
+    h2 {
+      display: none;
+    }
+    & > .field-items {
+      & > .field-item {
+        margin-bottom: 25px;
+      }
+    }
+  }
+
+  &.sidebar-box--key-research-tools {
+    background: $white2;
+    padding: 15px 25px 25px;
+  }
+
+  &.sidebar-box--quick-links {
+    background: $vuBlue;
+    color: white;
+    padding: 0px;
+    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: auto;
+    .content-block__heading {
+      border: 0 !important;
+      clip: rect(0 0 0 0) !important;
+      height: 1px !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+      width: 1px !important;
+      display: block !important;
+      position: absolute !important;
+    }
+    a {
+      color: white;
+      border-bottom: none;
+    }
+    ul {
+      margin: 0px;
+      padding: 0px;
+    }
+    li {
+      font-weight: normal;
+      br {
+        display: none;
+      }
+      .fa-li {
+        left: 25px;
+        text-align: left;
+        top: auto;
+        color: $orange;
+        font-size: 16px;
+        line-height: 16px;
+        padding-top: 3px;
+      }
+      padding: 20px 25px 20px 53px;
+      &:hover {
+        background: $dark_blue5;
+      }
+      &:nth-child(2n) {
+        background: $dark_blue4;
+        &:hover {
+          background: $dark_blue6;
+        }
+      }
+    }
+    h4 {
+      margin-bottom: 8px;
+    }
+    .heading {
+      @extend .accessibility;
+    }
+  }
+  &.sidebar--box-facts {
+    margin-bottom: 6px;
+    &:last-child {
+      margin-bottom: 30px;
+    }
+    color: black;
+    overflow: hidden;
+    padding: 15px;
+    background-color: $dark25;
+    font-size: 14px;
+    &:hover {
+      background-color: $dark15;
+    }
+    &.fact-box-dark80 {
+      background-color: $dark80;
+      color: #ffffff;
+      .content-block__heading, a {
+        color: #ffffff;
+      }
+      &:hover {
+        background-color: $dark90;
+      }
+    }
+    &.fact-box-dark60 {
+      background-color: $dark60;
+      &:hover {
+        background-color: $darker50;
+      }
+    }
+    &.fact-box-blue80 {
+      background-color: $blue80;
+      &:hover {
+        background-color: $blue50;
+      }
+    }
+    .content-block__heading, a {
+      color: #000000;
+    }
+    .content-block__heading {
+      width: 85px;
+      margin-right: 5px;
+      float: left;
+      overflow: hidden;
+      white-space: nowrap;
+      h3 {
+        font-size: 32px;
+        line-height: 48px;
+        font-weight: 500;
+        @include font-helvetica-futurapt;
+      }
+    }
+  }
+}
+

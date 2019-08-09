@@ -1,0 +1,131 @@
+// Colour definitions.
+// http://chir.ag/projects/name-that-color
+// e.g., $color-green-key_lime_pie: #ABC123;
+
+// Blue.
+$color-blue-astral: #3477b1;
+$color-blue-bahama: #00609a;
+$color-blue-botticelli: #ccdfea;
+$color-blue-cerulean: #00a9ec;
+$color-blue-cornflower: #88b8e0;
+$color-blue-cello: #1f435d;
+$color-blue-denim: #0f6bad;
+$color-blue-elephant: #123955;
+$color-blue-fun_blue: #196aac;
+$color-blue-loblolly: #b7c3cc;
+$color-blue-lochmara: #0078c1;
+$color-blue-dark-lochmara: #08649c;
+$color-blue-venice_blue: #0c5f97;
+$color-blue-magenta: #363492;
+$color-cyan-blue: #0166cc;
+$color-subsite-blue: #1D609A;
+$color-pattens-blue: #d7dde2;
+
+// Black.
+$color-black: #000000;
+$color-black-mine_shaft: #262626;
+
+// Grey.
+$color-grey-alto: #d8d8d8;
+$color-grey-boulder: #777777;
+$color-grey-dove: #717171;
+$color-grey-dusty_gray: #979797;
+$color-grey-gallery: #eeeeee;
+$color-grey-gull: #a1b0bb;
+$color-grey-scorpion: #595858;
+$color-grey-silver_chalice: #acacac;
+$color-grey-tundora: #444444;
+$color-grey-wild_sand: #f6f6f6;
+$color-grey-dove: #666666;
+$color-grey-suva: #929292;
+
+// Orange.
+$color-orange-yellow_orange: #feb533;
+$color-orange-light_orange: #ffce71;
+
+// Red.
+$color-red: #cc1122;
+$color-red-strong_red: #ec6558;
+$terracotta: #a94442;
+$soft-peach: #f2dede;
+
+// White.
+$color-white: #ffffff;
+$color-white-alabaster: #f9f9f9;
+
+// Yellow.
+$color-yellow-grandis: #ffd281;
+$color-light-yellow: #f7D79a;
+
+// Navy.
+$color-navy-light_navy: #f28c7f;
+
+// Branding colours.
+// e.g., $color-branding-primary: #ABC123;
+
+// VU - Centenary.
+$color-branding-centenary-bg: #282828;
+
+// VicPoly.
+$color-branding-vicpoly-bg: #007680;
+$color-branding-vicpoly-title-stripe: #055b64;
+$color-branding-vicpoly-active: darken($color-branding-vicpoly-title-stripe, 3%);
+
+// Components colours.
+// Generic colours.
+$color-primary-background: $color-grey-gallery;
+$color-primary-border: $color-grey-silver_chalice;
+$color-primary-foreground: $color-blue-lochmara;
+$color-secondary-background: $color-white;
+
+// Hover state colours.
+$color-primary-font-hover-state: $color-blue-elephant;
+$color-primary-hover-state: $color-yellow-grandis;
+$color-secondary-font-hover-state: $color-blue-cornflower;
+
+// Charcoal
+$color-charcoal: #4A4A4A;
+
+// New Brand
+$color-grandis: #FDD06D;
+
+// Background colours.
+$backgrounds: (
+  blue: $color-blue-lochmara,
+  wild_sand: $color-grey-wild_sand,
+);
+@each $label, $color in $backgrounds {
+  .background--#{$label} {
+    background-color: $color;
+    position: relative;
+    z-index: 0;
+  }
+}
+
+// Generic components for background colours.
+
+.background--blue {
+  .btn {
+    a {
+      border: {
+        color: transparent;
+        style: solid;
+        width: 1.5px;
+      }
+      color: $color-black-mine_shaft;
+      display: block;
+      height: 100%;
+      outline: 0;
+      padding: 10px;
+      text-decoration: none;
+      width: 100%;
+
+      &:focus {
+        @include box-shadow($color-white 0 0 15px);
+
+        border-color: $color-white;
+        outline: 15px;
+      }
+    }
+  }
+}

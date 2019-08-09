@@ -1,0 +1,288 @@
+@import "breakpoints";
+@import "spacing";
+@import "mixins";
+
+// Victory fonts.
+$fonts-default: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-futura: 'futura-pt', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-futura-condensed: 'futura-pt-condensed', 'futura-pt', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$fa: 'FontAwesome';
+$font-engschrift: 'Engschrift';
+$font-tajawal: 'Tajawal';
+$font-tajawal-medium: 'tajawalMedium';
+$font-tajawal-light: 'tajawalLight';
+
+$fonts-din-engschrift: 'DINEngschriftStd', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+@mixin font($size: 19px, $family: 'default', $weight: 500) {
+  @if $family == 'default' {
+    $family: $fonts-default;
+  } @else if $family == 'futura' {
+    $family: $font-futura;
+  } @else if $family == 'futura-condensed' {
+    $family: $font-futura-condensed;
+  } @else if $family == 'din-engschrift' {
+    $family: $fonts-din-engschrift;
+  }
+
+  font: {
+    family: $family;
+    size: $size;
+    weight: $weight;
+  }
+}
+
+@mixin font-normal($size:$font-size-base, $family: 'default') {
+  @include font($size, $family, normal);
+}
+
+@mixin text-link($local-color: 'light', $active: true) {
+  @if $local-color == 'light' {
+    $local-color: $color-yellow-grandis;
+  } @else if $local-color == 'dark' {
+    $local-color: $color-orange-yellow_orange;
+  } @else if $local-color == 'light-blue' {
+    $local-color: $color-blue-botticelli;
+  }
+
+  @include box-shadow(inset 0 -4px 0 $local-color);
+  cursor: pointer;
+
+  &:focus {
+    text-decoration: none;
+    background-color: $local-color;
+  }
+
+  @if $active {
+    &:active {
+      @include box-shadow(inset 0 -4px 0 $color-blue-cornflower);
+
+      &:focus {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+@mixin text-link-hover($local-color: 'light', $active: true) {
+  @if $local-color == 'light' {
+    $local-color: $color-yellow-grandis;
+  } @else if $local-color == 'dark' {
+    $local-color: $color-white;
+  } @else if $local-color == 'light-blue' {
+    $local-color: $color-blue-botticelli;
+  }
+
+  @include box-shadow(none);
+
+  background-color: $local-color;
+  text-decoration: none;
+  &:focus {
+    text-decoration: none;
+  }
+
+  @if $active {
+    &:active {
+      @include box-shadow(inset 0 -4px 0 $color-blue-cornflower);
+    }
+  }
+}
+
+// Primary styles.
+body {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+blockquote {
+  border-left: 4px solid $color-blue-fun_blue;
+  font-size: $font-size-h3;
+  line-height: 28px/$font-size-h3;
+  padding: 0 $line-height-computed;
+
+  em {
+    color: $color-grey-dove;
+  }
+}
+
+code {
+  @include border-radius(10px);
+  @include font($font-size-h3, 'futura', 300);
+
+  background-color: $color-white-alabaster;
+  border: 4px solid $color-blue-venice_blue;
+  color: $color-black-mine_shaft;
+  display: block;
+  line-height: 28px/$font-size-h3;
+  padding: $spacing-vertical-top;
+}
+
+dl {
+  margin-bottom: $spacing-vertical-bottom-sm / 2;
+}
+
+h2 {
+  &.victory-title__stripe {
+    @include victory-title__stripe;
+  }
+}
+
+h3,
+.h3 {
+  @include font($font-size-h3, 'futura', 500);
+
+  line-height: 28px/$font-size-h3;
+  margin-bottom: $spacing-vertical-bottom-xs;
+}
+
+h4,
+.h4 {
+  @include font($font-size-h4, 'futura', 500);
+
+  line-height: 26px/$font-size-h4;
+}
+
+h5,
+.h5 {
+  @include font($font-size-h5, 'futura', 500);
+
+  line-height: $line-height-base-pixels/$font-size-h5;
+}
+
+hr {
+  border: 1px solid $color-blue-loblolly;
+}
+
+iframe.video-youtube {
+  height: 200px;
+}
+
+small {
+  font-size: $font-size-h6;
+  line-height: 1.6667; // 20/12
+}
+
+// External links.
+.ext,
+.noext {
+  .accessibility {
+    @extend .sr-only;
+  }
+}
+
+@mixin list-unstyled() {
+  margin-left: 0;
+  padding: 0;
+  list-style: none;
+  li {
+    list-style: none;
+  }
+}
+
+.fa-prefix {
+  @include fa-before-base();
+}
+
+.fa-suffix {
+  @include fa-after-base();
+}
+
+@mixin default-link($local-color: 'light') {
+  @include text-link($local-color: $local-color);
+  padding-bottom: 3px;
+
+  &:active,
+  &:hover {
+    @include text-link-hover($local-color: $local-color, $active: false);
+  }
+  @include ext-link();
+}
+
+@mixin ext-link($_icon-color: inherit, $_size: 0.8em) {
+  &.ext:after {
+    @include fa-pseudo();
+    display: inline-block;
+    font-size: $_size;
+    content: '\f08e';
+    color: $_icon-color;
+    margin-left: 0.5em;
+  }
+}
+
+// Bootstrap elements.
+.btn-secondary,
+.button--secondary {
+  @extend .btn;
+
+  @include box-shadow(none);
+
+  background-color: $color-yellow-grandis;
+  border-color: transparent;
+
+  &:focus {
+    border: 4px solid $color-blue-cornflower;
+    color: $color-white;
+    margin: 0;
+  }
+
+  &:active,
+  &:hover {
+    border-color: transparent;
+    box-shadow: none;
+    color: $color-white;
+  }
+
+  &:active {
+    background-color: $color-blue-bahama;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $color-blue-lochmara;
+  }
+}
+
+.btn-tertiary,
+.button--tertiary {
+  @extend .btn-secondary;
+
+  background-color: $color-orange-yellow_orange;
+}
+
+* .div > ul.nav:not(.tabs--primary):not(.menu),
+* ul.nav:not(.tabs--primary):not(.menu) {
+  margin-bottom: 20px;
+  margin-left: inherit !important;
+  padding: 0;
+
+  &.nav-tabs {
+    display: flex;
+
+    li {
+      display: inherit;
+      max-width: 50%;
+    }
+  }
+
+  li {
+    margin-left: inherit !important;
+
+    &::before {
+      content: '' !important;
+      padding-right: 10px;
+    }
+
+    &:first-child::before {
+      padding-right: 0;
+    }
+
+    a {
+      box-shadow: none !important;
+      padding-bottom: 10px !important;
+    }
+  }
+}
+
+.no-wrap {
+  white-space: nowrap;
+}

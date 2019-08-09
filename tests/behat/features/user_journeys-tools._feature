@@ -1,0 +1,14 @@
+Feature: User Journeys - External Tools
+
+  As a Student or Staff member
+  I want to login to external systems
+  So I can check email, collaborate or access the portal
+
+  @api @journeys @PW-608
+  Scenario: Login to MYVU Portal, VU collaborate and Student email
+    Given I am on the homepage
+    Then the links in region footer take me to the following pages:
+      | Link           | Title                                              |
+      | Student email  | Victoria University Central Authentication Service |
+      | VU Collaborate | Victoria University Central Authentication Service |
+      | MYVU Portal    | Victoria University Central Authentication Service |

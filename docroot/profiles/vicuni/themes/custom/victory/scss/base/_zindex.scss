@@ -1,0 +1,14 @@
+//
+// Page-wide z-index variables.
+//
+
+$zindex-header: 201;
+$zindex-sticky-header: 1000;
+$zindex-sticky-header-mobile: $zindex-header;
+$zindex-secondary-navigation-dropdown: 1000;
+// The value for overlay is set through JS. This variable
+// here is only for reference purposes.
+$zindex-secondary-navigation-overlay: 200;
+// The value for shutter is set through Bootstrap's variables. This variable
+// here is only for reference purposes.
+$zindex-shutter: 1620;

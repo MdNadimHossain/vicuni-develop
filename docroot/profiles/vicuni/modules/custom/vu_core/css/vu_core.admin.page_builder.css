@@ -1,0 +1,27 @@
+#edit-field-page-paragraphs [class$="-add-more-type"],
+#field-page-paragraphs-values [id$="-paragraph-bundle-title"] {
+  color: #999;
+}
+
+.field-type-paragraphs .form-actions > p > em {
+  display: none;
+}
+
+.field-name-field-page-paragraphs .field-name-field-paragraphs-left .field-multiple-table tr.odd,
+.field-name-field-page-paragraphs .field-name-field-paragraphs-right .field-multiple-table tr.odd {
+  background-color: #eff4ff;
+}
+
+.field-name-field-page-paragraphs .field-name-field-paragraphs-left .field-multiple-table tr.even,
+.field-name-field-page-paragraphs .field-name-field-paragraphs-right .field-multiple-table tr.even {
+  background-color: #fff;
+}
+
+.text-summary-wrapper {
+  display: block !important;
+}
+
+.paragraphs-item-type-section .paragraphs-item-type-wysiwyg .field-name-field-full-width-styling,
+.paragraphs-item-type-page-intro .paragraphs-item-type-wysiwyg .field-name-field-full-width-styling {
+  display: none;
+}

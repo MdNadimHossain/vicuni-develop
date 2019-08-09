@@ -1,0 +1,102 @@
+.node-type-news {
+  .node-news {
+    &.view-mode-victory {
+      padding-top: 40px;
+    }
+    .field-name-news-img-caption {
+      font-family: $fonts-default;
+      font-size: 14px;
+      margin: .5em 0 1em 0;
+      color: #666666;
+    }
+    .field-name-field-article-date {
+      color: $color-black-mine_shaft;
+      font-family: $font-futura;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 24px;
+      display: inline-block;
+    }
+    .field-name-field-image,
+    .field-name-field-article-date {
+      margin-bottom: 20px;
+    }
+    .field-name-body,
+    .view-more-news {
+      margin-top: 30px;
+      a {
+        @include default-link;
+      }
+      @include breakpoint($breakpoint-sm-down) {
+        margin: 30px 0px;
+      }
+      @include breakpoint($breakpoint-sm-up) {
+        width: 100%;
+        float: left;
+      }
+    }
+    .news-contact-us-info {
+      font-family: $fonts-default;
+      background-color: $color-blue-cello;
+      padding: 28px;
+      color: $color-white;
+      margin-bottom: 20px;
+      .entity-contact-information {
+        padding-bottom: 26px;
+      }
+      .entity-contact-information:last-child {
+        padding-bottom: 0px;
+      }
+      a {
+        color: $color-white;
+        @include default-link;
+      }
+      h3 {
+        margin-top: 0px;
+      }
+      .field-name-field-contact-phone,
+      .field-name-field-contact-email {
+        .label-inline {
+          display: inline;
+        }
+      }
+      .field-name-field-contact-email {
+        word-break: break-all;
+      }
+      .field-name-field-contact-title {
+        margin-bottom: 12px;
+      }
+      .entity-title,
+      .field-name-field-contact-area {
+        font-weight: 500;
+      }
+    }
+    .field-name-field-rhs-components {
+      .victory-related-links,
+      .paragraphs-item-video,
+      .quick-facts,
+      .paragraphs-item-feature-link,
+      .paragraphs-item-wysiwyg {
+        margin-bottom: 20px;
+      }
+      .quick-facts {
+        display: block;
+      }
+    }
+    .view-more-news {
+      color: $color-black-mine_shaft;
+      font-family: $fonts-default;
+      font-weight: bold;
+    }
+    .social-media-links {
+      &.page-connect {
+        float: right;
+        ul {
+          a {
+            text-decoration: none;
+          }
+        }
+      }
+    }
+  }
+}

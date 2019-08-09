@@ -1,0 +1,24 @@
+@import "../bootstrap/default-variables";
+@import "../bootstrap/framework";
+
+// Breakpoints.
+// @note: These breakpoints are "targeted" breakpoints, meaning that the rules
+// will be applied only to a specified breakpoint rather then breakpoint and up.
+$breakpoint-landscape: 450px $screen-xs-max;
+$breakpoint-xs: 0 $screen-xs-max;
+$breakpoint-sm: $screen-sm-min $screen-sm-max;
+$breakpoint-md: $screen-md-min $screen-md-max;
+$breakpoint-lg: $screen-lg-min $screen-lg-max;
+$breakpoint-xl: $screen-xl-min;
+
+// Use these breakpoints to apply rules to breakpoint and up.
+$breakpoint-xs-up: $screen-xs-min;
+$breakpoint-sm-up: $screen-sm-min;
+$breakpoint-md-up: $screen-md-min;
+$breakpoint-lg-up: $screen-lg-min;
+$breakpoint-xl-up: $screen-xl-min;
+
+// Use these breakpoints to apply rules to breakpoint and down.
+$breakpoint-sm-down: 0 $screen-sm-max;
+$breakpoint-md-down: 0 $screen-md-max;
+$breakpoint-lg-down: 0 $screen-lg-max;

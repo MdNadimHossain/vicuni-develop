@@ -1,0 +1,146 @@
+@import "../../compass/compass/css3/appearance";
+@import "../../compass/compass/css3/border-radius";
+@import "../../compass/compass/css3/inline-block";
+@import "../../compass/compass/typography/lists/inline-list";
+@import "../../compass/compass/typography/text/nowrap";
+@import "../../compass/compass/utilities/general/clearfix";
+
+$_search-button-width: 212px;
+$_search-input-right-margin: $_search-button-width + $spacing-horizontal-header-gutter-lg;
+#block-vu-core-vu-course-search {
+  position: relative;
+}
+
+#vu-core-course-search-form {
+  @include breakpoint($breakpoint-sm-up) {
+    .input-group {
+      display: block;
+      position: inherit;
+      border-collapse: collapse;
+    }
+  }
+  button.search {
+    margin: 0;
+    width: $_search-button-width;
+    .fa-search {
+      margin-right: $spacing-horizontal-header-gutter-md;
+      color: $color-blue-cornflower;
+    }
+    &:hover, &:active, &:focus {
+      .fa-search {
+        color: $color-blue-elephant;
+      }
+    }
+    &:focus {
+      box-shadow: 0 0 4px 1px $color-blue-lochmara;
+      background-color: $color-yellow-grandis;
+      color: $color-blue-elephant;
+      border: none;
+    }
+    &:active {
+      background-color: $color-orange-yellow_orange;
+    }
+  }
+  #edit-search-group {
+    width: 100%;
+    @include breakpoint($breakpoint-sm-up) {
+      .form-item-query {
+        width: calc(100% - #{$_search-input-right-margin});
+      }
+    }
+  }
+  .form-group {
+    margin: 0;
+  }
+  .element-invisible {
+    display: none;
+  }
+  input.form-text {
+    @include font($font-size-h3, $font-futura);
+    border: 1px solid $color-grey-silver_chalice;
+    line-height: 1.5556; // 28/18
+    margin: 0;
+    padding: 14px 20px;
+    color: $color-grey-dove;
+    height: auto;
+    width: 100%;
+    border-radius: $input-border-radius-large;
+    background: rgba($color-white, 0.95);
+    & + .input-group-addon {
+      border: none;
+      background: transparent;
+      display: block;
+      font-size: $font-size-h3;
+      width: 60px;
+      color: $color-grey-tundora;
+      line-height: 1.5556;
+      margin: 0;
+      padding: 15px 20px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 100;
+      &:hover {
+        background: $color-primary-hover-state;
+        color: $color-primary-font-hover-state;
+        cursor: default;
+      }
+      @include breakpoint($breakpoint-sm-up) {
+        display: none;
+      }
+    }
+  }
+  #edit-iam {
+    @include breakpoint($breakpoint-sm-up) {
+      position: absolute;
+      top: 122px;
+    }
+    @include breakpoint($breakpoint-md-up) {
+      top: 102px;
+    }
+  }
+  .radio {
+    float:left;
+    padding-top: 0;
+    .control-label {
+      width: auto;
+      margin-left: 23px;
+      font-size: $font-size-h5;
+      @include breakpoint($breakpoint-md-up){
+        font-size: $font-size-h4;
+      }
+    }
+    input[type='radio']:checked:before {
+      background: $color-primary-foreground;
+    }
+    input[type="radio"]:focus {
+      background-color: $color-yellow-grandis ;
+    }
+    input[type="radio"] {
+      @include appearance(none);
+      @include border-radius(50%);
+      @include inline-block;
+
+      background: $color-primary-background;
+      border: 1px solid $color-primary-border;
+      height: 23px;
+      outline: none;
+      left: -23px;
+      line-height: 20px;
+      margin: 0;
+      padding: 0;
+      vertical-align: middle;
+      width: 23px;
+
+      &:before {
+        @include border-radius(50%);
+
+        content: '';
+        display: block;
+        width: 11px;
+        height: 11px;
+        margin: 5px;
+      }
+    }
+  }
+}

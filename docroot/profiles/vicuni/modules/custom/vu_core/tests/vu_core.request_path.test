@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Unit tests related to functions that are working with URL request paths.
+ */
+
+/**
+ * Class VuCoreRequestPathUnitTestCase.
+ */
+class VuCoreRequestPathUnitTestCase extends VuCoreUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return [
+      'name' => 'Request paths',
+      'description' => 'Test request paths.',
+      'group' => 'VU Core',
+    ];
+  }
+
+  public function testIam() {
+    $this->processProvider('providerAddition', function ($a, $expected, $assertion_number) {
+      $this->assertEqual(vu_core_get_iam($a), $expected, format_string('Result is correct for assertion @number', [
+        '@number' => $assertion_number + 1,
+      ]));
+    });
+  }
+
+  public function providerAddition() {
+    return [
+      [[], FALSE],
+      [['iam' => ''], FALSE],
+      [['other' => 'value'], FALSE],
+      [['other' => 'value'], FALSE],
+      [['iam' => 'value'], 'value'],
+      [['iam' => 'value', 'other' => 'value2'], 'value'],
+    ];
+  }
+
+}

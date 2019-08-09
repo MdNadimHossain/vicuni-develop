@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Replace the parent item selector in node menu settings.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function vu_better_parent_item_init() {
+  if (user_is_logged_in()) {
+    $path = drupal_get_path('module', 'vu_better_parent_item');
+    drupal_add_js($path . '/resources/bpi.js');
+    drupal_add_css($path . '/resources/bpi.css');
+  }
+}
